@@ -1,0 +1,890 @@
+﻿import React, { useState, useEffect, useMemo } from 'react';
+import { initializeApp } from 'firebase/app';
+import { 
+  getAuth, 
+  signInAnonymously, 
+  signInWithCustomToken, 
+  onAuthStateChanged 
+} from 'firebase/auth';
+import { 
+  getFirestore, 
+  collection, 
+  doc, 
+  setDoc, 
+  addDoc, 
+  deleteDoc, 
+  onSnapshot
+} from 'firebase/firestore';
+import { 
+  LayoutDashboard, 
+  PackagePlus, 
+  Database, 
+  History, 
+  Hotel, 
+  TrendingUp, 
+  FileOutput, 
+  FileText, 
+  Settings,
+  Plus,
+  Edit2,
+  Trash2,
+  Search,
+  Download,
+  AlertCircle,
+  X
+} from 'lucide-react';
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip as RechartsTooltip, 
+  ResponsiveContainer, 
+  Legend, 
+  PieChart, 
+  Pie, 
+  Cell 
+} from 'recharts';
+
+// --- Firebase Configuration ---
+const firebaseConfig = JSON.parse(__firebase_config);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'rs-logistik-v1';
+
+// --- Constants ---
+const CATEGORY_COLORS = {
+  'ATK': '#3B82F6',
+  'Plastik': '#10B981',
+  'Alat Kebersihan/RT': '#F59E0B',
+  'Chemical Laundry': '#8B5CF6',
+  'Bahan Basah&Kering': '#EF4444'
+};
+
+const MONTHS = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+  'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+];
+
+// --- Utilities ---
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0
+  }).format(amount || 0);
+};
+
+// --- Main Application Component ---
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [activeMenu, setActiveMenu] = useState('dashboard');
+  const [categories, setCategories] = useState([]);
+  const [items, setItems] = useState([]);
+  const [rooms, setRooms] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+
+  // Auth initialization
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+      } catch (error) {
+        console.error("Auth error:", error);
+      }
+    };
+    initAuth();
+    const unsubscribe = onAuthStateChanged(auth, setUser);
+    return () => unsubscribe();
+  }, []);
+
+  // Data Listeners
+  useEffect(() => {
+    if (!user) return;
+
+    const unsubCats = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'categories'), (snapshot) => {
+      setCategories(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (err) => console.error(err));
+
+    const unsubItems = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'items'), (snapshot) => {
+      setItems(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (err) => console.error(err));
+
+    const unsubRooms = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'rooms'), (snapshot) => {
+      setRooms(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (err) => console.error(err));
+
+    const unsubTrans = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'transactions'), (snapshot) => {
+      setTransactions(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setLoading(false);
+    }, (err) => console.error(err));
+
+    return () => {
+      unsubCats(); unsubItems(); unsubRooms(); unsubTrans();
+    };
+  }, [user]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-slate-900 text-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-lg font-bold tracking-widest animate-pulse">SILog RS PREMIUM</p>
+          <p className="text-xs text-slate-400 mt-2 italic">Menyiapkan Database...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-screen bg-slate-50 overflow-hidden font-sans relative">
+      {/* Sidebar */}
+      <aside className="w-72 bg-slate-950 text-slate-300 flex flex-col z-20 shadow-2xl border-r border-white/5">
+        <div className="p-6 flex items-center gap-3 border-b border-white/10">
+          <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-900/20">
+            <Hotel className="text-white w-6 h-6" />
+          </div>
+          <div>
+            <h2 className="text-white font-black text-xl tracking-tight leading-none">SILog RS</h2>
+            <p className="text-[10px] text-blue-500 font-bold uppercase tracking-[0.2em] mt-1">Premium Logistics</p>
+          </div>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto py-4 space-y-1 px-3 custom-scrollbar">
+          <MenuButton active={activeMenu === 'dashboard'} icon={<LayoutDashboard />} label="Dashboard" onClick={() => setActiveMenu('dashboard')} />
+          <div className="h-px bg-white/5 my-2 mx-3"></div>
+          <MenuButton active={activeMenu === 'input'} icon={<PackagePlus />} label="Input Barang" onClick={() => setActiveMenu('input')} />
+          <MenuButton active={activeMenu === 'database'} icon={<Database />} label="Database Transaksi" onClick={() => setActiveMenu('database')} />
+          <MenuButton active={activeMenu === 'histori'} icon={<History />} label="Kartu Stok" onClick={() => setActiveMenu('histori')} />
+          <MenuButton active={activeMenu === 'ruangan'} icon={<Hotel />} label="Laporan Ruangan" onClick={() => setActiveMenu('ruangan')} />
+          <div className="h-px bg-white/5 my-2 mx-3"></div>
+          <MenuButton active={activeMenu === 'tren'} icon={<TrendingUp />} label="Analisa Tren" onClick={() => setActiveMenu('tren')} />
+          <MenuButton active={activeMenu === 'master'} icon={<Settings />} label="Master Data" onClick={() => setActiveMenu('master')} />
+        </nav>
+        
+        <div className="p-4 border-t border-white/5 bg-black/20 text-[10px] text-slate-500 flex justify-between items-center">
+          <span>{user?.uid.slice(0, 8)}...</span>
+          <span className="text-emerald-500 font-bold">● ONLINE</span>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col overflow-hidden">
+        <header className="h-16 bg-white border-b border-slate-200 flex items-center px-8 justify-between shadow-sm z-10">
+          <div className="flex-1 mr-8 overflow-hidden bg-slate-50 py-1.5 rounded-full px-4 border border-slate-100">
+            <div className="animate-marquee whitespace-nowrap text-blue-700 font-bold text-xs uppercase tracking-wider">
+              Peringatan: Stok ATK menipis • Laporan bulanan akan dikunci otomatis pada tanggal 30 • Gunakan menu "Master Data" untuk menambah kategori baru • Support: Ext 105
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <p className="text-sm font-bold text-slate-800">Admin Utama</p>
+              <p className="text-[10px] text-slate-400 font-semibold">{new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-200">
+              AD
+            </div>
+          </div>
+        </header>
+
+        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar bg-[#f8fafc]">
+          {activeMenu === 'dashboard' && <DashboardView transactions={transactions} categories={categories} selectedYear={selectedYear} setSelectedYear={setSelectedYear} />}
+          {activeMenu === 'input' && <InputBarangView categories={categories} items={items} rooms={rooms} />}
+          {activeMenu === 'database' && <DatabaseView transactions={transactions} categories={categories} />}
+          {activeMenu === 'histori' && <HistoriBarangView transactions={transactions} categories={categories} items={items} />}
+          {activeMenu === 'ruangan' && <ManajemenRuanganView rooms={rooms} transactions={transactions} />}
+          {activeMenu === 'tren' && <TrenHargaView transactions={transactions} categories={categories} items={items} />}
+          {activeMenu === 'master' && <MasterView categories={categories} rooms={rooms} items={items} />}
+        </div>
+      </main>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .animate-marquee { animation: marquee 25s linear infinite; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .animate-fadeIn { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      `}} />
+    </div>
+  );
+}
+
+// --- Sub-Components ---
+
+function MenuButton({ active, icon, label, onClick }) {
+  return (
+    <button 
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
+        active 
+          ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40 font-bold' 
+          : 'text-slate-400 hover:bg-white/5 hover:text-white'
+      }`}
+    >
+      <div className={`${active ? 'text-white' : 'text-slate-500 group-hover:text-blue-400'}`}>
+        {React.cloneElement(icon, { size: 20 })}
+      </div>
+      <span className="text-sm tracking-wide">{label}</span>
+    </button>
+  );
+}
+
+function DashboardView({ transactions, categories, selectedYear, setSelectedYear }) {
+  const chartData = useMemo(() => {
+    return MONTHS.map((month, idx) => {
+      const entry = { month };
+      categories.forEach(cat => {
+        const total = transactions
+          .filter(t => t.type === 'in' && t.category === cat.name && new Date(t.date).getFullYear() === selectedYear && new Date(t.date).getMonth() === idx)
+          .reduce((sum, curr) => sum + (Number(curr.price) * Number(curr.amount)), 0);
+        entry[cat.name] = total;
+      });
+      return entry;
+    });
+  }, [transactions, categories, selectedYear]);
+
+  return (
+    <div className="space-y-8 animate-fadeIn">
+      <div className="flex justify-between items-end">
+        <div>
+          <h1 className="text-3xl font-black text-slate-900">Dashboard Eksekutif</h1>
+          <p className="text-slate-500 font-medium">Monitoring pergerakan aset logistik rumah sakit</p>
+        </div>
+        <div className="flex items-center gap-3 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm">
+           <span className="text-[10px] font-black text-slate-400 px-3 uppercase tracking-widest">Filter Tahun</span>
+           <select 
+            value={selectedYear} 
+            onChange={(e) => setSelectedYear(Number(e.target.value))}
+            className="bg-slate-900 text-white border-none rounded-lg px-4 py-2 text-sm font-bold outline-none cursor-pointer"
+          >
+            {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {categories.map(cat => {
+          const totalValue = transactions
+            .filter(t => t.type === 'in' && t.category === cat.name && new Date(t.date).getFullYear() === selectedYear)
+            .reduce((sum, curr) => sum + (Number(curr.price) * Number(curr.amount)), 0);
+          return (
+            <div key={cat.id} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 bg-slate-50 rounded-full group-hover:bg-blue-50 transition-colors"></div>
+              <div className="relative z-10">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: `${CATEGORY_COLORS[cat.name] || '#64748b'}20` }}>
+                  <div style={{ color: CATEGORY_COLORS[cat.name] || '#64748b' }}>
+                    <PackagePlus size={20} />
+                  </div>
+                </div>
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{cat.name}</p>
+                <p className="text-xl font-black text-slate-900">{formatCurrency(totalValue)}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+        <div className="flex items-center justify-between mb-8">
+          <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
+            <TrendingUp className="text-blue-600" /> Analisa Pengeluaran Bulanan
+          </h3>
+          <div className="flex gap-4">
+            {categories.map(c => (
+              <div key={c.id} className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: CATEGORY_COLORS[c.name] }}></div>
+                <span className="text-[10px] font-bold text-slate-500 uppercase">{c.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="h-[400px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+              <XAxis dataKey="month" tick={{fontSize: 11, fontWeight: 700, fill: '#94a3b8'}} axisLine={false} tickLine={false} />
+              <YAxis tick={{fontSize: 11, fontWeight: 700, fill: '#94a3b8'}} axisLine={false} tickLine={false} tickFormatter={(v) => `Rp ${v/1000000}jt`} />
+              <RechartsTooltip 
+                contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                formatter={(v) => formatCurrency(v)} 
+              />
+              {categories.map((cat) => (
+                <Line 
+                  key={cat.id} 
+                  type="monotone" 
+                  dataKey={cat.name} 
+                  stroke={CATEGORY_COLORS[cat.name] || '#64748b'} 
+                  strokeWidth={4} 
+                  dot={{ r: 4, strokeWidth: 2, fill: '#fff' }} 
+                  activeDot={{ r: 6, strokeWidth: 0 }} 
+                />
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InputBarangView({ categories, items, rooms }) {
+  const [form, setForm] = useState({
+    type: 'in',
+    date: new Date().toISOString().split('T')[0],
+    category: '',
+    itemName: '',
+    amount: '',
+    price: '',
+    supplier: '',
+    room: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const filteredItems = useMemo(() => items.filter(i => i.category === form.category), [form.category, items]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'transactions'), {
+        ...form,
+        timestamp: Date.now()
+      });
+      setForm({ ...form, itemName: '', amount: '', price: '', supplier: '', room: '' });
+      alert("✅ Transaksi Berhasil Dicatat ke Cloud");
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto animate-fadeIn">
+      <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 overflow-hidden">
+        <div className="flex">
+          <button 
+            onClick={() => setForm({...form, type: 'in'})}
+            className={`flex-1 py-6 font-black text-sm tracking-widest transition-all ${form.type === 'in' ? 'bg-blue-600 text-white' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
+          >
+            BARANG MASUK (LOGISTIK)
+          </button>
+          <button 
+            onClick={() => setForm({...form, type: 'out'})}
+            className={`flex-1 py-6 font-black text-sm tracking-widest transition-all ${form.type === 'out' ? 'bg-rose-600 text-white' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
+          >
+            DISTRIBUSI KE RUANGAN
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-10 space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <FormGroup label="Tanggal Transaksi">
+              <input type="date" required value={form.date} onChange={e => setForm({...form, date: e.target.value})} className="form-input" />
+            </FormGroup>
+            <FormGroup label="Kategori Barang">
+              <select required value={form.category} onChange={e => setForm({...form, category: e.target.value, itemName: ''})} className="form-input">
+                <option value="">Pilih Kategori</option>
+                {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+              </select>
+            </FormGroup>
+            <FormGroup label="Nama Barang">
+              <select required disabled={!form.category} value={form.itemName} onChange={e => setForm({...form, itemName: e.target.value})} className="form-input disabled:opacity-50">
+                <option value="">Pilih Barang</option>
+                {filteredItems.map(i => <option key={i.id} value={i.name}>{i.name} ({i.unit})</option>)}
+              </select>
+            </FormGroup>
+            <FormGroup label="Jumlah (Qty)">
+              <input type="number" required placeholder="0" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} className="form-input" />
+            </FormGroup>
+
+            {form.type === 'in' ? (
+              <>
+                <FormGroup label="Harga Satuan (Rp)">
+                  <input type="number" required placeholder="50000" value={form.price} onChange={e => setForm({...form, price: e.target.value})} className="form-input" />
+                </FormGroup>
+                <FormGroup label="Vendor / Supplier">
+                  <input type="text" required placeholder="PT. Logistik Jaya" value={form.supplier} onChange={e => setForm({...form, supplier: e.target.value})} className="form-input" />
+                </FormGroup>
+              </>
+            ) : (
+              <FormGroup label="Tujuan Ruangan" className="md:col-span-2">
+                <select required value={form.room} onChange={e => setForm({...form, room: e.target.value})} className="form-input">
+                  <option value="">Pilih Ruangan Penerima</option>
+                  {rooms.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
+                </select>
+              </FormGroup>
+            )}
+          </div>
+
+          <button 
+            type="submit" 
+            disabled={isSubmitting}
+            className={`w-full py-5 rounded-2xl font-black text-white shadow-lg transition-all flex items-center justify-center gap-3 ${
+              form.type === 'in' ? 'bg-slate-900 hover:bg-blue-700 shadow-blue-200' : 'bg-slate-900 hover:bg-rose-700 shadow-rose-200'
+            } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {isSubmitting ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <Plus size={20} />}
+            SIMPAN DATA PERUBAHAN STOK
+          </button>
+        </form>
+      </div>
+      
+      <style>{`
+        .form-input { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 12px; outline: none; transition: all 0.2s; font-weight: 600; }
+        .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+      `}</style>
+    </div>
+  );
+}
+
+function FormGroup({ label, children, className }) {
+  return (
+    <div className={`space-y-2 ${className}`}>
+      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function DatabaseView({ transactions, categories }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  const filtered = transactions
+    .filter(t => t.itemName?.toLowerCase().includes(searchTerm.toLowerCase()) || t.category?.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a, b) => b.timestamp - a.timestamp);
+
+  const handleDelete = async (id) => {
+    if (!confirm("Hapus catatan transaksi ini? Stok tidak akan kembali otomatis.")) return;
+    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'transactions', id));
+  };
+
+  return (
+    <div className="space-y-6 animate-fadeIn">
+      <div className="flex justify-between items-center bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+        <h2 className="text-xl font-black text-slate-900">Database Logistik</h2>
+        <div className="relative w-80">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <input 
+            type="text" 
+            placeholder="Cari transaksi..." 
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+        </div>
+      </div>
+
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead className="bg-slate-50/80 border-b border-slate-100">
+              <tr>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Waktu</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Jenis</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Barang</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Qty</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Nilai</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ket / Ruang</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {filtered.map(t => (
+                <tr key={t.id} className="hover:bg-slate-50/50 transition-colors group">
+                  <td className="px-6 py-4 text-xs font-bold text-slate-500">{t.date}</td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black ${t.type === 'in' ? 'bg-blue-100 text-blue-700' : 'bg-rose-100 text-rose-700'}`}>
+                      {t.type === 'in' ? 'MASUK' : 'KELUAR'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <p className="font-bold text-slate-800 text-sm">{t.itemName}</p>
+                    <p className="text-[10px] text-slate-400 font-medium">{t.category}</p>
+                  </td>
+                  <td className="px-6 py-4 text-center font-black text-slate-700">{t.amount}</td>
+                  <td className="px-6 py-4 font-bold text-slate-600 text-sm">
+                    {t.type === 'in' ? formatCurrency(t.price * t.amount) : '-'}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-500 italic">
+                      {t.type === 'in' ? t.supplier : t.room}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <button onClick={() => handleDelete(t.id)} className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all">
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HistoriBarangView({ transactions, categories, items }) {
+  const [selectedItem, setSelectedItem] = useState('');
+  
+  const history = useMemo(() => {
+    return transactions
+      .filter(t => t.itemName === selectedItem)
+      .sort((a, b) => b.timestamp - a.timestamp);
+  }, [selectedItem, transactions]);
+
+  const stockStats = useMemo(() => {
+    const masuk = history.filter(h => h.type === 'in').reduce((acc, curr) => acc + Number(curr.amount), 0);
+    const keluar = history.filter(h => h.type === 'out').reduce((acc, curr) => acc + Number(curr.amount), 0);
+    return { masuk, keluar, sisa: masuk - keluar };
+  }, [history]);
+
+  return (
+    <div className="space-y-6 animate-fadeIn">
+      <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+        <h2 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-2">
+          <History className="text-blue-600" /> Kartu Stok Digital
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+           <FormGroup label="Pilih Nama Barang">
+              <select value={selectedItem} onChange={e => setSelectedItem(e.target.value)} className="form-input">
+                <option value="">-- Pilih Barang --</option>
+                {items.map(i => <option key={i.id} value={i.name}>{i.name} ({i.category})</option>)}
+              </select>
+           </FormGroup>
+        </div>
+      </div>
+
+      {selectedItem && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+             <StatBox label="Total Masuk" value={stockStats.masuk} color="blue" />
+             <StatBox label="Total Keluar" value={stockStats.keluar} color="rose" />
+             <StatBox label="Stok Saat Ini" value={stockStats.sisa} color="emerald" />
+          </div>
+
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+             <table className="w-full text-left">
+                <thead className="bg-slate-50 border-b border-slate-100">
+                   <tr>
+                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal</th>
+                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Aktivitas</th>
+                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Masuk</th>
+                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Keluar</th>
+                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Asal/Tujuan</th>
+                   </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                   {history.map(h => (
+                      <tr key={h.id}>
+                         <td className="px-6 py-4 text-xs font-bold text-slate-500">{h.date}</td>
+                         <td className="px-6 py-4">
+                            <span className={`text-xs font-bold ${h.type === 'in' ? 'text-blue-600' : 'text-rose-600'}`}>
+                               {h.type === 'in' ? 'PENERIMAAN' : 'DISTRIBUSI'}
+                            </span>
+                         </td>
+                         <td className="px-6 py-4 text-center font-black text-blue-600">{h.type === 'in' ? h.amount : '-'}</td>
+                         <td className="px-6 py-4 text-center font-black text-rose-600">{h.type === 'out' ? h.amount : '-'}</td>
+                         <td className="px-6 py-4 text-xs font-bold text-slate-400 italic">{h.type === 'in' ? h.supplier : h.room}</td>
+                      </tr>
+                   ))}
+                </tbody>
+             </table>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function StatBox({ label, value, color }) {
+  const colors = {
+    blue: 'bg-blue-50 text-blue-600 border-blue-100',
+    rose: 'bg-rose-50 text-rose-600 border-rose-100',
+    emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100'
+  };
+  return (
+    <div className={`p-6 rounded-3xl border ${colors[color]} shadow-sm`}>
+       <p className="text-[10px] font-black uppercase tracking-widest opacity-70 mb-2">{label}</p>
+       <p className="text-3xl font-black">{value} Unit</p>
+    </div>
+  );
+}
+
+function ManajemenRuanganView({ rooms, transactions }) {
+  const [selectedRoom, setSelectedRoom] = useState('');
+  const [isExporting, setIsExporting] = useState(false);
+
+  const roomData = useMemo(() => {
+    return transactions
+      .filter(t => t.type === 'out' && t.room === selectedRoom)
+      .sort((a, b) => b.timestamp - a.timestamp);
+  }, [selectedRoom, transactions]);
+
+  const generatePDF = () => {
+    if (!selectedRoom) return;
+    setIsExporting(true);
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    script.onload = () => {
+      const autoTableScript = document.createElement('script');
+      autoTableScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js';
+      autoTableScript.onload = () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(18);
+        doc.text(`LAPORAN LOGISTIK: RUANGAN ${selectedRoom.toUpperCase()}`, 14, 20);
+        doc.setFontSize(10);
+        doc.text(`Periode: s/d ${new Date().toLocaleDateString('id-ID')}`, 14, 28);
+        
+        const tableData = roomData.map(r => [r.date, r.itemName, r.category, r.amount]);
+        doc.autoTable({
+          head: [['Tanggal', 'Nama Barang', 'Kategori', 'Jumlah']],
+          body: tableData,
+          startY: 35,
+          theme: 'striped',
+          headStyles: { fillColor: [15, 23, 42] }
+        });
+        doc.save(`Laporan_${selectedRoom}_${Date.now()}.pdf`);
+        setIsExporting(false);
+      };
+      document.head.appendChild(autoTableScript);
+    };
+    document.head.appendChild(script);
+  };
+
+  return (
+    <div className="space-y-6 animate-fadeIn">
+      <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="flex-1 max-w-md">
+           <FormGroup label="Pilih Ruangan">
+              <select value={selectedRoom} onChange={e => setSelectedRoom(e.target.value)} className="form-input">
+                <option value="">-- Pilih Ruangan --</option>
+                {rooms.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
+              </select>
+           </FormGroup>
+        </div>
+        <button 
+          onClick={generatePDF}
+          disabled={!selectedRoom || isExporting}
+          className="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-8 py-3.5 rounded-2xl shadow-lg shadow-emerald-200 transition-all flex items-center gap-3 disabled:opacity-50"
+        >
+          {isExporting ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <Download size={20} />}
+          CETAK LAPORAN PDF
+        </button>
+      </div>
+
+      {selectedRoom && (
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+           <table className="w-full text-left">
+              <thead className="bg-slate-50 border-b border-slate-100">
+                 <tr>
+                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Distribusi</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Barang</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Kategori</th>
+                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Qty Diterima</th>
+                 </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                 {roomData.map(r => (
+                    <tr key={r.id}>
+                       <td className="px-6 py-4 text-xs font-bold text-slate-500">{r.date}</td>
+                       <td className="px-6 py-4 font-bold text-slate-800">{r.itemName}</td>
+                       <td className="px-6 py-4 text-xs font-bold text-slate-400">{r.category}</td>
+                       <td className="px-6 py-4 text-center font-black text-emerald-600">{r.amount}</td>
+                    </tr>
+                 ))}
+                 {roomData.length === 0 && (
+                   <tr>
+                     <td colSpan="4" className="px-6 py-12 text-center text-slate-400 italic">Belum ada barang yang didistribusikan ke ruangan ini.</td>
+                   </tr>
+                 )}
+              </tbody>
+           </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TrenHargaView({ transactions, items }) {
+  const [selectedItem, setSelectedItem] = useState('');
+  
+  const trenData = useMemo(() => {
+    return transactions
+      .filter(t => t.type === 'in' && t.itemName === selectedItem)
+      .sort((a, b) => a.timestamp - b.timestamp)
+      .map(t => ({ date: t.date, harga: Number(t.price) }));
+  }, [selectedItem, transactions]);
+
+  return (
+    <div className="space-y-8 animate-fadeIn">
+      <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+        <h2 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-2">
+          <TrendingUp className="text-blue-600" /> Analisa Fluktuasi Harga
+        </h2>
+        <FormGroup label="Pilih Barang untuk Dipantau">
+          <select value={selectedItem} onChange={e => setSelectedItem(e.target.value)} className="form-input">
+            <option value="">-- Pilih Barang --</option>
+            {items.map(i => <option key={i.id} value={i.name}>{i.name}</option>)}
+          </select>
+        </FormGroup>
+      </div>
+
+      {selectedItem && trenData.length > 0 ? (
+        <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm h-[500px]">
+           <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={trenData}>
+                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                 <XAxis dataKey="date" tick={{fontSize: 10, fontWeight: 700}} />
+                 <YAxis tick={{fontSize: 10, fontWeight: 700}} tickFormatter={(v) => `Rp ${v.toLocaleString()}`} />
+                 <RechartsTooltip formatter={(v) => formatCurrency(v)} />
+                 <Line type="stepAfter" dataKey="harga" stroke="#3b82f6" strokeWidth={4} dot={{ r: 6, fill: '#3b82f6' }} />
+              </LineChart>
+           </ResponsiveContainer>
+        </div>
+      ) : selectedItem && (
+        <div className="bg-white p-12 rounded-3xl border border-slate-200 text-center text-slate-400 font-bold italic">
+           Data pembelian (masuk) tidak ditemukan untuk barang ini.
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MasterView({ categories, rooms, items }) {
+  const [newCat, setNewCat] = useState('');
+  const [newRoom, setNewRoom] = useState('');
+  const [newItem, setNewItem] = useState({ name: '', category: '', unit: 'Pcs' });
+
+  const addCategory = async () => {
+    if (!newCat) return;
+    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'categories'), { name: newCat });
+    setNewCat('');
+  };
+
+  const addRoom = async () => {
+    if (!newRoom) return;
+    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'rooms'), { name: newRoom });
+    setNewRoom('');
+  };
+
+  const addItemMaster = async () => {
+    if (!newItem.name || !newItem.category) return;
+    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'items'), newItem);
+    setNewItem({ name: '', category: '', unit: 'Pcs' });
+  };
+
+  const deleteDocMaster = async (coll, id) => {
+    if (!confirm("Hapus data master? Tindakan ini dapat merusak konsistensi laporan.")) return;
+    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', coll, id));
+  };
+
+  return (
+    <div className="space-y-12 animate-fadeIn pb-20">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        {/* Kategori */}
+        <section className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+          <h3 className="text-lg font-black text-slate-900 mb-6 flex items-center justify-between">
+            Kategori Barang
+            <span className="text-[10px] bg-blue-100 text-blue-600 px-2 py-1 rounded-lg">{categories.length} Total</span>
+          </h3>
+          <div className="flex gap-2 mb-6">
+            <input type="text" placeholder="Nama Kategori Baru" value={newCat} onChange={e => setNewCat(e.target.value)} className="form-input flex-1" />
+            <button onClick={addCategory} className="p-3 bg-slate-900 text-white rounded-xl hover:bg-blue-600"><Plus size={24}/></button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {categories.map(c => (
+              <div key={c.id} className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100 text-sm font-bold text-slate-700">
+                {c.name}
+                <button onClick={() => deleteDocMaster('categories', c.id)} className="text-slate-300 hover:text-rose-600"><X size={14}/></button>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Ruangan */}
+        <section className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+          <h3 className="text-lg font-black text-slate-900 mb-6 flex items-center justify-between">
+            Ruangan / Unit RS
+            <span className="text-[10px] bg-rose-100 text-rose-600 px-2 py-1 rounded-lg">{rooms.length} Unit</span>
+          </h3>
+          <div className="flex gap-2 mb-6">
+            <input type="text" placeholder="Nama Ruangan/Poli" value={newRoom} onChange={e => setNewRoom(e.target.value)} className="form-input flex-1" />
+            <button onClick={addRoom} className="p-3 bg-slate-900 text-white rounded-xl hover:bg-rose-600"><Plus size={24}/></button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {rooms.map(r => (
+              <div key={r.id} className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100 text-sm font-bold text-slate-700">
+                {r.name}
+                <button onClick={() => deleteDocMaster('rooms', r.id)} className="text-slate-300 hover:text-rose-600"><X size={14}/></button>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* Item Master */}
+      <section className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+        <h3 className="text-lg font-black text-slate-900 mb-8">Master Katalog Barang</h3>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 items-end">
+           <FormGroup label="Nama Barang">
+             <input type="text" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} className="form-input" placeholder="Contoh: Kertas A4" />
+           </FormGroup>
+           <FormGroup label="Kategori">
+             <select value={newItem.category} onChange={e => setNewItem({...newItem, category: e.target.value})} className="form-input">
+               <option value="">Pilih Kategori</option>
+               {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+             </select>
+           </FormGroup>
+           <FormGroup label="Satuan">
+             <select value={newItem.unit} onChange={e => setNewItem({...newItem, unit: e.target.value})} className="form-input">
+               <option>Pcs</option><option>Box</option><option>Rim</option><option>Liter</option><option>Unit</option>
+             </select>
+           </FormGroup>
+           <button onClick={addItemMaster} className="bg-blue-600 text-white h-[48px] rounded-xl font-bold hover:bg-slate-900 transition-colors flex items-center justify-center gap-2">
+             <Plus size={20}/> TAMBAH KE KATALOG
+           </button>
+        </div>
+        
+        <div className="overflow-hidden rounded-2xl border border-slate-100">
+          <table className="w-full text-left">
+            <thead className="bg-slate-50">
+              <tr>
+                <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Produk</th>
+                <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Kategori</th>
+                <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Satuan</th>
+                <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {items.map(i => (
+                <tr key={i.id} className="hover:bg-slate-50 transition-colors">
+                  <td className="px-6 py-3 font-bold text-slate-800 text-sm">{i.name}</td>
+                  <td className="px-6 py-3 text-xs font-bold text-blue-600">{i.category}</td>
+                  <td className="px-6 py-3 text-xs font-bold text-slate-400">{i.unit}</td>
+                  <td className="px-6 py-3 text-center">
+                    <button onClick={() => deleteDocMaster('items', i.id)} className="p-2 text-slate-300 hover:text-rose-600"><Trash2 size={16}/></button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  );
+}
