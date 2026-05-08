@@ -9,15 +9,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Firebase App (the core Firebase SDK) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <!-- Firebase Firestore (Cloud Database) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
         .sidebar-active { background-color: #eff6ff; border-left: 4px solid #3b82f6; color: #1d4ed8; font-weight: 600; }
-        .glass-morphism { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
         .chart-container { position: relative; width: 100%; height: 280px; }
         @keyframes pulse-blue { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
         .sync-icon { animation: pulse-blue 2s infinite; }
@@ -49,51 +43,77 @@
                 <button onclick="switchTab('categories')" id="nav-categories" class="nav-btn w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
                     <i class="fas fa-tags w-6"></i> Kelola Kategori
                 </button>
-                <button onclick="switchTab('migration')" id="nav-migration" class="nav-btn w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
-                    <i class="fas fa-cloud-download-alt w-6"></i> Export / Import
-                </button>
             </nav>
             
             <div class="mt-auto p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
                 <div class="flex items-center space-x-2 text-xs font-bold text-emerald-600">
                     <i class="fas fa-circle sync-icon text-[8px]"></i>
-                    <span id="connection-status">CONNECTED TO FIREBASE</span>
+                    <span id="connection-status">INITIALIZING CLOUD...</span>
                 </div>
-                <p class="text-[10px] text-emerald-400 mt-1">Firestore Cloud Database</p>
+                <p class="text-[10px] text-emerald-400 mt-1">Firestore Real-time</p>
             </div>
         </div>
     </aside>
 
     <main class="flex-1 ml-64 p-8 min-w-0">
         <section id="tab-dashboard" class="tab-content space-y-6">
-            <div class="flex justify-between items-center">
-                <h1 class="text-2xl font-bold text-gray-800">Ringkasan Pengadaan RS</h1>
-                <div class="text-sm text-gray-500 font-medium" id="current-date"></div>
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Ringkasan Pengadaan RS</h1>
+                    <p class="text-sm text-gray-500 font-medium" id="current-date"></p>
+                </div>
+                
+                <!-- Time Filters -->
+                <div class="flex items-center space-x-2 bg-white p-2 rounded-xl border border-gray-100 shadow-sm">
+                    <div class="flex items-center px-2 text-gray-400">
+                        <i class="fas fa-calendar-alt text-xs"></i>
+                    </div>
+                    <select id="filter-month" onchange="renderDashboard()" class="bg-transparent text-sm font-bold text-gray-700 outline-none p-1">
+                        <option value="all">Semua Bulan</option>
+                        <option value="01">Januari</option><option value="02">Februari</option>
+                        <option value="03">Maret</option><option value="04">April</option>
+                        <option value="05">Mei</option><option value="06">Juni</option>
+                        <option value="07">Juli</option><option value="08">Agustus</option>
+                        <option value="09">September</option><option value="10">Oktober</option>
+                        <option value="11">November</option><option value="12">Desember</option>
+                    </select>
+                    <div class="h-4 w-[1px] bg-gray-200"></div>
+                    <select id="filter-year" onchange="renderDashboard()" class="bg-transparent text-sm font-bold text-gray-700 outline-none p-1">
+                        <!-- Populated via JS -->
+                    </select>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-xs font-bold text-gray-400 uppercase mb-1">Total Pengeluaran</p>
+                    <p class="text-xs font-bold text-gray-400 uppercase mb-1">Total Biaya Filter</p>
                     <h3 id="stat-total" class="text-2xl font-black text-blue-600">Rp 0</h3>
                 </div>
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-xs font-bold text-gray-400 uppercase mb-1">Total Transaksi</p>
+                    <p class="text-xs font-bold text-gray-400 uppercase mb-1">Transaksi Filter</p>
                     <h3 id="stat-count" class="text-2xl font-black text-gray-800">0</h3>
                 </div>
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-xs font-bold text-gray-400 uppercase mb-1">Kategori Terdaftar</p>
+                    <p class="text-xs font-bold text-gray-400 uppercase mb-1">Kategori Aktif</p>
                     <h3 id="stat-cats" class="text-2xl font-black text-emerald-600">0</h3>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                    <h4 class="font-bold text-gray-700 mb-4">Pengeluaran per Kategori</h4>
+                    <h4 class="font-bold text-gray-700 mb-4">Total per Kategori (Hasil Filter)</h4>
                     <div class="chart-container"><canvas id="barChart"></canvas></div>
                 </div>
                 <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                    <h4 class="font-bold text-gray-700 mb-4">Persentase Distribusi</h4>
+                    <h4 class="font-bold text-gray-700 mb-4">Porsi Pengeluaran</h4>
                     <div class="chart-container"><canvas id="pieChart"></canvas></div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <h4 class="font-bold text-gray-700 mb-4">Detail Pengeluaran per Kategori</h4>
+                <div id="category-summary-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Dynamic content -->
                 </div>
             </div>
         </section>
@@ -105,13 +125,13 @@
                 
                 <div class="flex space-x-2 mb-6">
                     <input type="text" id="cat-input" placeholder="Contoh: Alat Kesehatan, Logistik..." class="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
-                    <button onclick="addCategoryToCloud()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition flex items-center">
+                    <button id="cat-save-btn" onclick="addCategoryToCloud()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition flex items-center">
                         <i class="fas fa-save mr-2"></i> Simpan
                     </button>
                 </div>
 
                 <div id="cat-list" class="space-y-2">
-                    <!-- List categories from Firestore -->
+                    <p class="text-center text-gray-400 py-4 italic">Memuat kategori dari cloud...</p>
                 </div>
             </div>
         </section>
@@ -123,7 +143,7 @@
                     <input type="date" id="form-date" class="bg-gray-50 border border-gray-200 px-4 py-2 rounded-xl text-sm font-bold">
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Kategori Barang</label>
                         <select id="form-cat" class="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-xl outline-none"></select>
@@ -134,18 +154,20 @@
                     </div>
                 </div>
 
-                <table class="w-full text-left mb-6">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="p-4 text-[10px] font-bold text-gray-400 uppercase">Item</th>
-                            <th class="p-4 text-[10px] font-bold text-gray-400 uppercase w-24 text-center">Qty</th>
-                            <th class="p-4 text-[10px] font-bold text-gray-400 uppercase w-40">Harga Satuan</th>
-                            <th class="p-4 text-[10px] font-bold text-gray-400 uppercase text-right">Subtotal</th>
-                            <th class="p-4 w-10"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="input-rows"></tbody>
-                </table>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left mb-6 min-w-[600px]">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase">Item</th>
+                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase w-24 text-center">Qty</th>
+                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase w-40">Harga Satuan</th>
+                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase text-right">Subtotal</th>
+                                <th class="p-4 w-10"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="input-rows"></tbody>
+                    </table>
+                </div>
 
                 <div class="flex justify-between items-center border-t pt-6">
                     <button onclick="addRow()" class="text-blue-600 font-bold hover:underline flex items-center">
@@ -168,7 +190,6 @@
             <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                 <div class="p-6 bg-gray-50 flex justify-between items-center border-b border-gray-200">
                     <h2 class="font-bold text-gray-800">Database Real-time Cloud</h2>
-                    <span class="text-xs text-gray-500 italic">Otomatis sinkron dengan server</span>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
@@ -186,35 +207,20 @@
                 </div>
             </div>
         </section>
-
-        <section id="tab-migration" class="tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm text-center">
-                <i class="fas fa-file-csv text-4xl text-emerald-500 mb-4"></i>
-                <h3 class="text-xl font-bold mb-2">Export Data Cloud</h3>
-                <p class="text-sm text-gray-500 mb-6">Unduh data transaksi dari database Google ke format CSV.</p>
-                <button onclick="exportToCSV()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition">Download .CSV</button>
-            </div>
-            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm text-center">
-                <i class="fas fa-upload text-4xl text-blue-500 mb-4"></i>
-                <h3 class="text-xl font-bold mb-2">Import Data Massal</h3>
-                <p class="text-sm text-gray-500 mb-4">Unggah file CSV untuk memasukkan data secara massal.</p>
-                <input type="file" id="csv-file" class="hidden" onchange="handleImport(event)">
-                <button onclick="document.getElementById('csv-file').click()" class="w-full bg-blue-50 text-blue-600 py-3 rounded-xl font-bold border-2 border-dashed border-blue-200">Pilih File CSV</button>
-            </div>
-        </section>
     </main>
 
-    <div id="toast" class="fixed bottom-8 right-8 bg-gray-900 text-white px-6 py-4 rounded-2xl opacity-0 transition-all z-50 flex items-center space-x-3 shadow-2xl">
+    <div id="toast" class="fixed bottom-8 right-8 bg-gray-900 text-white px-6 py-4 rounded-2xl opacity-0 transition-all z-50 flex items-center space-x-3 shadow-2xl pointer-events-none">
         <i class="fas fa-info-circle text-blue-400"></i>
         <span id="toast-msg"></span>
     </div>
 
-    <script>
-        /**
-         * FIREBASE CONFIGURATION
-         * Ganti data di bawah ini dengan konfigurasi dari Firebase Console Anda
-         */
-        const firebaseConfig = {
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'hospital-procurement';
+        cconst firebaseConfig = {
   apiKey: "AIzaSyBiEWqdYX8zOjRwv4Mo1DRlFcSLsG8OhlQ",
   authDomain: "gudangatk.firebaseapp.com",
   databaseURL: "https://gudangatk-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -224,101 +230,221 @@
   appId: "1:274324790135:web:8b67b0c39524d2cf2cdf72",
   measurementId: "G-KCYZG0ZZGR"
 };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
 
-        // Initialize Firebase
-        let db;
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-        } catch (e) {
-            console.warn("Firebase not initialized. Please fill your config.");
-        }
+        // Path Collections - Ensuring valid Firestore path segments
+        const transactionsPath = `artifacts/${appId}/public/data/transactions`;
+        const categoriesPath = `artifacts/${appId}/public/data/categories`;
 
         let transactions = [];
         let categories = ['Obat-obatan', 'Alat Kesehatan', 'Laboratorium'];
         let barChart, pieChart;
+        let currentUser = null;
 
-        
-        // Load categories from Firestore
-        const loadCategories = async () => {
-            if(!db) return;
-            const snapshot = await db.collection('categories').get();
-            if(!snapshot.empty) {
-                categories = snapshot.docs.map(doc => doc.data().name);
-            }
-            renderCategories();
-            updateCategorySelect();
-        };
-
-        // Load transactions from Firestore
-        const loadTransactions = () => {
-            if(!db) return;
-            db.collection('transactions').orderBy('date', 'desc').onSnapshot(snapshot => {
-                transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderDashboard();
-                renderHistory();
-            });
-        };
-
-        window.addCategoryToCloud = async () => {
-            const input = document.getElementById('cat-input');
-            const name = input.value.trim();
-            if(!name || !db) return;
-
+        const initAuth = async () => {
             try {
-                await db.collection('categories').add({ name });
-                input.value = '';
-                showToast("Kategori berhasil disimpan ke Cloud!");
+                await signInAnonymously(auth);
+            } catch (e) {
+                console.error("Auth error", e);
+                document.getElementById('connection-status').innerText = "AUTH FAILED";
+                document.getElementById('connection-status').parentElement.classList.replace('bg-emerald-50', 'bg-red-50');
+            }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('connection-status').innerText = "CLOUD CONNECTED";
                 loadCategories();
-            } catch(e) { showToast("Gagal menyimpan ke Cloud"); }
+                loadTransactions();
+            } else {
+                document.getElementById('connection-status').innerText = "OFFLINE MODE";
+            }
+        });
+
+        const loadCategories = () => {
+            try {
+                const q = query(collection(db, ...categoriesPath.split('/')));
+                onSnapshot(q, (snapshot) => {
+                    const cloudCats = snapshot.docs.map(doc => doc.data().name);
+                    if (cloudCats.length > 0) {
+                        categories = [...new Set(['Obat-obatan', 'Alat Kesehatan', 'Laboratorium', ...cloudCats])];
+                    }
+                    renderCategories();
+                    updateCategorySelect();
+                }, (err) => {
+                    console.warn("Firestore Permission Issue (Categories): Using local defaults.", err);
+                    showToast("Cloud restricted. Using local categories.");
+                    renderCategories();
+                    updateCategorySelect();
+                });
+            } catch (e) {
+                console.error("Category load error", e);
+            }
+        };
+
+        const loadTransactions = () => {
+            try {
+                const q = query(collection(db, ...transactionsPath.split('/')), orderBy('date', 'desc'));
+                onSnapshot(q, (snapshot) => {
+                    transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    populateYearFilter();
+                    renderDashboard();
+                    renderHistory();
+                }, (err) => {
+                    console.error("Firestore Permission Issue (Transactions):", err);
+                    if (err.code === 'permission-denied') {
+                        showToast("Akses Cloud Ditolak. Cek Security Rules Firebase.");
+                        document.getElementById('connection-status').innerText = "PERMISSION DENIED";
+                    }
+                });
+            } catch (e) {
+                console.error("Transaction load error", e);
+            }
         };
 
         window.saveTransactionToCloud = async () => {
+            if (!currentUser) {
+                showToast("Menunggu koneksi cloud...");
+                await initAuth();
+                if (!currentUser) return;
+            }
+            
             const date = document.getElementById('form-date').value;
             const cat = document.getElementById('form-cat').value;
             const supplier = document.getElementById('form-supplier').value;
             const btn = document.getElementById('save-btn');
 
-            if(!date || !cat || !supplier || !db) return showToast("Mohon lengkapi data!");
-
             const rows = document.querySelectorAll('#input-rows tr');
-            if(rows.length === 0) return showToast("Tambahkan barang terlebih dahulu!");
+            if (!date || !cat || rows.length === 0) return showToast("Lengkapi data!");
 
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>MENGUNGGAH KE SERVER...</span>';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> SYNCING...';
 
             try {
-                const batch = db.batch();
-                rows.forEach(row => {
+                const colRef = collection(db, ...transactionsPath.split('/'));
+                for (let row of rows) {
                     const name = row.querySelector('.name-input').value;
-                    const qty = parseFloat(row.querySelector('.qty-input').value);
-                    const price = parseFloat(row.querySelector('.price-input').value);
+                    const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
+                    const price = parseFloat(row.querySelector('.price-input').value) || 0;
 
-                    if(name && qty > 0) {
-                        const ref = db.collection('transactions').doc();
-                        batch.set(ref, {
-                            date, category: cat, supplier, name, qty, price, total: qty * price, timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    if (name && qty > 0) {
+                        await addDoc(colRef, {
+                            date, category: cat, supplier, name, qty, price, total: qty * price, createdAt: serverTimestamp()
                         });
                     }
-                });
-                await batch.commit();
-                showToast("Berhasil sinkronisasi Cloud!");
+                }
+                showToast("Data tersinkronisasi ke Cloud!");
                 switchTab('dashboard');
-            } catch(e) {
-                showToast("Error: " + e.message);
+            } catch (e) {
+                console.error("Save error", e);
+                showToast(e.code === 'permission-denied' ? "Gagal: Izin Cloud Ditolak" : "Error Upload");
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> <span>SIMPAN KE CLOUD DATABASE</span>';
             }
         };
 
+        const populateYearFilter = () => {
+            const years = [...new Set(transactions.map(t => t.date.split('-')[0]))];
+            const currentYear = new Date().getFullYear();
+            if (!years.includes(currentYear.toString())) years.push(currentYear.toString());
+            years.sort((a,b) => b - a);
 
-        window.switchTab = (tabId) => {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-            document.getElementById('tab-' + tabId).classList.remove('hidden');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('sidebar-active'));
-            document.getElementById('nav-' + tabId).classList.add('sidebar-active');
-            if(tabId === 'input') setupInput();
+            const select = document.getElementById('filter-year');
+            const currentVal = select.value;
+            select.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+            if (currentVal) select.value = currentVal;
+            else select.value = currentYear;
+        };
+
+        window.renderDashboard = () => {
+            const month = document.getElementById('filter-month').value;
+            const year = document.getElementById('filter-year').value;
+            
+            // Filter Data
+            const filtered = transactions.filter(t => {
+                const [tYear, tMonth] = t.date.split('-');
+                const matchMonth = month === 'all' || tMonth === month;
+                const matchYear = tYear === year;
+                return matchMonth && matchYear;
+            });
+
+            document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
+            const total = filtered.reduce((acc, c) => acc + c.total, 0);
+            document.getElementById('stat-total').innerText = 'Rp ' + total.toLocaleString('id-ID');
+            document.getElementById('stat-count').innerText = filtered.length;
+            
+            const catStats = {};
+            categories.forEach(c => catStats[c] = 0);
+            filtered.forEach(t => { if(catStats[t.category] !== undefined) catStats[t.category] += t.total; });
+
+            // Stats Count for categories that have values
+            const activeCats = Object.values(catStats).filter(v => v > 0).length;
+            document.getElementById('stat-cats').innerText = activeCats;
+
+            renderSummaryCards(catStats);
+            updateCharts(catStats);
+        };
+
+        const renderSummaryCards = (stats) => {
+            const container = document.getElementById('category-summary-list');
+            const sorted = Object.entries(stats).sort((a,b) => b[1] - a[1]);
+            
+            container.innerHTML = sorted.map(([cat, val]) => `
+                <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase">${cat}</p>
+                    <p class="text-sm font-black text-gray-800 mt-1">Rp ${val.toLocaleString('id-ID')}</p>
+                    <div class="w-full bg-gray-200 h-1 mt-2 rounded-full overflow-hidden">
+                        <div class="bg-blue-500 h-full" style="width: ${val > 0 ? '100%' : '0%'}"></div>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        const updateCharts = (stats) => {
+            const labels = Object.keys(stats).filter(k => stats[k] > 0);
+            const data = labels.map(k => stats[k]);
+
+            if(barChart) barChart.destroy();
+            if(pieChart) pieChart.destroy();
+
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            barChart = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{ label: 'Total Rp', data, backgroundColor: '#3b82f6', borderRadius: 8 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+
+            const ctxPie = document.getElementById('pieChart').getContext('2d');
+            pieChart = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels,
+                    datasets: [{ data, backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 10 } } } } }
+            });
+        };
+
+        window.renderHistory = () => {
+            const rows = document.getElementById('history-rows');
+            rows.innerHTML = transactions.map(t => `
+                <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
+                    <td class="p-4 text-xs text-gray-500">${t.date}</td>
+                    <td class="p-4 text-xs font-bold text-gray-800">${t.name}</td>
+                    <td class="p-4 text-xs text-center">${t.qty}</td>
+                    <td class="p-4 text-xs"><span class="px-2 py-1 bg-blue-50 text-blue-600 rounded-md text-[10px]">${t.category}</span></td>
+                    <td class="p-4 text-xs text-right font-black">Rp ${t.total.toLocaleString('id-ID')}</td>
+                </tr>
+            `).join('');
         };
 
         const renderCategories = () => {
@@ -334,6 +460,15 @@
         const updateCategorySelect = () => {
             const select = document.getElementById('form-cat');
             if(select) select.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+        };
+
+        // Navigation
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('sidebar-active'));
+            document.getElementById('nav-' + tabId).classList.add('sidebar-active');
+            if(tabId === 'input') setupInput();
         };
 
         const setupInput = () => {
@@ -368,55 +503,6 @@
             document.getElementById('total-display').innerText = 'Rp ' + grand.toLocaleString('id-ID');
         };
 
-        const renderDashboard = () => {
-            document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            
-            const total = transactions.reduce((acc, c) => acc + c.total, 0);
-            document.getElementById('stat-total').innerText = 'Rp ' + total.toLocaleString('id-ID');
-            document.getElementById('stat-count').innerText = transactions.length;
-            document.getElementById('stat-cats').innerText = categories.length;
-
-            const catStats = {};
-            categories.forEach(c => catStats[c] = 0);
-            transactions.forEach(t => { if(catStats[t.category] !== undefined) catStats[t.category] += t.total; });
-
-            if(barChart) barChart.destroy();
-            if(pieChart) pieChart.destroy();
-
-            const ctxBar = document.getElementById('barChart').getContext('2d');
-            barChart = new Chart(ctxBar, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(catStats),
-                    datasets: [{ label: 'Total Rp', data: Object.values(catStats), backgroundColor: '#3b82f6', borderRadius: 6 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-            });
-
-            const ctxPie = document.getElementById('pieChart').getContext('2d');
-            pieChart = new Chart(ctxPie, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(catStats),
-                    datasets: [{ data: Object.values(catStats), backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'], borderWidth: 0 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 10 } } } } }
-            });
-        };
-
-        window.renderHistory = () => {
-            const rows = document.getElementById('history-rows');
-            rows.innerHTML = transactions.map(t => `
-                <tr class="border-b border-gray-50 hover:bg-gray-50">
-                    <td class="p-4 text-xs text-gray-500">${t.date}</td>
-                    <td class="p-4 text-xs font-bold text-gray-800">${t.name}</td>
-                    <td class="p-4 text-xs text-center">${t.qty}</td>
-                    <td class="p-4 text-xs"><span class="px-2 py-1 bg-blue-50 text-blue-600 rounded-md">${t.category}</span></td>
-                    <td class="p-4 text-xs text-right font-black">Rp ${t.total.toLocaleString('id-ID')}</td>
-                </tr>
-            `).join('');
-        };
-
         window.showToast = (msg) => {
             const t = document.getElementById('toast');
             document.getElementById('toast-msg').innerText = msg;
@@ -424,11 +510,10 @@
             setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 3000);
         };
 
-        window.onload = () => {
-            loadCategories();
-            loadTransactions();
-            renderDashboard();
-        };
+        // Initialize Everything
+        initAuth();
+        window.addRow = addRow;
+        window.calculateTotal = calculateTotal;
     </script>
 </body>
 </html>
