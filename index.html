@@ -1,50 +1,377 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { initializeApp } from 'firebase/app';
-import { 
-  getAuth, 
-  signInAnonymously, 
-  signInWithCustomToken, 
-  onAuthStateChanged 
-} from 'firebase/auth';
-import { 
-  getFirestore, 
-  collection, 
-  doc, 
-  setDoc, 
-  addDoc, 
-  deleteDoc, 
-  onSnapshot
-} from 'firebase/firestore';
-import { 
-  LayoutDashboard, 
-  PackagePlus, 
-  Database, 
-  History, 
-  Hotel, 
-  TrendingUp, 
-  Settings,
-  Plus,
-  Trash2,
-  Search,
-  Download,
-  AlertCircle,
-  Package
-} from 'lucide-react';
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip as RechartsTooltip, 
-  ResponsiveContainer,
-  AreaChart,
-  Area
-} from 'recharts';
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Rekapitulasi Pembelian RS - Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .sidebar-active { background-color: #eff6ff; border-left: 4px solid #3b82f6; color: #1d4ed8; font-weight: 600; }
+        .chart-container { position: relative; height: 300px; width: 100%; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            main { margin-left: 0 !important; padding: 0 !important; }
+            .bg-white { background: white !important; border: none !important; }
+            .shadow-sm, .shadow-lg { box-shadow: none !important; }
+        }
+        .excel-input:focus { outline: none; border-bottom: 2px solid #3b82f6; }
+        .glass-morphism { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="flex min-h-screen">
 
-// --- Firebase Configuration ---
-// Menggunakan global variable dari environment sesuai instruksi keamanan
-const firebaseConfig = {
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 fixed h-full z-20 no-print">
+        <div class="p-6">
+            <div class="flex items-center space-x-3 text-blue-600 mb-10">
+                <div class="bg-blue-600 p-2 rounded-lg text-white">
+                    <i class="fas fa-hospital-symbol text-xl"></i>
+                </div>
+                <span class="font-bold text-xl tracking-tight text-gray-800">MediTrack<span class="text-blue-600">Pro</span></span>
+            </div>
+            
+            <nav class="space-y-2">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition sidebar-active">
+                    <i class="fas fa-th-large w-6"></i> Dashboard
+                </button>
+                <button onclick="switchTab('input')" id="nav-input" class="w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                    <i class="fas fa-plus-square w-6"></i> Input Barang
+                </button>
+                <button onclick="switchTab('trend')" id="nav-trend" class="w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                    <i class="fas fa-chart-line w-6"></i> Analisis Tren
+                </button>
+                <button onclick="switchTab('migration')" id="nav-migration" class="w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                    <i class="fas fa-file-import w-6"></i> Export / Import
+                </button>
+                <button onclick="switchTab('report')" id="nav-report" class="w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                    <i class="fas fa-file-pdf w-6"></i> Laporan
+                </button>
+            </nav>
+        </div>
+        
+        <div class="absolute bottom-0 w-full p-6 border-t border-gray-100">
+            <div id="auth-status" class="text-xs text-gray-400 flex items-center bg-gray-50 p-3 rounded-lg">
+                <div class="animate-pulse w-2 h-2 bg-yellow-400 rounded-full mr-2"></div> 
+                <span>Menghubungkan Database...</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 ml-64 p-8" id="main-content">
+        
+        <!-- Tab: Dashboard -->
+        <section id="tab-dashboard" class="space-y-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Ringkasan Pengadaan</h1>
+                    <p class="text-gray-500 text-sm">Visualisasi data pembelian rumah sakit secara real-time.</p>
+                </div>
+                <div class="flex items-center space-x-3 bg-white p-2 rounded-xl border border-gray-100 shadow-sm">
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-2">Tahun:</label>
+                    <select id="dashboard-year" onchange="loadDashboardData()" class="border-none rounded-lg px-4 py-1 bg-transparent text-sm font-semibold focus:ring-0 outline-none cursor-pointer">
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i class="fas fa-wallet text-5xl text-blue-600"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-500 mb-1">Total Pengeluaran</p>
+                    <h3 id="stat-total" class="text-2xl font-bold text-blue-600">Rp 0</h3>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i class="fas fa-boxes text-5xl text-teal-600"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-500 mb-1">Total Item</p>
+                    <h3 id="stat-items" class="text-2xl font-bold text-teal-600">0 Unit</h3>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i class="fas fa-tags text-5xl text-purple-600"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-500 mb-1">Kategori Aktif</p>
+                    <h3 id="stat-categories" class="text-2xl font-bold text-purple-600">5</h3>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <h4 class="font-semibold text-gray-700 mb-4 flex items-center">
+                        <i class="fas fa-chart-bar mr-2 text-blue-500"></i> Pembelian per Kategori
+                    </h4>
+                    <div class="chart-container">
+                        <canvas id="categoryBarChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <h4 class="font-semibold text-gray-700 mb-4 flex items-center">
+                        <i class="fas fa-chart-line mr-2 text-green-500"></i> Tren Pengeluaran Bulanan
+                    </h4>
+                    <div class="chart-container">
+                        <canvas id="monthlyLineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                <h4 class="font-semibold text-gray-700 mb-6 text-center">Distribusi Anggaran (%)</h4>
+                <div class="flex flex-col md:flex-row items-center justify-around">
+                    <div class="w-72 h-72">
+                        <canvas id="categoryPieChart"></canvas>
+                    </div>
+                    <div id="pie-legend" class="grid grid-cols-1 gap-4">
+                        <!-- Legend dynamically populated -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab: Input Pembelian -->
+        <section id="tab-input" class="hidden space-y-6">
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-5xl mx-auto">
+                <div class="border-b border-gray-100 pb-4 mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Form Input Pembelian</h2>
+                    <p class="text-gray-500 text-sm">Gunakan model baris Excel untuk menginput banyak barang sekaligus.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Kategori Utama</label>
+                        <select id="input-category" onchange="updateItemList()" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none transition">
+                            <option value="">-- Pilih Kategori --</option>
+                            <option value="Obat-obatan">Obat-obatan</option>
+                            <option value="Alat Kesehatan">Alat Kesehatan</option>
+                            <option value="Bahan Habis Pakai">Bahan Habis Pakai</option>
+                            <option value="Fasilitas Umum">Fasilitas Umum</option>
+                            <option value="Lain-lain">Lain-lain</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Nama Supplier</label>
+                        <input type="text" id="input-supplier" placeholder="Contoh: PT. Kimia Farma" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Tanggal Transaksi</label>
+                        <input type="date" id="input-date" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto border border-gray-200 rounded-2xl mb-6">
+                    <table class="w-full text-left border-collapse" id="excel-table">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200">
+                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Nama Barang</th>
+                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase text-center w-24">Jumlah</th>
+                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase w-32">Satuan</th>
+                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Harga Satuan (Rp)</th>
+                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase text-right">Subtotal</th>
+                                <th class="px-6 py-4 w-12"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="excel-rows">
+                            <!-- Rows via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <button onclick="addRow()" class="bg-blue-50 text-blue-600 px-6 py-3 rounded-xl font-semibold flex items-center hover:bg-blue-100 transition active:scale-95">
+                        <i class="fas fa-plus mr-2"></i> Tambah Baris Excel
+                    </button>
+                    <div class="text-right p-4 bg-gray-50 rounded-2xl border border-gray-100 min-w-[200px]">
+                        <p class="text-gray-400 text-xs font-bold uppercase">Total Pembayaran</p>
+                        <p id="grand-total-display" class="text-3xl font-extrabold text-gray-800">Rp 0</p>
+                    </div>
+                </div>
+
+                <div class="mt-10 pt-8 border-t border-gray-100">
+                    <button onclick="submitPurchase()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 shadow-xl shadow-blue-100 transition active:scale-95 flex items-center justify-center">
+                        <i class="fas fa-cloud-upload-alt mr-3 text-xl"></i> Simpan Transaksi ke Cloud
+                    </button>
+                </div>
+            </div>
+        </section>
+        <!-- Tab: Migration (Export/Import) -->
+        <section id="tab-migration" class="hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Master Data Items -->
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div class="bg-blue-100 text-blue-600 p-3 rounded-2xl">
+                            <i class="fas fa-boxes text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800">Master Data Barang</h3>
+                            <p class="text-gray-400 text-xs">Kelola daftar referensi nama barang per kategori</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                            <label class="block text-sm font-semibold text-gray-600 mb-2">Import CSV Barang</label>
+                            <input type="file" id="import-master-file" accept=".csv" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" />
+                            <p class="text-[10px] text-gray-400 mt-2 italic">*Format CSV: Kategori, NamaBarang</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="handleImport('master')" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition active:scale-95">
+                                <i class="fas fa-upload mr-2"></i> Import Master
+                            </button>
+                            <button onclick="handleExport('master')" class="bg-white border border-blue-600 text-blue-600 px-6 py-3 rounded-xl font-bold hover:bg-blue-50 transition active:scale-95">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction Data -->
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div class="bg-emerald-100 text-emerald-600 p-3 rounded-2xl">
+                            <i class="fas fa-file-invoice-dollar text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800">Data Transaksi Pembelian</h3>
+                            <p class="text-gray-400 text-xs">Bulk import/export history transaksi pengadaan</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 rounded-2xl border border-dashed border-emerald-200">
+                            <label class="block text-sm font-semibold text-gray-600 mb-2">Import CSV Transaksi</label>
+                            <input type="file" id="import-tx-file" accept=".csv" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer" />
+                            <p class="text-[10px] text-gray-400 mt-2 italic">*Format CSV: Tanggal, Kategori, Supplier, NamaBarang, Qty, Satuan, HargaSatuan</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="handleImport('tx')" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition active:scale-95">
+                                <i class="fas fa-file-import mr-2"></i> Import Transaksi
+                            </button>
+                            <button onclick="handleExport('tx')" class="bg-white border border-emerald-600 text-emerald-600 px-6 py-3 rounded-xl font-bold hover:bg-emerald-50 transition active:scale-95">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab: Laporan -->
+        <section id="tab-report" class="hidden space-y-6">
+            <div class="no-print flex justify-between items-center bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">Laporan Pengadaan</h2>
+                    <p class="text-gray-400 text-sm italic">*Pilih periode sebelum mencetak</p>
+                </div>
+                <div class="flex space-x-4">
+                    <select id="report-month" class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="1">Januari</option>
+                        <option value="2">Februari</option>
+                        <option value="3">Maret</option>
+                        <option value="4">April</option>
+                        <option value="5">Mei</option>
+                        <option value="6">Juni</option>
+                        <option value="7">Juli</option>
+                        <option value="8">Agustus</option>
+                        <option value="9">September</option>
+                        <option value="10">Oktober</option>
+                        <option value="11">November</option>
+                        <option value="12">Desember</option>
+                    </select>
+                    <button onclick="window.print()" class="bg-blue-600 text-white px-8 py-2 rounded-xl font-bold hover:bg-blue-700 flex items-center transition shadow-lg shadow-blue-100">
+                        <i class="fas fa-print mr-2"></i> Cetak Laporan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Report Sheet -->
+            <div id="report-sheet" class="bg-white p-16 rounded shadow-2xl mx-auto max-w-4xl border border-gray-200">
+                <div class="flex justify-between items-start mb-12 border-b-2 border-gray-100 pb-8">
+                    <div>
+                        <h1 class="text-4xl font-black uppercase text-blue-900 tracking-tighter">MediTrack <span class="text-blue-500">PRO</span></h1>
+                        <p class="text-gray-400 text-sm mt-2 tracking-widest font-bold">REKAPITULASI LOGISTIK RUMAH SAKIT</p>
+                    </div>
+                    <div class="text-right">
+                        <p id="report-period" class="bg-blue-900 text-white px-4 py-1 text-xs font-bold rounded-full">PERIODE: JANUARI 2024</p>
+                        <p class="text-gray-400 text-[10px] mt-2 italic font-mono">UID-SYSTEM: LOG-TRK-7712</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-12 mb-16">
+                    <div>
+                        <h3 class="text-sm font-black text-gray-800 mb-6 flex items-center uppercase">
+                            <span class="w-1.5 h-6 bg-blue-500 rounded mr-3"></span> Ringkasan Kategori
+                        </h3>
+                        <div class="w-full h-64">
+                            <canvas id="reportPieChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-black text-gray-800 mb-6 flex items-center uppercase">
+                            <span class="w-1.5 h-6 bg-blue-500 rounded mr-3"></span> Akumulasi Biaya
+                        </h3>
+                        <div id="report-table-summary" class="text-sm space-y-4">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-sm font-black text-gray-800 mb-6 flex items-center uppercase">
+                    <span class="w-1.5 h-6 bg-blue-500 rounded mr-3"></span> Detail Transaksi Bulanan
+                </h3>
+                <table class="w-full text-xs border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 border-b-2 border-gray-100">
+                            <th class="p-4 text-left text-gray-400 font-bold uppercase">Tanggal</th>
+                            <th class="p-4 text-left text-gray-400 font-bold uppercase">Item & Deskripsi</th>
+                            <th class="p-4 text-left text-gray-400 font-bold uppercase text-center">Unit</th>
+                            <th class="p-4 text-right text-gray-400 font-bold uppercase">Nominal (Rp)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-tx-body">
+                        <!-- Data rows -->
+                    </tbody>
+                </table>
+
+                <div class="mt-24 flex justify-end">
+                    <div class="text-center w-64">
+                        <p class="text-[10px] text-gray-400 mb-20 italic">Dihasilkan secara otomatis oleh sistem pada <span id="print-date">01/01/2024</span></p>
+                        <div class="border-t-2 border-gray-900 pt-2 text-xs font-black text-gray-800 uppercase">Kepala Bagian Logistik</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- UI Overlay for Alerts -->
+    <div id="toast" class="fixed bottom-10 right-10 transform translate-y-20 opacity-0 transition-all duration-300 px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-4 z-50 pointer-events-none border border-white/20 glass-morphism">
+        <div id="toast-icon-bg" class="w-10 h-10 rounded-full flex items-center justify-center text-white">
+            <i id="toast-icon" class="fas fa-info-circle"></i>
+        </div>
+        <div>
+            <p id="toast-title" class="font-bold text-gray-800 leading-none mb-1 text-sm"></p>
+            <p id="toast-message" class="text-xs text-gray-500"></p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, addDoc, query, orderBy, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        import { getFirestore, collection, onSnapshot, addDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Config (Placeholder)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'meditrack-hospital-proc';
+        const firebaseConfig = {
   apiKey: "AIzaSyBiEWqdYX8zOjRwv4Mo1DRlFcSLsG8OhlQ",
   authDomain: "gudangatk.firebaseapp.com",
   databaseURL: "https://gudangatk-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -54,751 +381,519 @@ const firebaseConfig = {
   appId: "1:274324790135:web:8b67b0c39524d2cf2cdf72",
   measurementId: "G-KCYZG0ZZGR"
 };
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'rs-logistik-v1';
 
-// --- Constants ---
-const CATEGORY_COLORS = {
-  'ATK': '#3B82F6',
-  'Plastik': '#10B981',
-  'Alat Kebersihan/RT': '#F59E0B',
-  'Chemical Laundry': '#8B5CF6',
-  'Bahan Basah&Kering': '#EF4444'
-};
-
-const MONTHS = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-  'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
-];
-
-// --- Utilities ---
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0
-  }).format(amount || 0);
-};
-
-// --- Main Application Component ---
-export default function App() {
-  const [user, setUser] = useState(null);
-  const [activeMenu, setActiveMenu] = useState('dashboard');
-  const [categories, setCategories] = useState([]);
-  const [items, setItems] = useState([]);
-  const [rooms, setRooms] = useState([]);
-  const [transactions, setTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-
-  // Auth initialization (RULE 3)
-  useEffect(() => {
-    const initAuth = async () => {
-      try {
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          try {
-            await signInWithCustomToken(auth, __initial_auth_token);
-          } catch (tokenErr) {
-            await signInAnonymously(auth);
-          }
-        } else {
-          await signInAnonymously(auth);
-        }
-      } catch (error) {
-        console.error("Auth error:", error);
-        setError("Gagal menghubungkan ke layanan keamanan.");
-      }
-    };
-    initAuth();
-    const unsubscribe = onAuthStateChanged(auth, setUser);
-    return () => unsubscribe();
-  }, []);
-
-  // Data Listeners (RULE 1)
-  useEffect(() => {
-    if (!user) return;
-
-    const unsubCats = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'categories'), (snapshot) => {
-      setCategories(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    }, (err) => console.error(err));
-
-    const unsubItems = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'items'), (snapshot) => {
-      setItems(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    }, (err) => console.error(err));
-
-    const unsubRooms = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'rooms'), (snapshot) => {
-      setRooms(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    }, (err) => console.error(err));
-
-    const unsubTrans = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'transactions'), (snapshot) => {
-      setTransactions(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      setLoading(false);
-    }, (err) => console.error(err));
-
-    return () => {
-      unsubCats(); unsubItems(); unsubRooms(); unsubTrans();
-    };
-  }, [user]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-slate-900 text-white font-sans">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-lg font-bold tracking-widest animate-pulse uppercase">SILog RS PREMIUM</p>
-          <p className="text-xs text-slate-400 mt-2 italic">Menyiapkan Database Rumah Sakit...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden font-sans relative">
-      <aside className="w-72 bg-slate-950 text-slate-300 flex flex-col z-20 shadow-2xl border-r border-white/5">
-        <div className="p-6 flex items-center gap-3 border-b border-white/10">
-          <div className="bg-blue-600 p-2.5 rounded-xl shadow-lg shadow-blue-900/20">
-            <Hotel className="text-white w-6 h-6" />
-          </div>
-          <div>
-            <h2 className="text-white font-black text-xl tracking-tight leading-none">SILog RS</h2>
-            <p className="text-[10px] text-blue-500 font-bold uppercase tracking-[0.2em] mt-1">Premium Logistics</p>
-          </div>
-        </div>
-
-        <nav className="flex-1 overflow-y-auto py-4 space-y-1 px-3 custom-scrollbar">
-          <MenuButton active={activeMenu === 'dashboard'} icon={<LayoutDashboard />} label="Dashboard" onClick={() => setActiveMenu('dashboard')} />
-          <div className="h-px bg-white/5 my-2 mx-3"></div>
-          <MenuButton active={activeMenu === 'input'} icon={<PackagePlus />} label="Input Barang" onClick={() => setActiveMenu('input')} />
-          <MenuButton active={activeMenu === 'database'} icon={<Database />} label="Database Transaksi" onClick={() => setActiveMenu('database')} />
-          <MenuButton active={activeMenu === 'histori'} icon={<History />} label="Kartu Stok" onClick={() => setActiveMenu('histori')} />
-          <MenuButton active={activeMenu === 'ruangan'} icon={<Hotel />} label="Laporan Ruangan" onClick={() => setActiveMenu('ruangan')} />
-          <div className="h-px bg-white/5 my-2 mx-3"></div>
-          <MenuButton active={activeMenu === 'tren'} icon={<TrendingUp />} label="Analisa Tren" onClick={() => setActiveMenu('tren')} />
-          <MenuButton active={activeMenu === 'master'} icon={<Settings />} label="Master Data" onClick={() => setActiveMenu('master')} />
-        </nav>
+        // State & Mode
+        let allPurchases = [];
+        let charts = {};
+        let isLocalStorageMode = false;
         
-        <div className="p-4 border-t border-white/5 bg-black/20 text-[10px] text-slate-500 flex justify-between items-center">
-          <span>UID: {user?.uid.slice(0, 8)}...</span>
-          <span className="text-emerald-500 font-bold flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            ONLINE
-          </span>
-        </div>
-      </aside>
+        let itemDatabase = {
+            "Obat-obatan": ["Paracetamol 500mg", "Amoxicillin Syr", "Cefixime 100mg", "Insulin Lantus", "Salbutamol Inhaler", "Vitamin C 500mg"],
+            "Alat Kesehatan": ["Stetoskop Littman", "Termometer Digital", "Tensimeter Digital", "Infusion Pump", "Nebulizer", "EKG 12 Channel"],
+            "Bahan Habis Pakai": ["Masker Bedah (Box)", "Sarung Tangan Nitril", "Kasa Steril", "Spuit 3cc", "Alkohol 70% 1L", "Plester Gulung"],
+            "Fasilitas Umum": ["Kursi Tunggu", "Bed Pasien Electric", "Meja Periksa", "AC Split 1PK", "Lampu Operasi", "Lemari Obat"],
+            "Lain-lain": ["ATK Kantor", "Tinta Printer", "Sabun Cuci Tangan", "Tissue Roll", "Seragam Perawat", "Buku Pasien"]
+        };
 
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center px-8 justify-between shadow-sm z-10">
-          <div className="flex-1 mr-8 overflow-hidden bg-slate-50 py-1.5 rounded-full px-4 border border-slate-100">
-            <div className="animate-marquee whitespace-nowrap text-blue-700 font-bold text-xs uppercase tracking-wider">
-              Peringatan: Stok ATK menipis • Laporan bulanan akan dikunci otomatis pada tanggal 30 • Gunakan menu "Master Data" untuk menambah kategori baru • Support: Ext 105
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-sm font-bold text-slate-800">Admin Utama</p>
-              <p className="text-[10px] text-slate-400 font-semibold">{new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-200">
-              AD
-            </div>
-          </div>
-        </header>
+        let app, db, auth;
+        window.handleExport = (type) => {
+            let csvContent = "";
+            let fileName = "";
 
-        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar bg-[#f8fafc]">
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-700 font-bold text-sm">
-              <AlertCircle size={20} />
-              {error}
-            </div>
-          )}
+            if (type === 'master') {
+                csvContent = "Kategori,NamaBarang\n";
+                Object.keys(itemDatabase).forEach(cat => {
+                    itemDatabase[cat].forEach(item => {
+                        csvContent += `"${cat}","${item}"\n`;
+                    });
+                });
+                fileName = "Master_Barang_MediTrack.csv";
+            } else {
+                csvContent = "Tanggal,Kategori,Supplier,NamaBarang,Qty,Satuan,HargaSatuan,Total\n";
+                allPurchases.forEach(p => {
+                    csvContent += `"${p.date}","${p.category}","${p.supplier}","${p.name}",${p.qty},"${p.unit}",${p.unitPrice},${p.total}\n`;
+                });
+                fileName = "Transaksi_Pembelian_MediTrack.csv";
+            }
 
-          {activeMenu === 'dashboard' && <DashboardView transactions={transactions} categories={categories} selectedYear={selectedYear} setSelectedYear={setSelectedYear} />}
-          {activeMenu === 'input' && <InputBarangView categories={categories} items={items} rooms={rooms} />}
-          {activeMenu === 'database' && <DatabaseView transactions={transactions} categories={categories} />}
-          {activeMenu === 'histori' && <HistoriBarangView transactions={transactions} categories={categories} items={items} />}
-          {activeMenu === 'ruangan' && <ManajemenRuanganView rooms={rooms} transactions={transactions} />}
-          {activeMenu === 'tren' && <TrenHargaView transactions={transactions} items={items} categories={categories} />}
-          {activeMenu === 'master' && <MasterView categories={categories} rooms={rooms} items={items} />}
-        </div>
-      </main>
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", fileName);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
 
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        .animate-marquee { animation: marquee 25s linear infinite; }
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .animate-fadeIn { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-      `}} />
-    </div>
-  );
-}
+        window.handleImport = (type) => {
+            const fileInput = document.getElementById(type === 'master' ? 'import-master-file' : 'import-tx-file');
+            const file = fileInput.files[0];
 
-// --- Internal Components ---
+            if (!file) {
+                showToast("Pilih File", "Harap pilih file CSV terlebih dahulu.", "warning");
+                return;
+            }
 
-function MenuButton({ active, icon, label, onClick }) {
-  return (
-    <button 
-      onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
-        active 
-          ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40 font-bold' 
-          : 'text-slate-400 hover:bg-white/5 hover:text-white'
-      }`}
-    >
-      <div className={`${active ? 'text-white' : 'text-slate-500 group-hover:text-blue-400'}`}>
-        {React.cloneElement(icon, { size: 20 })}
-      </div>
-      <span className="text-sm tracking-wide">{label}</span>
-    </button>
-  );
-}
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const text = e.target.result;
+                const rows = text.split('\n').slice(1); // Skip header
 
-function DashboardView({ transactions, categories, selectedYear, setSelectedYear }) {
-  const chartData = useMemo(() => {
-    return MONTHS.map((month, idx) => {
-      const entry = { month };
-      categories.forEach(cat => {
-        const total = transactions
-          .filter(t => t.type === 'in' && t.category === cat.name && new Date(t.date).getFullYear() === selectedYear && new Date(t.date).getMonth() === idx)
-          .reduce((sum, curr) => sum + (Number(curr.price) * Number(curr.amount)), 0);
-        entry[cat.name] = total;
-      });
-      return entry;
-    });
-  }, [transactions, categories, selectedYear]);
+                if (type === 'master') {
+                    const newDb = { ...itemDatabase };
+                    let count = 0;
+                    rows.forEach(row => {
+                        const cols = row.split(',').map(c => c.replace(/"/g, '').trim());
+                        if (cols.length >= 2 && cols[0] && cols[1]) {
+                            if (!newDb[cols[0]]) newDb[cols[0]] = [];
+                            if (!newDb[cols[0]].includes(cols[1])) {
+                                newDb[cols[0]].push(cols[1]);
+                                count++;
+                            }
+                        }
+                    });
+                    itemDatabase = newDb;
+                    // Optional: Save to Cloud if Master data is synced
+                    showToast("Import Berhasil", `${count} item baru ditambahkan ke database master.`, "success");
+                } else {
+                    let count = 0;
+                    const itemsToUpload = [];
+                    rows.forEach(row => {
+                        const cols = row.split(',').map(c => c.replace(/"/g, '').trim());
+                        if (cols.length >= 7) {
+                            const qty = parseFloat(cols[4]);
+                            const price = parseFloat(cols[6]);
+                            itemsToUpload.push({
+                                date: cols[0],
+                                category: cols[1],
+                                supplier: cols[2],
+                                name: cols[3],
+                                qty: qty,
+                                unit: cols[5],
+                                unitPrice: price,
+                                total: qty * price,
+                                timestamp: Date.now()
+                            });
+                            count++;
+                        }
+                    });
 
-  return (
-    <div className="space-y-8 animate-fadeIn">
-      <div className="flex justify-between items-end">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900">Dashboard Eksekutif</h1>
-          <p className="text-slate-500 font-medium">Monitoring pergerakan aset logistik rumah sakit</p>
-        </div>
-        <div className="flex items-center gap-3 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm">
-           <span className="text-[10px] font-black text-slate-400 px-3 uppercase tracking-widest">Filter Tahun</span>
-           <select 
-            value={selectedYear} 
-            onChange={(e) => setSelectedYear(Number(e.target.value))}
-            className="bg-slate-900 text-white border-none rounded-lg px-4 py-2 text-sm font-bold outline-none cursor-pointer"
-          >
-            {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
-          </select>
-        </div>
-      </div>
+                    try {
+                        if (isLocalStorageMode) {
+                            allPurchases = [...allPurchases, ...itemsToUpload];
+                            saveLocalData();
+                        } else {
+                            const purchaseRef = collection(db, 'artifacts', appId, 'public', 'data', 'purchases');
+                            for (const item of itemsToUpload) {
+                                await addDoc(purchaseRef, item);
+                            }
+                        }
+                        showToast("Import Berhasil", `${count} transaksi berhasil direkam.`, "success");
+                    } catch (err) {
+                        showToast("Gagal Import", "Terjadi kesalahan saat menyimpan data transaksi.", "error");
+                    }
+                }
+                fileInput.value = '';
+                refreshUI();
+            };
+            reader.readAsText(file);
+        };
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {categories.slice(0, 4).map(cat => {
-          const totalValue = transactions
-            .filter(t => t.type === 'in' && t.category === cat.name && new Date(t.date).getFullYear() === selectedYear)
-            .reduce((sum, curr) => sum + (Number(curr.price) * Number(curr.amount)), 0);
-          return (
-            <div key={cat.id} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 bg-slate-50 rounded-full group-hover:bg-blue-50 transition-colors"></div>
-              <div className="relative z-10">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: `${CATEGORY_COLORS[cat.name] || '#64748b'}20` }}>
-                  <div style={{ color: CATEGORY_COLORS[cat.name] || '#64748b' }}>
-                    <Package size={20} />
-                  </div>
-                </div>
-                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{cat.name}</p>
-                <p className="text-xl font-black text-slate-900">{formatCurrency(totalValue)}</p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+        function activateLocalMode() {
+            isLocalStorageMode = true;
+            document.getElementById('auth-status').innerHTML = `
+                <div class="w-2 h-2 bg-purple-500 rounded-full mr-2 animate-bounce"></div> 
+                <span class="text-purple-700 font-bold">Mode Lokal (Offline)</span>
+            `;
+            loadLocalData();
+        }
 
-      <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-        <div className="flex items-center justify-between mb-8">
-          <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
-            <TrendingUp className="text-blue-600" /> Analisa Pengeluaran Bulanan
-          </h3>
-          <div className="flex gap-4">
-            {categories.slice(0, 3).map(c => (
-              <div key={c.id} className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: CATEGORY_COLORS[c.name] }}></div>
-                <span className="text-[10px] font-bold text-slate-500 uppercase">{c.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="h-[400px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-              <XAxis dataKey="month" tick={{fontSize: 11, fontWeight: 700, fill: '#94a3b8'}} axisLine={false} tickLine={false} />
-              <YAxis tick={{fontSize: 11, fontWeight: 700, fill: '#94a3b8'}} axisLine={false} tickLine={false} tickFormatter={(v) => `Rp ${v/1000000}jt`} />
-              <RechartsTooltip 
-                contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                formatter={(v) => formatCurrency(v)} 
-              />
-              {categories.slice(0, 4).map((cat) => (
-                <Line 
-                  key={cat.id} 
-                  type="monotone" 
-                  dataKey={cat.name} 
-                  stroke={CATEGORY_COLORS[cat.name] || '#64748b'} 
-                  strokeWidth={4} 
-                  dot={{ r: 4, strokeWidth: 2, fill: '#fff' }} 
-                  activeDot={{ r: 6, strokeWidth: 0 }} 
-                />
-              ))}
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-    </div>
-  );
-}
+        async function loadDataFromCloud() {
+            const purchaseRef = collection(db, 'artifacts', appId, 'public', 'data', 'purchases');
+            onSnapshot(purchaseRef, (snapshot) => {
+                allPurchases = [];
+                snapshot.forEach(doc => {
+                    allPurchases.push({ id: doc.id, ...doc.data() });
+                });
+                refreshUI();
+            }, (error) => {
+                console.error("Firestore Error (likely rules):", error);
+                if (error.code === 'permission-denied') {
+                    showToast("Izin Database Ditolak", "Menggunakan Mode Penyimpanan Lokal Sementara.", "warning");
+                    activateLocalMode();
+                }
+            });
+        }
 
-function InputBarangView({ categories, items, rooms }) {
-  const [form, setForm] = useState({
-    type: 'in',
-    date: new Date().toISOString().split('T')[0],
-    category: '',
-    itemName: '',
-    amount: '',
-    price: '',
-    supplier: '',
-    room: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+        function loadLocalData() {
+            const data = localStorage.getItem('meditrack_purchases');
+            allPurchases = data ? JSON.parse(data) : [];
+            refreshUI();
+        }
 
-  const filteredItems = useMemo(() => items.filter(i => i.category === form.category), [form.category, items]);
+        function saveLocalData() {
+            localStorage.setItem('meditrack_purchases', JSON.stringify(allPurchases));
+            refreshUI();
+        }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (isSubmitting) return;
-    setIsSubmitting(true);
-    try {
-      await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'transactions'), {
-        ...form,
-        timestamp: Date.now()
-      });
-      setForm({ ...form, itemName: '', amount: '', price: '', supplier: '', room: '' });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+        function refreshUI() {
+            loadDashboardData();
+            updateTrendItems();
+            renderReport();
+        }
 
-  return (
-    <div className="max-w-4xl mx-auto animate-fadeIn">
-      <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-200 overflow-hidden">
-        <div className="flex">
-          <button 
-            onClick={() => setForm({...form, type: 'in'})}
-            className={`flex-1 py-6 font-black text-sm tracking-widest transition-all ${form.type === 'in' ? 'bg-blue-600 text-white' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
-          >
-            BARANG MASUK (LOGISTIK)
-          </button>
-          <button 
-            onClick={() => setForm({...form, type: 'out'})}
-            className={`flex-1 py-6 font-black text-sm tracking-widest transition-all ${form.type === 'out' ? 'bg-rose-600 text-white' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
-          >
-            DISTRIBUSI KE RUANGAN
-          </button>
-        </div>
+        window.submitPurchase = async () => {
+            const category = document.getElementById('input-category').value;
+            const supplier = document.getElementById('input-supplier').value;
+            const date = document.getElementById('input-date').value;
 
-        <form onSubmit={handleSubmit} className="p-10 space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <FormGroup label="Tanggal Transaksi">
-              <input type="date" required value={form.date} onChange={e => setForm({...form, date: e.target.value})} className="form-input" />
-            </FormGroup>
-            <FormGroup label="Kategori Barang">
-              <select required value={form.category} onChange={e => setForm({...form, category: e.target.value, itemName: ''})} className="form-input">
-                <option value="">Pilih Kategori</option>
-                {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
-              </select>
-            </FormGroup>
-            <FormGroup label="Nama Barang">
-              <select required disabled={!form.category} value={form.itemName} onChange={e => setForm({...form, itemName: e.target.value})} className="form-input disabled:opacity-50">
-                <option value="">Pilih Barang</option>
-                {filteredItems.map(i => <option key={i.id} value={i.name}>{i.name} ({i.unit})</option>)}
-              </select>
-            </FormGroup>
-            <FormGroup label="Jumlah (Qty)">
-              <input type="number" required placeholder="0" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} className="form-input" />
-            </FormGroup>
+            if (!category || !supplier || !date) {
+                showToast("Data Tidak Lengkap", "Harap isi Kategori, Supplier, dan Tanggal transaksi.", "error");
+                return;
+            }
 
-            {form.type === 'in' ? (
-              <>
-                <FormGroup label="Harga Satuan (Rp)">
-                  <input type="number" required placeholder="50000" value={form.price} onChange={e => setForm({...form, price: e.target.value})} className="form-input" />
-                </FormGroup>
-                <FormGroup label="Vendor / Supplier">
-                  <input type="text" required placeholder="PT. Logistik Jaya" value={form.supplier} onChange={e => setForm({...form, supplier: e.target.value})} className="form-input" />
-                </FormGroup>
-              </>
-            ) : (
-              <FormGroup label="Tujuan Ruangan" className="md:col-span-2">
-                <select required value={form.room} onChange={e => setForm({...form, room: e.target.value})} className="form-input">
-                  <option value="">Pilih Ruangan Penerima</option>
-                  {rooms.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
-                </select>
-              </FormGroup>
-            )}
-          </div>
+            const rows = document.querySelectorAll('.item-row');
+            const batchItems = [];
 
-          <button 
-            type="submit" 
-            disabled={isSubmitting}
-            className={`w-full py-5 rounded-2xl font-black text-white shadow-lg transition-all flex items-center justify-center gap-3 ${
-              form.type === 'in' ? 'bg-slate-900 hover:bg-blue-700' : 'bg-slate-900 hover:bg-rose-700'
-            } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            {isSubmitting ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <Plus size={20} />}
-            SIMPAN DATA PERUBAHAN STOK
-          </button>
-        </form>
-      </div>
-      
-      <style>{`
-        .form-input { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 12px; outline: none; transition: all 0.2s; font-weight: 600; }
-        .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
-      `}</style>
-    </div>
-  );
-}
+            rows.forEach(row => {
+                const name = row.querySelector('.row-name').value;
+                const qty = parseFloat(row.querySelector('.row-qty').value) || 0;
+                const unit = row.querySelector('.row-unit').value;
+                const price = parseFloat(row.querySelector('.row-price').value) || 0;
 
-function FormGroup({ label, children, className }) {
-  return (
-    <div className={`space-y-2 ${className}`}>
-      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
-      {children}
-    </div>
-  );
-}
+                if (name && qty > 0 && price > 0) {
+                    batchItems.push({
+                        name, qty, unit, unitPrice: price, 
+                        total: qty * price, 
+                        category, supplier, date,
+                        timestamp: Date.now()
+                    });
+                }
+            });
 
-function DatabaseView({ transactions }) {
-  const [searchTerm, setSearchTerm] = useState('');
-  
-  const filtered = transactions
-    .filter(t => t.itemName?.toLowerCase().includes(searchTerm.toLowerCase()) || t.category?.toLowerCase().includes(searchTerm.toLowerCase()))
-    .sort((a, b) => b.timestamp - a.timestamp);
+            if (batchItems.length === 0) {
+                showToast("Baris Kosong", "Isi minimal satu baris barang dengan harga dan jumlah yang benar.", "error");
+                return;
+            }
 
-  const handleDelete = async (id) => {
-    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'transactions', id));
-  };
+            try {
+                if (isLocalStorageMode) {
+                    allPurchases = [...allPurchases, ...batchItems];
+                    saveLocalData();
+                } else {
+                    const purchaseRef = collection(db, 'artifacts', appId, 'public', 'data', 'purchases');
+                    for (const item of batchItems) {
+                        await addDoc(purchaseRef, item);
+                    }
+                }
+                
+                showToast("Data Tersimpan", `Berhasil merekam ${batchItems.length} item pengadaan ke sistem.`, "success");
+                
+                // Clear Form
+                document.getElementById('excel-rows').innerHTML = '';
+                addRow();
+                document.getElementById('grand-total-display').innerText = 'Rp 0';
+            } catch (err) {
+                showToast("Gagal Menyimpan", "Terjadi kesalahan saat menghubungi server.", "error");
+            }
+        };
 
-  return (
-    <div className="space-y-6 animate-fadeIn">
-      <div className="flex justify-between items-center bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-        <h2 className="text-xl font-black text-slate-900">Database Logistik</h2>
-        <div className="relative w-80">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-          <input 
-            type="text" 
-            placeholder="Cari transaksi..." 
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-2.5 bg-slate-50 border-none rounded-xl text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none"
-          />
-        </div>
-      </div>
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            
+            document.querySelectorAll('aside nav button').forEach(b => b.classList.remove('sidebar-active'));
+            document.getElementById(`nav-${tabId}`).classList.add('sidebar-active');
+            
+            refreshUI();
+        };
 
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-slate-50/80 border-b border-slate-100">
-              <tr>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Waktu</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Jenis</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Barang</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Qty</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Nilai</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ket / Ruang</th>
-                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {filtered.map(t => (
-                <tr key={t.id} className="hover:bg-slate-50/50 transition-colors group">
-                  <td className="px-6 py-4 text-xs font-bold text-slate-500">{t.date}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black ${t.type === 'in' ? 'bg-blue-100 text-blue-700' : 'bg-rose-100 text-rose-700'}`}>
-                      {t.type === 'in' ? 'MASUK' : 'KELUAR'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="font-bold text-slate-800 text-sm">{t.itemName}</p>
-                    <p className="text-[10px] text-slate-400 font-medium">{t.category}</p>
-                  </td>
-                  <td className="px-6 py-4 text-center font-black text-slate-700">{t.amount}</td>
-                  <td className="px-6 py-4 font-bold text-slate-600 text-sm">
-                    {t.type === 'in' ? formatCurrency(t.price * t.amount) : '-'}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-500 italic">
-                      {t.type === 'in' ? t.supplier : t.room}
+        window.addRow = () => {
+            const tbody = document.getElementById('excel-rows');
+            const category = document.getElementById('input-category').value;
+            const items = itemDatabase[category] || [];
+            
+            const tr = document.createElement('tr');
+            tr.className = 'item-row border-b border-gray-100 hover:bg-gray-50 transition';
+            
+            let itemOptions = items.map(it => `<option value="${it}">${it}</option>`).join('');
+            
+            tr.innerHTML = `
+                <td class="px-6 py-4">
+                    <input list="items-${Date.now()}" class="excel-input row-name w-full bg-transparent p-1 font-medium text-gray-700" placeholder="Ketik nama barang...">
+                    <datalist id="items-${Date.now()}">${itemOptions}</datalist>
+                </td>
+                <td class="px-6 py-4"><input type="number" class="excel-input row-qty w-full bg-transparent p-1 text-center" value="1" min="1" oninput="recalcRow(this)"></td>
+                <td class="px-6 py-4"><input type="text" class="excel-input row-unit w-full bg-transparent p-1 text-gray-500" placeholder="pcs/box/liter"></td>
+                <td class="px-6 py-4">
+                    <div class="flex items-center">
+                        <span class="text-gray-400 mr-1 text-xs">Rp</span>
+                        <input type="number" class="excel-input row-price w-full bg-transparent p-1" value="0" min="0" oninput="recalcRow(this)">
                     </div>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <button onClick={() => handleDelete(t.id)} className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all">
-                      <Trash2 size={16} />
-                    </button>
-                  </td>
+                </td>
+                <td class="px-6 py-4 font-bold text-gray-800 text-right row-total-disp">Rp 0</td>
+                <td class="px-6 py-4 text-center">
+                    <button onclick="this.closest('tr').remove(); recalcGrandTotal();" class="text-gray-300 hover:text-red-500 transition"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        };
+
+        window.recalcRow = (el) => {
+            const tr = el.closest('tr');
+            const qty = parseFloat(tr.querySelector('.row-qty').value) || 0;
+            const price = parseFloat(tr.querySelector('.row-price').value) || 0;
+            const total = qty * price;
+            tr.querySelector('.row-total-disp').innerText = `Rp ${total.toLocaleString('id-ID')}`;
+            recalcGrandTotal();
+        };
+
+        function recalcGrandTotal() {
+            const rows = document.querySelectorAll('.item-row');
+            let grand = 0;
+            rows.forEach(r => {
+                const qty = parseFloat(r.querySelector('.row-qty').value) || 0;
+                const price = parseFloat(r.querySelector('.row-price').value) || 0;
+                grand += (qty * price);
+            });
+            document.getElementById('grand-total-display').innerText = `Rp ${grand.toLocaleString('id-ID')}`;
+        }
+
+        window.updateItemList = () => {
+            document.getElementById('excel-rows').innerHTML = '';
+            addRow();
+        };
+
+        function loadDashboardData() {
+            const year = parseInt(document.getElementById('dashboard-year').value);
+            const filtered = allPurchases.filter(p => new Date(p.date).getFullYear() === year);
+            
+            let totalVal = 0;
+            let totalQty = 0;
+            const catMap = {};
+            const monthMap = Array(12).fill(0);
+            
+            filtered.forEach(p => {
+                const d = new Date(p.date);
+                totalVal += p.total;
+                totalQty += p.qty;
+                catMap[p.category] = (catMap[p.category] || 0) + p.total;
+                monthMap[d.getMonth()] += p.total;
+            });
+
+            document.getElementById('stat-total').innerText = `Rp ${totalVal.toLocaleString('id-ID')}`;
+            document.getElementById('stat-items').innerText = `${totalQty.toLocaleString('id-ID')} Unit`;
+
+            renderCharts(catMap, monthMap);
+        }
+
+        function renderCharts(catData, monthData) {
+            // Bar Category
+            const barCtx = document.getElementById('categoryBarChart').getContext('2d');
+            if (charts.bar) charts.bar.destroy();
+            charts.bar = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        data: categories.map(c => catData[c] || 0),
+                        backgroundColor: categoryColors,
+                        borderRadius: 12
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+
+            // Line Monthly
+            const lineCtx = document.getElementById('monthlyLineChart').getContext('2d');
+            if (charts.line) charts.line.destroy();
+            charts.line = new Chart(lineCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
+                    datasets: [{
+                        label: 'Total Rp',
+                        data: monthData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#3b82f6'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // Pie & Legend
+            const pieCtx = document.getElementById('categoryPieChart').getContext('2d');
+            if (charts.pie) charts.pie.destroy();
+            const total = Object.values(catData).reduce((a, b) => a + b, 0) || 1;
+            
+            charts.pie = new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: categories,
+                    datasets: [{ data: categories.map(c => catData[c] || 0), backgroundColor: categoryColors, borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } }
+            });
+
+            const legendEl = document.getElementById('pie-legend');
+            legendEl.innerHTML = categories.map((cat, i) => {
+                const perc = ((catData[cat] || 0) / total * 100).toFixed(1);
+                return `
+                    <div class="flex items-center justify-between w-64 p-2 rounded-lg hover:bg-gray-50 transition">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full mr-3" style="background-color: ${categoryColors[i]}"></div>
+                            <span class="text-gray-600 font-medium">${cat}</span>
+                        </div>
+                        <span class="font-black text-gray-800">${perc}%</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.updateTrendItems = () => {
+            const cat = document.getElementById('trend-category').value;
+            const select = document.getElementById('trend-item');
+            select.innerHTML = '<option value="">-- Pilih Barang --</option>';
+            
+            const uniqueItems = [...new Set(allPurchases
+                .filter(p => !cat || p.category === cat)
+                .map(p => p.name))].sort();
+            
+            uniqueItems.forEach(it => {
+                const opt = document.createElement('option');
+                opt.value = it;
+                opt.innerText = it;
+                select.appendChild(opt);
+            });
+        };
+
+        window.calculateTrend = () => {
+            const itemName = document.getElementById('trend-item').value;
+            if (!itemName) return;
+
+            const items = allPurchases
+                .filter(p => p.name === itemName)
+                .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            if (items.length === 0) return;
+
+            document.getElementById('trend-results').classList.remove('hidden');
+            document.getElementById('trend-chart-title').innerHTML = `<span class="bg-blue-100 text-blue-600 px-3 py-1 rounded-lg text-sm mr-2">${itemName}</span>`;
+
+            const prices = items.map(it => it.unitPrice);
+            const dates = items.map(it => new Date(it.date).toLocaleDateString('id-ID', {month: 'short', year: '2y'}));
+
+            const min = Math.min(...prices);
+            const max = Math.max(...prices);
+            const variance = ((max - min) / (min || 1) * 100).toFixed(1);
+
+            document.getElementById('trend-min').innerText = `Rp ${min.toLocaleString('id-ID')}`;
+            document.getElementById('trend-max').innerText = `Rp ${max.toLocaleString('id-ID')}`;
+            document.getElementById('trend-var').innerText = `${variance}%`;
+
+            const ctx = document.getElementById('priceTrendChart').getContext('2d');
+            if (charts.trend) charts.trend.destroy();
+            charts.trend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Harga Satuan',
+                        data: prices,
+                        borderColor: '#2563eb',
+                        borderWidth: 3,
+                        pointRadius: 6,
+                        pointHoverRadius: 10,
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        };
+
+        function renderReport() {
+            const month = parseInt(document.getElementById('report-month').value);
+            const year = 2024;
+            
+            const filtered = allPurchases.filter(p => {
+                const d = new Date(p.date);
+                return d.getMonth() + 1 === month && d.getFullYear() === year;
+            });
+
+            document.getElementById('report-period').innerText = `PERIODE: ${document.getElementById('report-month').options[month-1].text.toUpperCase()} ${year}`;
+
+            const catMap = {};
+            filtered.forEach(p => {
+                catMap[p.category] = (catMap[p.category] || 0) + p.total;
+            });
+
+            const total = Object.values(catMap).reduce((a, b) => a + b, 0) || 1;
+            document.getElementById('report-table-summary').innerHTML = categories.map(c => `
+                <div class="flex justify-between py-2 border-b border-gray-50">
+                    <span class="text-gray-500">${c}</span>
+                    <span class="font-bold text-gray-800">Rp ${(catMap[c] || 0).toLocaleString('id-ID')}</span>
+                </div>
+            `).join('') + `
+                <div class="flex justify-between py-4 mt-2 bg-blue-50 px-4 rounded-xl text-blue-900 font-black text-lg">
+                    <span>GRAND TOTAL</span>
+                    <span>Rp ${total.toLocaleString('id-ID')}</span>
+                </div>
+            `;
+
+            document.getElementById('report-tx-body').innerHTML = filtered.map(p => `
+                <tr class="border-b border-gray-50">
+                    <td class="p-4 font-mono">${new Date(p.date).toLocaleDateString('id-ID', {day:'2-digit', month:'2-digit'})}</td>
+                    <td class="p-4">
+                        <p class="font-bold text-gray-800">${p.name}</p>
+                        <p class="text-gray-400 uppercase text-[9px] font-bold">${p.supplier}</p>
+                    </td>
+                    <td class="p-4 text-center text-gray-500">${p.qty} ${p.unit}</td>
+                    <td class="p-4 text-right font-bold text-gray-700">${p.total.toLocaleString('id-ID')}</td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-}
+            `).join('') || '<tr><td colspan="4" class="p-10 text-center text-gray-300 italic">Data transaksi tidak ditemukan untuk periode ini.</td></tr>';
 
-function HistoriBarangView({ transactions, items }) {
-  const [selectedItem, setSelectedItem] = useState('');
-  
-  const history = useMemo(() => {
-    return transactions
-      .filter(t => t.itemName === selectedItem)
-      .sort((a, b) => b.timestamp - a.timestamp);
-  }, [selectedItem, transactions]);
+            const rPieCtx = document.getElementById('reportPieChart').getContext('2d');
+            if (charts.rPie) charts.rPie.destroy();
+            charts.rPie = new Chart(rPieCtx, {
+                type: 'doughnut',
+                data: { labels: categories, datasets: [{ data: categories.map(c => catMap[c] || 0), backgroundColor: categoryColors, borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false } } }
+            });
+        }
 
-  const stockStats = useMemo(() => {
-    const masuk = history.filter(h => h.type === 'in').reduce((acc, curr) => acc + Number(curr.amount), 0);
-    const keluar = history.filter(h => h.type === 'out').reduce((acc, curr) => acc + Number(curr.amount), 0);
-    return { masuk, keluar, sisa: masuk - keluar };
-  }, [history]);
+        function showToast(title, msg, type = "info") {
+            const toast = document.getElementById('toast');
+            const iconBg = document.getElementById('toast-icon-bg');
+            const icon = document.getElementById('toast-icon');
+            
+            const types = {
+                success: { bg: 'bg-green-500', icon: 'fa-check-circle' },
+                error: { bg: 'bg-red-500', icon: 'fa-exclamation-triangle' },
+                warning: { bg: 'bg-yellow-500', icon: 'fa-exclamation-circle' },
+                info: { bg: 'bg-blue-600', icon: 'fa-info-circle' }
+            };
 
-  return (
-    <div className="space-y-6 animate-fadeIn">
-      <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-        <h2 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-2">
-          <History className="text-blue-600" /> Kartu Stok Digital
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-           <FormGroup label="Pilih Nama Barang">
-              <select value={selectedItem} onChange={e => setSelectedItem(e.target.value)} className="form-input">
-                <option value="">-- Pilih Barang --</option>
-                {items.map(i => <option key={i.id} value={i.name}>{i.name} ({i.category})</option>)}
-              </select>
-           </FormGroup>
-        </div>
-      </div>
+            iconBg.className = `w-10 h-10 rounded-full flex items-center justify-center text-white ${types[type].bg}`;
+            icon.className = `fas ${types[type].icon}`;
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-message').innerText = msg;
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 5000);
+        }
 
-      {selectedItem && (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-             <StatBox label="Total Masuk" value={stockStats.masuk} color="blue" />
-             <StatBox label="Total Keluar" value={stockStats.keluar} color="rose" />
-             <StatBox label="Stok Saat Ini" value={stockStats.sisa} color="emerald" />
-          </div>
-
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-             <table className="w-full text-left">
-                <thead className="bg-slate-50 border-b border-slate-100">
-                   <tr>
-                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal</th>
-                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Aktivitas</th>
-                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Masuk</th>
-                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Keluar</th>
-                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Asal/Tujuan</th>
-                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
-                   {history.map(h => (
-                      <tr key={h.id}>
-                         <td className="px-6 py-4 text-xs font-bold text-slate-500">{h.date}</td>
-                         <td className="px-6 py-4">
-                            <span className={`text-xs font-bold ${h.type === 'in' ? 'text-blue-600' : 'text-rose-600'}`}>
-                               {h.type === 'in' ? 'PENERIMAAN' : 'DISTRIBUSI'}
-                            </span>
-                         </td>
-                         <td className="px-6 py-4 text-center font-black text-blue-600">{h.type === 'in' ? h.amount : '-'}</td>
-                         <td className="px-6 py-4 text-center font-black text-rose-600">{h.type === 'out' ? h.amount : '-'}</td>
-                         <td className="px-6 py-4 text-xs font-bold text-slate-400 italic">{h.type === 'in' ? h.supplier : h.room}</td>
-                      </tr>
-                   ))}
-                </tbody>
-             </table>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-function StatBox({ label, value, color }) {
-  const colors = {
-    blue: 'bg-blue-50 text-blue-600 border-blue-100',
-    rose: 'bg-rose-50 text-rose-600 border-rose-100',
-    emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100'
-  };
-  return (
-    <div className={`p-6 rounded-3xl border ${colors[color]} shadow-sm`}>
-       <p className="text-[10px] font-black uppercase tracking-widest opacity-70 mb-2">{label}</p>
-       <p className="text-3xl font-black">{value} Unit</p>
-    </div>
-  );
-}
-
-function ManajemenRuanganView({ rooms, transactions }) {
-  const [selectedRoom, setSelectedRoom] = useState('');
-  const [isExporting, setIsExporting] = useState(false);
-
-  const roomData = useMemo(() => {
-    return transactions
-      .filter(t => t.type === 'out' && t.room === selectedRoom)
-      .sort((a, b) => b.timestamp - a.timestamp);
-  }, [selectedRoom, transactions]);
-
-  return (
-    <div className="space-y-6 animate-fadeIn">
-      <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="flex-1 max-w-md">
-           <FormGroup label="Pilih Ruangan">
-              <select value={selectedRoom} onChange={e => setSelectedRoom(e.target.value)} className="form-input">
-                <option value="">-- Pilih Ruangan --</option>
-                {rooms.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
-              </select>
-           </FormGroup>
-        </div>
-        <button 
-          onClick={() => {
-            setIsExporting(true);
-            setTimeout(() => setIsExporting(false), 2000);
-          }}
-          disabled={!selectedRoom || isExporting}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-3 disabled:opacity-50 shadow-lg shadow-emerald-900/20"
-        >
-          {isExporting ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <Download size={20} />}
-          CETAK LAPORAN RUANGAN
-        </button>
-      </div>
-
-      {selectedRoom && (
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-          <table className="w-full text-left">
-            <thead className="bg-slate-50 border-b border-slate-100">
-               <tr>
-                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Distribusi</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Barang</th>
-                  <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Jumlah</th>
-               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-               {roomData.map(r => (
-                  <tr key={r.id}>
-                     <td className="px-6 py-4 text-xs font-bold text-slate-500">{r.date}</td>
-                     <td className="px-6 py-4 font-bold text-slate-800">{r.itemName}</td>
-                     <td className="px-6 py-4 text-center font-black text-rose-600">{r.amount}</td>
-                  </tr>
-               ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function TrenHargaView({ transactions, items, categories }) {
-  const [selectedItem, setSelectedItem] = useState('');
-
-  const trendData = useMemo(() => {
-    return transactions
-      .filter(t => t.type === 'in' && t.itemName === selectedItem)
-      .sort((a, b) => a.timestamp - b.timestamp)
-      .map(t => ({
-        date: t.date,
-        price: Number(t.price)
-      }));
-  }, [selectedItem, transactions]);
-
-  return (
-    <div className="space-y-6 animate-fadeIn">
-      <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-        <h2 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-2">
-          <TrendingUp className="text-blue-600" /> Analisa Fluktuasi Harga
-        </h2>
-        <FormGroup label="Pilih Barang untuk Analisa">
-          <select value={selectedItem} onChange={e => setSelectedItem(e.target.value)} className="form-input">
-            <option value="">-- Pilih Barang --</option>
-            {items.map(i => <option key={i.id} value={i.name}>{i.name}</option>)}
-          </select>
-        </FormGroup>
-      </div>
-
-      {selectedItem && trendData.length > 0 ? (
-        <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={trendData}>
-              <defs>
-                <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.1}/>
-                  <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-              <XAxis dataKey="date" hide />
-              <YAxis tickFormatter={(v) => `Rp ${v/1000}k`} axisLine={false} tickLine={false} />
-              <RechartsTooltip formatter={(v) => formatCurrency(v)} />
-              <Area type="monotone" dataKey="price" stroke="#3B82F6" strokeWidth={3} fillOpacity={1} fill="url(#colorPrice)" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      ) : selectedItem && (
-        <div className="p-12 text-center text-slate-400 font-bold bg-white rounded-3xl border border-dashed border-slate-200">
-          Belum ada data riwayat harga pembelian untuk barang ini.
-        </div>
-      )}
-    </div>
-  );
-}
-
-function MasterView({ categories, rooms, items }) {
-  const [newCat, setNewCat] = useState('');
-  const [newRoom, setNewRoom] = useState('');
-  const [newItem, setNewItem] = useState({ name: '', category: '', unit: '' });
-
-  const handleAdd = async (collectionName, data) => {
-    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', collectionName), data);
-  };
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fadeIn">
-      <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
-        <h3 className="text-lg font-black text-slate-900 border-b pb-4">Kategori & Ruangan</h3>
-        <div className="space-y-4">
-          <div className="flex gap-2">
-            <input placeholder="Kategori baru..." className="form-input" value={newCat} onChange={e => setNewCat(e.target.value)} />
-            <button onClick={() => { handleAdd('categories', { name: newCat }); setNewCat(''); }} className="bg-blue-600 text-white p-3 rounded-xl"><Plus /></button>
-          </div>
-          <div className="flex gap-2">
-            <input placeholder="Ruangan baru..." className="form-input" value={newRoom} onChange={e => setNewRoom(e.target.value)} />
-            <button onClick={() => { handleAdd('rooms', { name: newRoom }); setNewRoom(''); }} className="bg-emerald-600 text-white p-3 rounded-xl"><Plus /></button>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
-        <h3 className="text-lg font-black text-slate-900 border-b pb-4">Tambah Master Barang</h3>
-        <div className="space-y-4">
-          <input placeholder="Nama Barang" className="form-input" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} />
-          <div className="flex gap-4">
-            <select className="form-input" value={newItem.category} onChange={e => setNewItem({...newItem, category: e.target.value})}>
-              <option value="">Pilih Kategori</option>
-              {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
-            </select>
-            <input placeholder="Satuan (Pcs/Box)" className="form-input w-32" value={newItem.unit} onChange={e => setNewItem({...newItem, unit: e.target.value})} />
-          </div>
-          <button 
-            onClick={() => { handleAdd('items', newItem); setNewItem({ name: '', category: '', unit: '' }); }}
-            className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold"
-          >
-            Daftarkan Barang
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
+    </script>
+</body>
+</html>
