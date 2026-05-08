@@ -152,9 +152,10 @@
                                 <option>Bahan Basah&Kering</option>
                             </select>
                         </div>
-                        <div class="flex-1 min-w-[200px]">
-                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-bold">Tanggal Pembelian</label>
-                            <input type="date" id="input-date" class="w-full p-3 rounded-xl outline-none">
+                        <div class="flex gap-2 mb-1">
+                            <button onclick="exportInputTemplate()" class="px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-xs font-bold border border-slate-600">Export Template</button>
+                            <button onclick="triggerImportPurchases()" class="px-4 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-bold shadow-lg">Import Massal</button>
+                            <input type="file" id="purchase-import-file" class="hidden" accept=".csv" onchange="importPurchases(this)">
                         </div>
                         <div class="flex-1 min-w-[200px]">
                             <label class="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-bold">Supplier / Vendor</label>
@@ -413,13 +414,21 @@
 
     async function initAuth() {
         try {
+            // Perbaikan: Coba masuk dengan custom token, jika gagal otomatis fallback ke anonymous
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
+                try {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } catch (tokenErr) {
+                    console.warn("Custom token mismatch, falling back to anonymous auth...");
+                    await signInAnonymously(auth);
+                }
             } else {
                 await signInAnonymously(auth);
             }
         } catch (err) {
-            console.error("Auth error:", err);
+            console.error("Critical Auth Error:", err);
+            document.getElementById('cloud-status-text').innerText = "Auth Error";
+            document.getElementById('cloud-status-text').className = "font-bold text-red-500";
         }
     }
 
@@ -549,6 +558,78 @@
                 }
             }
             showToast(`Import Selesai: ${rows.length} data diproses`);
+        };
+        reader.readAsText(file);
+    };
+
+    window.exportInputTemplate = () => {
+        const cat = document.getElementById('input-main-category').value;
+        if(!cat) return showToast("Pilih kategori terlebih dahulu!", "error");
+        
+        let csv = "Nama Barang,Qty,Harga Satuan\n";
+        const filteredMaster = window.masterItems.filter(i => i.category === cat);
+        
+        if(filteredMaster.length > 0) {
+            filteredMaster.forEach(item => {
+                csv += `"${item.name}",0,0\n`;
+            });
+        } else {
+            csv += "Nama Barang Baru,1,5000\n";
+        }
+
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `template_input_${cat.replace(/\s/g, '_')}.csv`;
+        a.click();
+    };
+
+    window.triggerImportPurchases = () => {
+        const cat = document.getElementById('input-main-category').value;
+        const date = document.getElementById('input-date').value;
+        const vendor = document.getElementById('input-vendor').value;
+
+        if(!cat || !date || !vendor) return showToast("Lengkapi Kategori, Tanggal, dan Vendor sebelum import!", "error");
+        document.getElementById('purchase-import-file').click();
+    };
+
+    window.importPurchases = (input) => {
+        const cat = document.getElementById('input-main-category').value;
+        const date = document.getElementById('input-date').value;
+        const vendor = document.getElementById('input-vendor').value;
+        const file = input.files[0];
+        
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const text = e.target.result;
+            const rows = text.split('\n').slice(1);
+            let count = 0;
+
+            for(let row of rows) {
+                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                if(cols.length >= 3) {
+                    const itemName = cols[0].replace(/"/g, '').trim();
+                    const qty = parseFloat(cols[1]);
+                    const price = parseFloat(cols[2]);
+
+                    if(itemName && !isNaN(qty) && qty > 0) {
+                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'purchases'), {
+                            category: cat,
+                            date: date,
+                            vendor: vendor,
+                            itemName: itemName,
+                            qty: qty,
+                            price: price,
+                            total: qty * price,
+                            createdAt: new Date().toISOString()
+                        });
+                        count++;
+                    }
+                }
+            }
+            showToast(`Berhasil mengimpor ${count} data pembelian`);
+            input.value = ""; // reset file input
         };
         reader.readAsText(file);
     };
