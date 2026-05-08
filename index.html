@@ -3,29 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Rekapitulasi Pembelian RS - Pro</title>
+    <title>MediTrack Pro - Real-time Cloud Logistics</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <!-- Firebase Firestore (Cloud Database) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
         .sidebar-active { background-color: #eff6ff; border-left: 4px solid #3b82f6; color: #1d4ed8; font-weight: 600; }
-        .chart-container { position: relative; height: 300px; width: 100%; }
         .glass-morphism { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
-        input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; }
-        .excel-input { border: 1px solid transparent; transition: all 0.2s; }
-        .excel-input:focus { border-bottom-color: #3b82f6; background-color: #f1f5f9; }
-        @media print {
-            .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            main { margin-left: 0 !important; padding: 0 !important; width: 100% !important; }
-            .tab-content { display: block !important; }
-            #report-sheet { border: none !important; box-shadow: none !important; width: 100% !important; padding: 0 !important; }
-        }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .chart-container { position: relative; width: 100%; height: 280px; }
+        @keyframes pulse-blue { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+        .sync-icon { animation: pulse-blue 2s infinite; }
+        .no-print { display: block; }
+        @media print { .no-print { display: none; } .ml-64 { margin-left: 0 !important; } }
     </style>
 </head>
 <body class="flex min-h-screen">
@@ -34,307 +31,189 @@
         <div class="p-6">
             <div class="flex items-center space-x-3 text-blue-600 mb-10">
                 <div class="bg-blue-600 p-2 rounded-lg text-white">
-                    <i class="fas fa-hospital-symbol text-xl"></i>
+                    <i class="fas fa-hospital-alt text-xl"></i>
                 </div>
                 <span class="font-bold text-xl tracking-tight text-gray-800">MediTrack<span class="text-blue-600">Pro</span></span>
             </div>
             
-            <nav class="space-y-2 flex-1">
+            <nav class="space-y-1 flex-1">
                 <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition sidebar-active">
-                    <i class="fas fa-th-large w-6"></i> Dashboard
+                    <i class="fas fa-chart-line w-6"></i> Dashboard
                 </button>
                 <button onclick="switchTab('input')" id="nav-input" class="nav-btn w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
-                    <i class="fas fa-plus-square w-6"></i> Input Barang
+                    <i class="fas fa-file-invoice-dollar w-6"></i> Input Transaksi
                 </button>
                 <button onclick="switchTab('history')" id="nav-history" class="nav-btn w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
-                    <i class="fas fa-database w-6"></i> Database Riwayat
+                    <i class="fas fa-history w-6"></i> Riwayat Database
                 </button>
-                <button onclick="switchTab('trend')" id="nav-trend" class="nav-btn w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
-                    <i class="fas fa-chart-line w-6"></i> Analisis Tren
+                <button onclick="switchTab('categories')" id="nav-categories" class="nav-btn w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                    <i class="fas fa-tags w-6"></i> Kelola Kategori
                 </button>
                 <button onclick="switchTab('migration')" id="nav-migration" class="nav-btn w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
-                    <i class="fas fa-file-import w-6"></i> Export / Import
-                </button>
-                <button onclick="switchTab('report')" id="nav-report" class="nav-btn w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
-                    <i class="fas fa-file-pdf w-6"></i> Laporan
+                    <i class="fas fa-cloud-download-alt w-6"></i> Export / Import
                 </button>
             </nav>
-        </div>
-        
-        <div class="mt-auto p-6 border-t border-gray-100">
-            <div id="auth-status" class="text-[10px] uppercase font-bold text-gray-400 flex items-center bg-gray-50 p-3 rounded-lg">
-                <div class="animate-pulse w-2 h-2 bg-yellow-400 rounded-full mr-2"></div> 
-                <span>Menghubungkan...</span>
+            
+            <div class="mt-auto p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                <div class="flex items-center space-x-2 text-xs font-bold text-emerald-600">
+                    <i class="fas fa-circle sync-icon text-[8px]"></i>
+                    <span id="connection-status">CONNECTED TO FIREBASE</span>
+                </div>
+                <p class="text-[10px] text-emerald-400 mt-1">Firestore Cloud Database</p>
             </div>
         </div>
     </aside>
 
-    <main class="flex-1 ml-64 p-8 min-w-0" id="main-content">
-        
-        <!-- Tab: Dashboard -->
+    <main class="flex-1 ml-64 p-8 min-w-0">
         <section id="tab-dashboard" class="tab-content space-y-6">
             <div class="flex justify-between items-center">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-800">Ringkasan Pengadaan</h1>
-                    <p class="text-gray-500 text-sm">Visualisasi data pengadaan rumah sakit secara real-time.</p>
-                </div>
-                <div class="flex items-center space-x-3 bg-white p-2 rounded-xl border border-gray-100 shadow-sm no-print">
-                    <label class="text-xs font-bold text-gray-400 uppercase ml-2">Tahun:</label>
-                    <select id="dashboard-year" onchange="loadDashboardData()" class="border-none rounded-lg px-4 py-1 bg-transparent text-sm font-semibold outline-none cursor-pointer">
-                        <option value="2024">2024</option>
-                        <option value="2025" selected>2025</option>
-                    </select>
-                </div>
+                <h1 class="text-2xl font-bold text-gray-800">Ringkasan Pengadaan RS</h1>
+                <div class="text-sm text-gray-500 font-medium" id="current-date"></div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-sm font-medium text-gray-500 mb-1 uppercase tracking-wider">Total Pengeluaran</p>
+                    <p class="text-xs font-bold text-gray-400 uppercase mb-1">Total Pengeluaran</p>
                     <h3 id="stat-total" class="text-2xl font-black text-blue-600">Rp 0</h3>
                 </div>
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-sm font-medium text-gray-500 mb-1 uppercase tracking-wider">Total Transaksi</p>
-                    <h3 id="stat-items" class="text-2xl font-black text-teal-600">0 Record</h3>
+                    <p class="text-xs font-bold text-gray-400 uppercase mb-1">Total Transaksi</p>
+                    <h3 id="stat-count" class="text-2xl font-black text-gray-800">0</h3>
                 </div>
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-sm font-medium text-gray-500 mb-1 uppercase tracking-wider">Kategori Teraktif</p>
-                    <h3 id="stat-active-cat" class="text-2xl font-black text-purple-600">-</h3>
+                    <p class="text-xs font-bold text-gray-400 uppercase mb-1">Kategori Terdaftar</p>
+                    <h3 id="stat-cats" class="text-2xl font-black text-emerald-600">0</h3>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h4 class="font-semibold text-gray-700 mb-4 flex items-center">
-                        <i class="fas fa-chart-bar mr-2 text-blue-500"></i> Alokasi Dana per Kategori
-                    </h4>
-                    <div class="chart-container">
-                        <canvas id="categoryBarChart"></canvas>
-                    </div>
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <h4 class="font-bold text-gray-700 mb-4">Pengeluaran per Kategori</h4>
+                    <div class="chart-container"><canvas id="barChart"></canvas></div>
                 </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h4 class="font-semibold text-gray-700 mb-4 flex items-center">
-                        <i class="fas fa-chart-line mr-2 text-green-500"></i> Tren Pengeluaran Bulanan
-                    </h4>
-                    <div class="chart-container">
-                        <canvas id="monthlyLineChart"></canvas>
-                    </div>
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <h4 class="font-bold text-gray-700 mb-4">Persentase Distribusi</h4>
+                    <div class="chart-container"><canvas id="pieChart"></canvas></div>
                 </div>
             </div>
         </section>
 
-        <!-- Tab: Input Barang -->
-        <section id="tab-input" class="tab-content hidden space-y-6">
-            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-6xl mx-auto">
-                <div class="flex justify-between items-start mb-8">
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-800">Input Pembelian Barang</h2>
-                        <p class="text-gray-500 text-sm">Entri data pengadaan logistik rumah sakit.</p>
-                    </div>
-                    <div class="text-right">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase">Tanggal Transaksi</label>
-                        <input type="date" id="input-date" class="bg-gray-50 border border-gray-100 rounded-lg px-3 py-1 font-bold text-gray-700 outline-none">
-                    </div>
-                </div>
+        <section id="tab-categories" class="tab-content hidden space-y-6">
+            <div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Manajemen Kategori</h2>
+                <p class="text-gray-500 text-sm mb-6">Tambahkan kategori barang secara manual ke database cloud.</p>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="flex space-x-2 mb-6">
+                    <input type="text" id="cat-input" placeholder="Contoh: Alat Kesehatan, Logistik..." class="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                    <button onclick="addCategoryToCloud()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition flex items-center">
+                        <i class="fas fa-save mr-2"></i> Simpan
+                    </button>
+                </div>
+
+                <div id="cat-list" class="space-y-2">
+                    <!-- List categories from Firestore -->
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-input" class="tab-content hidden space-y-6">
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800">Input Pembelian</h2>
+                    <input type="date" id="form-date" class="bg-gray-50 border border-gray-200 px-4 py-2 rounded-xl text-sm font-bold">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-6">
                     <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Kategori Utama</label>
-                        <select id="input-category" onchange="updateItemListSuggestions()" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">-- Pilih Kategori --</option>
-                        </select>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Kategori Barang</label>
+                        <select id="form-cat" class="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-xl outline-none"></select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Supplier / Distributor</label>
-                        <input type="text" id="input-supplier" list="supplier-list" placeholder="Nama PT atau Toko..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500">
-                        <datalist id="supplier-list"></datalist>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Supplier / Distributor</label>
+                        <input type="text" id="form-supplier" placeholder="Nama PT..." class="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-xl outline-none">
                     </div>
                 </div>
 
-                <div class="overflow-x-auto border border-gray-200 rounded-2xl mb-6">
-                    <table class="w-full text-left" id="excel-table">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Nama Barang</th>
-                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase text-center w-24">Qty</th>
-                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase w-32">Satuan</th>
-                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Harga Satuan</th>
-                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase text-right">Subtotal</th>
-                                <th class="px-6 py-4 w-12"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="excel-rows"></tbody>
-                    </table>
-                </div>
+                <table class="w-full text-left mb-6">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="p-4 text-[10px] font-bold text-gray-400 uppercase">Item</th>
+                            <th class="p-4 text-[10px] font-bold text-gray-400 uppercase w-24 text-center">Qty</th>
+                            <th class="p-4 text-[10px] font-bold text-gray-400 uppercase w-40">Harga Satuan</th>
+                            <th class="p-4 text-[10px] font-bold text-gray-400 uppercase text-right">Subtotal</th>
+                            <th class="p-4 w-10"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="input-rows"></tbody>
+                </table>
 
-                <div class="flex justify-between items-center">
-                    <button onclick="addRow()" class="bg-blue-50 text-blue-600 px-6 py-3 rounded-xl font-bold hover:bg-blue-100 transition">
-                        <i class="fas fa-plus mr-2"></i> Tambah Baris
+                <div class="flex justify-between items-center border-t pt-6">
+                    <button onclick="addRow()" class="text-blue-600 font-bold hover:underline flex items-center">
+                        <i class="fas fa-plus-circle mr-2"></i> Tambah Item
                     </button>
                     <div class="text-right">
-                        <p class="text-gray-400 text-[10px] font-black uppercase">Estimasi Total</p>
-                        <p id="grand-total-display" class="text-3xl font-black text-gray-800">Rp 0</p>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase">Grand Total</p>
+                        <p id="total-display" class="text-3xl font-black text-gray-800">Rp 0</p>
                     </div>
                 </div>
 
-                <button onclick="submitPurchase()" class="w-full mt-10 bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 shadow-xl shadow-blue-100 transition active:scale-[0.98]">
-                    SIMPAN KE DATABASE CLOUD
+                <button id="save-btn" onclick="saveTransactionToCloud()" class="w-full mt-8 bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-blue-700 transition flex items-center justify-center space-x-2">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>SIMPAN KE CLOUD DATABASE</span>
                 </button>
             </div>
         </section>
 
-        <!-- Tab: Database Riwayat -->
-        <section id="tab-history" class="tab-content hidden space-y-6">
-            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800">Data Riwayat Transaksi</h2>
-                    <div class="flex space-x-4">
-                        <input type="text" id="history-search" oninput="renderHistory()" placeholder="Cari barang atau supplier..." class="px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none w-64">
-                    </div>
+        <section id="tab-history" class="tab-content hidden">
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                <div class="p-6 bg-gray-50 flex justify-between items-center border-b border-gray-200">
+                    <h2 class="font-bold text-gray-800">Database Real-time Cloud</h2>
+                    <span class="text-xs text-gray-500 italic">Otomatis sinkron dengan server</span>
                 </div>
-                <div class="overflow-x-auto custom-scrollbar">
+                <div class="overflow-x-auto">
                     <table class="w-full text-left">
-                        <thead class="bg-gray-50 border-b border-gray-100">
-                            <tr>
-                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Tanggal</th>
-                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Barang & Supplier</th>
-                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase">Kategori</th>
-                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase text-center">Qty</th>
-                                <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase text-right">Total</th>
-                                <th class="px-6 py-4 text-center">Aksi</th>
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase">Tanggal</th>
+                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase">Item</th>
+                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase text-center">Qty</th>
+                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase">Kategori</th>
+                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase text-right">Total</th>
                             </tr>
                         </thead>
-                        <tbody id="history-table-body"></tbody>
+                        <tbody id="history-rows"></tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- Tab: Analisis Tren -->
-        <section id="tab-trend" class="tab-content hidden space-y-6">
-            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Analisis Fluktuasi Harga</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Pilih Kategori</label>
-                        <select id="trend-category" onchange="updateTrendItems()" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none">
-                            <option value="">Semua Kategori</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Cari Barang Spesifik</label>
-                        <select id="trend-item" onchange="renderTrendAnalysis()" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none">
-                            <option value="">-- Pilih Barang --</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div id="trend-view" class="hidden space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="p-6 bg-blue-50 rounded-2xl border border-blue-100">
-                            <p class="text-blue-600 text-xs font-bold uppercase mb-1">Rata-rata Harga</p>
-                            <h4 id="trend-avg" class="text-2xl font-black text-blue-800">Rp 0</h4>
-                        </div>
-                        <div class="p-6 bg-red-50 rounded-2xl border border-red-100">
-                            <p class="text-red-600 text-xs font-bold uppercase mb-1">Harga Tertinggi</p>
-                            <h4 id="trend-max" class="text-2xl font-black text-red-800">Rp 0</h4>
-                        </div>
-                        <div class="p-6 bg-green-50 rounded-2xl border border-green-100">
-                            <p class="text-green-600 text-xs font-bold uppercase mb-1">Selisih Terakhir</p>
-                            <h4 id="trend-diff" class="text-2xl font-black text-green-800">0%</h4>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 h-96">
-                        <canvas id="priceTrendChart"></canvas>
-                    </div>
-                </div>
+        <section id="tab-migration" class="tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm text-center">
+                <i class="fas fa-file-csv text-4xl text-emerald-500 mb-4"></i>
+                <h3 class="text-xl font-bold mb-2">Export Data Cloud</h3>
+                <p class="text-sm text-gray-500 mb-6">Unduh data transaksi dari database Google ke format CSV.</p>
+                <button onclick="exportToCSV()" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition">Download .CSV</button>
             </div>
-        </section>
-
-        <!-- Tab: Migration -->
-        <section id="tab-migration" class="tab-content hidden space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
-                    <h3 class="text-xl font-bold mb-4">Export Data</h3>
-                    <p class="text-gray-500 text-sm mb-6">Unduh seluruh riwayat transaksi dalam format CSV untuk keperluan audit atau Excel.</p>
-                    <button onclick="exportCSV()" class="w-full py-4 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition">
-                        <i class="fas fa-download mr-2"></i> Export ke CSV
-                    </button>
-                </div>
-                <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
-                    <h3 class="text-xl font-bold mb-4">Import Data</h3>
-                    <p class="text-gray-500 text-sm mb-4">Unggah file CSV untuk memasukkan data secara massal.</p>
-                    <input type="file" id="csv-import" accept=".csv" class="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                    <button onclick="importCSV()" class="w-full py-4 bg-blue-100 text-blue-600 rounded-xl font-bold hover:bg-blue-200 transition">
-                        <i class="fas fa-upload mr-2"></i> Jalankan Import
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Tab: Laporan -->
-        <section id="tab-report" class="tab-content hidden space-y-6">
-            <div class="no-print bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex justify-between items-center">
-                <div>
-                    <h2 class="text-xl font-bold">Generator Laporan</h2>
-                    <p class="text-gray-500 text-sm">Pilih bulan untuk mencetak laporan resmi.</p>
-                </div>
-                <div class="flex space-x-3">
-                    <select id="report-month" class="bg-gray-50 border rounded-xl px-4 py-2 text-sm outline-none">
-                        <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
-                        <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
-                        <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
-                        <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
-                    </select>
-                    <button onclick="renderReport()" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700">Preview</button>
-                    <button onclick="window.print()" class="bg-gray-800 text-white px-6 py-2 rounded-xl font-bold hover:bg-black"><i class="fas fa-print mr-2"></i> Cetak</button>
-                </div>
-            </div>
-
-            <div id="report-sheet" class="bg-white p-12 shadow-xl border border-gray-200 max-w-4xl mx-auto hidden print:block">
-                <div class="text-center mb-10 border-b-2 border-gray-900 pb-6">
-                    <h1 class="text-3xl font-black uppercase tracking-tighter">RS. MEDITRACK PRO LOGISTICS</h1>
-                    <p class="text-sm font-bold text-gray-600">Laporan Rekapitulasi Pembelian Logistik</p>
-                    <p id="report-display-month" class="text-xs mt-1 uppercase tracking-widest text-blue-600">BULAN: JANUARI 2025</p>
-                </div>
-                
-                <table class="w-full text-[10px] border-collapse mb-10">
-                    <thead>
-                        <tr class="bg-gray-100 border-t border-b border-gray-900">
-                            <th class="p-2 text-left">TANGGAL</th>
-                            <th class="p-2 text-left">NAMA BARANG</th>
-                            <th class="p-2 text-left">SUPPLIER</th>
-                            <th class="p-2 text-center">QTY</th>
-                            <th class="p-2 text-right">TOTAL</th>
-                        </tr>
-                    </thead>
-                    <tbody id="report-rows"></tbody>
-                    <tfoot>
-                        <tr class="border-t-2 border-gray-900 font-bold bg-gray-50">
-                            <td colspan="4" class="p-2 text-right uppercase">Total Akumulasi Biaya</td>
-                            <td id="report-grand-total" class="p-2 text-right">Rp 0</td>
-                        </tr>
-                    </tfoot>
-                </table>
-
-                <div class="flex justify-end mt-20">
-                    <div class="text-center w-64 border-t border-gray-900 pt-2">
-                        <p class="text-xs font-bold uppercase">Kepala Logistik</p>
-                    </div>
-                </div>
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm text-center">
+                <i class="fas fa-upload text-4xl text-blue-500 mb-4"></i>
+                <h3 class="text-xl font-bold mb-2">Import Data Massal</h3>
+                <p class="text-sm text-gray-500 mb-4">Unggah file CSV untuk memasukkan data secara massal.</p>
+                <input type="file" id="csv-file" class="hidden" onchange="handleImport(event)">
+                <button onclick="document.getElementById('csv-file').click()" class="w-full bg-blue-50 text-blue-600 py-3 rounded-xl font-bold border-2 border-dashed border-blue-200">Pilih File CSV</button>
             </div>
         </section>
     </main>
 
-    <!-- UI Components -->
-    <div id="toast" class="fixed bottom-10 right-10 transform translate-y-20 opacity-0 transition-all duration-300 px-6 py-4 rounded-2xl shadow-2xl z-50 pointer-events-none glass-morphism border border-white/20">
-        <p id="toast-message" class="font-bold text-gray-800 text-sm"></p>
+    <div id="toast" class="fixed bottom-8 right-8 bg-gray-900 text-white px-6 py-4 rounded-2xl opacity-0 transition-all z-50 flex items-center space-x-3 shadow-2xl">
+        <i class="fas fa-info-circle text-blue-400"></i>
+        <span id="toast-msg"></span>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, addDoc, query, orderBy, doc, deleteDoc, updateDoc, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const appId = 'meditrack-hosp-v1';
+    <script>
+        /**
+         * FIREBASE CONFIGURATION
+         * Ganti data di bawah ini dengan konfigurasi dari Firebase Console Anda
+         */
         const firebaseConfig = {
   apiKey: "AIzaSyBiEWqdYX8zOjRwv4Mo1DRlFcSLsG8OhlQ",
   authDomain: "gudangatk.firebaseapp.com",
@@ -346,360 +225,210 @@
   measurementId: "G-KCYZG0ZZGR"
 };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        // Initialize Firebase
+        let db;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+        } catch (e) {
+            console.warn("Firebase not initialized. Please fill your config.");
+        }
 
-        // Core State
-        let allPurchases = [];
-        let categories = ["Obat-obatan", "Alat Kesehatan", "Bahan Habis Pakai", "Fasilitas Umum", "Lain-lain"];
-        let itemSuggestions = {
-            "Obat-obatan": ["Paracetamol", "Amoxicillin", "Cefixime", "Vitamin C", "Aspirin"],
-            "Alat Kesehatan": ["Stetoskop", "Tensimeter", "Termometer", "Nebulizer", "Infusion Set"],
-            "Bahan Habis Pakai": ["Masker Bedah", "Sarung Tangan", "Kasa Steril", "Alkohol 70%", "Spuit 3cc"],
-            "Fasilitas Umum": ["Bed Pasien", "Kursi Roda", "Lampu Operasi", "Lemari Obat"],
-            "Lain-lain": ["ATK Kantor", "Tinta Printer", "Tissue"]
+        let transactions = [];
+        let categories = ['Obat-obatan', 'Alat Kesehatan', 'Laboratorium'];
+        let barChart, pieChart;
+
+        
+        // Load categories from Firestore
+        const loadCategories = async () => {
+            if(!db) return;
+            const snapshot = await db.collection('categories').get();
+            if(!snapshot.empty) {
+                categories = snapshot.docs.map(doc => doc.data().name);
+            }
+            renderCategories();
+            updateCategorySelect();
         };
-        let charts = {};
 
-        // -- Global Handlers --
+        // Load transactions from Firestore
+        const loadTransactions = () => {
+            if(!db) return;
+            db.collection('transactions').orderBy('date', 'desc').onSnapshot(snapshot => {
+                transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderDashboard();
+                renderHistory();
+            });
+        };
+
+        window.addCategoryToCloud = async () => {
+            const input = document.getElementById('cat-input');
+            const name = input.value.trim();
+            if(!name || !db) return;
+
+            try {
+                await db.collection('categories').add({ name });
+                input.value = '';
+                showToast("Kategori berhasil disimpan ke Cloud!");
+                loadCategories();
+            } catch(e) { showToast("Gagal menyimpan ke Cloud"); }
+        };
+
+        window.saveTransactionToCloud = async () => {
+            const date = document.getElementById('form-date').value;
+            const cat = document.getElementById('form-cat').value;
+            const supplier = document.getElementById('form-supplier').value;
+            const btn = document.getElementById('save-btn');
+
+            if(!date || !cat || !supplier || !db) return showToast("Mohon lengkapi data!");
+
+            const rows = document.querySelectorAll('#input-rows tr');
+            if(rows.length === 0) return showToast("Tambahkan barang terlebih dahulu!");
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>MENGUNGGAH KE SERVER...</span>';
+
+            try {
+                const batch = db.batch();
+                rows.forEach(row => {
+                    const name = row.querySelector('.name-input').value;
+                    const qty = parseFloat(row.querySelector('.qty-input').value);
+                    const price = parseFloat(row.querySelector('.price-input').value);
+
+                    if(name && qty > 0) {
+                        const ref = db.collection('transactions').doc();
+                        batch.set(ref, {
+                            date, category: cat, supplier, name, qty, price, total: qty * price, timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
+                });
+                await batch.commit();
+                showToast("Berhasil sinkronisasi Cloud!");
+                switchTab('dashboard');
+            } catch(e) {
+                showToast("Error: " + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> <span>SIMPAN KE CLOUD DATABASE</span>';
+            }
+        };
+
+
         window.switchTab = (tabId) => {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('sidebar-active'));
-            document.getElementById(`nav-${tabId}`).classList.add('sidebar-active');
-            if(tabId === 'dashboard') loadDashboardData();
+            document.getElementById('nav-' + tabId).classList.add('sidebar-active');
+            if(tabId === 'input') setupInput();
         };
 
-        window.showToast = (msg) => {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').innerText = msg;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
+        const renderCategories = () => {
+            const list = document.getElementById('cat-list');
+            list.innerHTML = categories.map(c => `
+                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl border border-transparent hover:border-blue-100 transition">
+                    <span class="font-medium text-gray-700">${c}</span>
+                    <i class="fas fa-check-circle text-emerald-500"></i>
+                </div>
+            `).join('');
+        };
+
+        const updateCategorySelect = () => {
+            const select = document.getElementById('form-cat');
+            if(select) select.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+        };
+
+        const setupInput = () => {
+            document.getElementById('form-date').valueAsDate = new Date();
+            updateCategorySelect();
+            document.getElementById('input-rows').innerHTML = '';
+            addRow();
         };
 
         window.addRow = () => {
-            const tbody = document.getElementById('excel-rows');
-            const tr = document.createElement('tr');
-            tr.className = "border-b hover:bg-gray-50 transition group";
-            tr.innerHTML = `
-                <td class="px-6 py-3"><input type="text" list="item-datalist" class="w-full bg-transparent outline-none excel-input item-name" placeholder="Nama Barang"></td>
-                <td class="px-6 py-3"><input type="number" class="w-full text-center bg-transparent outline-none excel-input item-qty" value="1" oninput="calculateGrandTotal()"></td>
-                <td class="px-6 py-3"><input type="text" class="w-full bg-transparent outline-none excel-input item-unit" placeholder="Unit/Box"></td>
-                <td class="px-6 py-3"><input type="number" class="w-full bg-transparent outline-none excel-input item-price" placeholder="0" oninput="calculateGrandTotal()"></td>
-                <td class="px-6 py-3 text-right font-bold text-gray-700 subtotal-cell">Rp 0</td>
-                <td class="px-6 py-3 text-center"><button onclick="this.closest('tr').remove(); calculateGrandTotal();" class="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition"><i class="fas fa-times"></i></button></td>
+            const row = document.createElement('tr');
+            row.className = "border-b border-gray-50";
+            row.innerHTML = `
+                <td class="p-4"><input type="text" class="w-full bg-transparent outline-none name-input font-medium" placeholder="Nama item..."></td>
+                <td class="p-4"><input type="number" class="w-full bg-transparent outline-none qty-input text-center" value="1" oninput="calculateTotal()"></td>
+                <td class="p-4"><input type="number" class="w-full bg-transparent outline-none price-input" value="0" oninput="calculateTotal()"></td>
+                <td class="p-4 text-right font-bold text-gray-700 subtotal">Rp 0</td>
+                <td class="p-4"><button onclick="this.closest('tr').remove(); calculateTotal();" class="text-gray-300 hover:text-red-500"><i class="fas fa-times"></i></button></td>
             `;
-            tbody.appendChild(tr);
+            document.getElementById('input-rows').appendChild(row);
         };
 
-        window.calculateGrandTotal = () => {
+        window.calculateTotal = () => {
             let grand = 0;
-            document.querySelectorAll('#excel-rows tr').forEach(row => {
-                const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
-                const price = parseFloat(row.querySelector('.item-price').value) || 0;
-                const sub = qty * price;
-                row.querySelector('.subtotal-cell').innerText = `Rp ${sub.toLocaleString('id-ID')}`;
+            document.querySelectorAll('#input-rows tr').forEach(row => {
+                const q = parseFloat(row.querySelector('.qty-input').value) || 0;
+                const p = parseFloat(row.querySelector('.price-input').value) || 0;
+                const sub = q * p;
+                row.querySelector('.subtotal').innerText = 'Rp ' + sub.toLocaleString('id-ID');
                 grand += sub;
             });
-            document.getElementById('grand-total-display').innerText = `Rp ${grand.toLocaleString('id-ID')}`;
+            document.getElementById('total-display').innerText = 'Rp ' + grand.toLocaleString('id-ID');
         };
 
-        window.updateItemListSuggestions = () => {
-            const cat = document.getElementById('input-category').value;
-            const datalist = document.createElement('datalist');
-            datalist.id = "item-datalist";
-            if(itemSuggestions[cat]) {
-                datalist.innerHTML = itemSuggestions[cat].map(i => `<option value="${i}">`).join('');
-            }
-            const oldList = document.getElementById('item-datalist');
-            if(oldList) oldList.remove();
-            document.body.appendChild(datalist);
-        };
+        const renderDashboard = () => {
+            document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
+            const total = transactions.reduce((acc, c) => acc + c.total, 0);
+            document.getElementById('stat-total').innerText = 'Rp ' + total.toLocaleString('id-ID');
+            document.getElementById('stat-count').innerText = transactions.length;
+            document.getElementById('stat-cats').innerText = categories.length;
 
-        window.submitPurchase = async () => {
-            const cat = document.getElementById('input-category').value;
-            const sup = document.getElementById('input-supplier').value;
-            const date = document.getElementById('input-date').value;
+            const catStats = {};
+            categories.forEach(c => catStats[c] = 0);
+            transactions.forEach(t => { if(catStats[t.category] !== undefined) catStats[t.category] += t.total; });
 
-            if(!cat || !sup || !date) return showToast("Mohon lengkapi Kategori, Supplier, dan Tanggal!");
+            if(barChart) barChart.destroy();
+            if(pieChart) pieChart.destroy();
 
-            const rows = document.querySelectorAll('#excel-rows tr');
-            let successCount = 0;
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            barChart = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(catStats),
+                    datasets: [{ label: 'Total Rp', data: Object.values(catStats), backgroundColor: '#3b82f6', borderRadius: 6 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
 
-            for(let row of rows) {
-                const name = row.querySelector('.item-name').value;
-                const qty = parseFloat(row.querySelector('.item-qty').value);
-                const unit = row.querySelector('.item-unit').value;
-                const price = parseFloat(row.querySelector('.item-price').value);
-
-                if(name && qty > 0 && price > 0) {
-                    try {
-                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'purchases'), {
-                            category: cat,
-                            supplier: sup,
-                            date: date,
-                            name: name,
-                            qty: qty,
-                            unit: unit || 'Unit',
-                            unitPrice: price,
-                            total: qty * price,
-                            timestamp: new Date(date).getTime() || Date.now()
-                        });
-                        successCount++;
-                    } catch(e) { console.error(e); }
-                }
-            }
-
-            if(successCount > 0) {
-                showToast(`${successCount} item berhasil disimpan!`);
-                document.getElementById('excel-rows').innerHTML = '';
-                addRow();
-                calculateGrandTotal();
-            } else {
-                showToast("Tidak ada data valid untuk disimpan.");
-            }
-        };
-
-        window.loadPurchases = () => {
-            const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'purchases'), orderBy('timestamp', 'desc'));
-            onSnapshot(q, (snap) => {
-                allPurchases = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderHistory();
-                loadDashboardData();
-                updateTrendItems();
-                document.getElementById('auth-status').innerHTML = `<div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div> Database Cloud Aktif`;
-            }, (err) => {
-                document.getElementById('auth-status').innerHTML = `<div class="w-2 h-2 bg-red-500 rounded-full mr-2"></div> Offline Mode`;
-                console.error(err);
+            const ctxPie = document.getElementById('pieChart').getContext('2d');
+            pieChart = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(catStats),
+                    datasets: [{ data: Object.values(catStats), backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 10 } } } } }
             });
         };
 
         window.renderHistory = () => {
-            const tbody = document.getElementById('history-table-body');
-            const search = document.getElementById('history-search').value.toLowerCase();
-            const filtered = allPurchases.filter(p => 
-                p.name.toLowerCase().includes(search) || 
-                p.supplier.toLowerCase().includes(search) || 
-                p.category.toLowerCase().includes(search)
-            );
-
-            tbody.innerHTML = filtered.map(p => `
-                <tr class="border-b hover:bg-gray-50 text-sm">
-                    <td class="px-6 py-4 whitespace-nowrap text-xs font-medium text-gray-500">${p.date}</td>
-                    <td class="px-6 py-4">
-                        <div class="font-bold text-gray-800">${p.name}</div>
-                        <div class="text-[10px] text-gray-400 uppercase tracking-tighter">${p.supplier}</div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="px-2 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-bold uppercase">${p.category}</span>
-                    </td>
-                    <td class="px-6 py-4 text-center font-bold">${p.qty} <span class="text-gray-400 font-normal ml-1">${p.unit}</span></td>
-                    <td class="px-6 py-4 text-right font-black text-blue-700">Rp ${p.total.toLocaleString('id-ID')}</td>
-                    <td class="px-6 py-4 text-center">
-                        <button onclick="deletePurchase('${p.id}')" class="text-gray-300 hover:text-red-500 transition"><i class="fas fa-trash-alt"></i></button>
-                    </td>
+            const rows = document.getElementById('history-rows');
+            rows.innerHTML = transactions.map(t => `
+                <tr class="border-b border-gray-50 hover:bg-gray-50">
+                    <td class="p-4 text-xs text-gray-500">${t.date}</td>
+                    <td class="p-4 text-xs font-bold text-gray-800">${t.name}</td>
+                    <td class="p-4 text-xs text-center">${t.qty}</td>
+                    <td class="p-4 text-xs"><span class="px-2 py-1 bg-blue-50 text-blue-600 rounded-md">${t.category}</span></td>
+                    <td class="p-4 text-xs text-right font-black">Rp ${t.total.toLocaleString('id-ID')}</td>
                 </tr>
             `).join('');
         };
 
-        window.deletePurchase = async (id) => {
-            if(confirm("Hapus data transaksi ini secara permanen?")) {
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'purchases', id));
-                showToast("Data dihapus.");
-            }
+        window.showToast = (msg) => {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            t.classList.replace('opacity-0', 'opacity-100');
+            setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 3000);
         };
 
-        window.loadDashboardData = () => {
-            const year = document.getElementById('dashboard-year').value;
-            const yearData = allPurchases.filter(p => p.date.startsWith(year));
-            
-            const total = yearData.reduce((acc, c) => acc + c.total, 0);
-            document.getElementById('stat-total').innerText = `Rp ${total.toLocaleString('id-ID')}`;
-            document.getElementById('stat-items').innerText = `${yearData.length} Records`;
-
-            // Charts
-            const catCounts = {};
-            categories.forEach(c => catCounts[c] = 0);
-            yearData.forEach(p => { if(catCounts[p.category] !== undefined) catCounts[p.category] += p.total; });
-            
-            const topCat = Object.entries(catCounts).sort((a,b) => b[1] - a[1])[0];
-            document.getElementById('stat-active-cat').innerText = topCat && topCat[1] > 0 ? topCat[0] : '-';
-
-            renderDashboardCharts(catCounts, yearData);
-        };
-
-        function renderDashboardCharts(catData, rawData) {
-            // Bar Chart
-            const ctxBar = document.getElementById('categoryBarChart').getContext('2d');
-            if(charts.bar) charts.bar.destroy();
-            charts.bar = new Chart(ctxBar, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(catData),
-                    datasets: [{ 
-                        label: 'Total Biaya (Rp)', 
-                        data: Object.values(catData), 
-                        backgroundColor: '#3b82f6', 
-                        borderRadius: 12,
-                        barThickness: 24
-                    }]
-                },
-                options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
-            });
-
-            // Monthly Line Chart
-            const monthly = new Array(12).fill(0);
-            rawData.forEach(p => {
-                const m = parseInt(p.date.split('-')[1]) - 1;
-                if(m >= 0 && m < 12) monthly[m] += p.total;
-            });
-
-            const ctxLine = document.getElementById('monthlyLineChart').getContext('2d');
-            if(charts.line) charts.line.destroy();
-            charts.line = new Chart(ctxLine, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'],
-                    datasets: [{
-                        label: 'Pengeluaran',
-                        data: monthly,
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 4,
-                        pointRadius: 4
-                    }]
-                },
-                options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
-            });
-        }
-
-        window.updateTrendItems = () => {
-            const selCat = document.getElementById('trend-category');
-            const selItem = document.getElementById('trend-item');
-            
-            if(selCat.innerHTML === '<option value="">Semua Kategori</option>') {
-                selCat.innerHTML += categories.map(c => `<option value="${c}">${c}</option>`).join('');
-            }
-
-            const currentCat = selCat.value;
-            const items = [...new Set(allPurchases
-                .filter(p => !currentCat || p.category === currentCat)
-                .map(p => p.name))].sort();
-
-            selItem.innerHTML = '<option value="">-- Pilih Barang --</option>' + 
-                items.map(i => `<option value="${i}">${i}</option>`).join('');
-        };
-
-        window.renderTrendAnalysis = () => {
-            const itemName = document.getElementById('trend-item').value;
-            if(!itemName) return document.getElementById('trend-view').classList.add('hidden');
-            
-            document.getElementById('trend-view').classList.remove('hidden');
-            const itemData = allPurchases.filter(p => p.name === itemName).sort((a,b) => a.timestamp - b.timestamp);
-            
-            if(itemData.length === 0) return;
-
-            const prices = itemData.map(d => d.unitPrice);
-            const avg = prices.reduce((a,b) => a+b, 0) / prices.length;
-            const max = Math.max(...prices);
-            
-            let diff = 0;
-            if(itemData.length > 1) {
-                const last = itemData[itemData.length - 1].unitPrice;
-                const prev = itemData[itemData.length - 2].unitPrice;
-                diff = ((last - prev) / prev) * 100;
-            }
-
-            document.getElementById('trend-avg').innerText = `Rp ${avg.toLocaleString('id-ID')}`;
-            document.getElementById('trend-max').innerText = `Rp ${max.toLocaleString('id-ID')}`;
-            document.getElementById('trend-diff').innerText = `${diff > 0 ? '+' : ''}${diff.toFixed(1)}%`;
-            document.getElementById('trend-diff').parentElement.className = `p-6 rounded-2xl border ${diff > 0 ? 'bg-red-50 border-red-100 text-red-800' : 'bg-green-50 border-green-100 text-green-800'}`;
-
-            const ctxTrend = document.getElementById('priceTrendChart').getContext('2d');
-            if(charts.trend) charts.trend.destroy();
-            charts.trend = new Chart(ctxTrend, {
-                type: 'line',
-                data: {
-                    labels: itemData.map(d => d.date),
-                    datasets: [{
-                        label: 'Harga Satuan',
-                        data: prices,
-                        borderColor: '#3b82f6',
-                        borderWidth: 3,
-                        pointBackgroundColor: '#fff',
-                        tension: 0.2
-                    }]
-                },
-                options: { maintainAspectRatio: false }
-            });
-        };
-
-        window.exportCSV = () => {
-            if(allPurchases.length === 0) return showToast("Data kosong!");
-            let csv = "Tanggal,Kategori,Supplier,NamaBarang,Qty,Satuan,HargaSatuan,Total\n";
-            allPurchases.forEach(p => {
-                csv += `"${p.date}","${p.category}","${p.supplier}","${p.name}",${p.qty},"${p.unit}",${p.unitPrice},${p.total}\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `MediTrack_Export_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-        };
-
-        window.renderReport = () => {
-            const m = document.getElementById('report-month').value;
-            const year = '2025'; // Fixed for demo or dynamic
-            const data = allPurchases.filter(p => {
-                const parts = p.date.split('-');
-                return parts[1] === m.padStart(2, '0') && parts[0] === year;
-            });
-
-            const tbody = document.getElementById('report-rows');
-            const sheet = document.getElementById('report-sheet');
-            
-            if(data.length === 0) {
-                showToast("Tidak ada data untuk bulan ini.");
-                sheet.classList.add('hidden');
-                return;
-            }
-
-            sheet.classList.remove('hidden');
-            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-            document.getElementById('report-display-month').innerText = `BULAN: ${months[m-1].toUpperCase()} ${year}`;
-
-            let total = 0;
-            tbody.innerHTML = data.map(p => {
-                total += p.total;
-                return `
-                    <tr class="border-b">
-                        <td class="p-2">${p.date}</td>
-                        <td class="p-2 font-bold">${p.name}</td>
-                        <td class="p-2 uppercase">${p.supplier}</td>
-                        <td class="p-2 text-center">${p.qty} ${p.unit}</td>
-                        <td class="p-2 text-right">Rp ${p.total.toLocaleString('id-ID')}</td>
-                    </tr>
-                `;
-            }).join('');
-
-            document.getElementById('report-grand-total').innerText = `Rp ${total.toLocaleString('id-ID')}`;
-        };
-
-        // Initializer
         window.onload = () => {
-            // Populate category dropdown
-            const catSelect = document.getElementById('input-category');
-            catSelect.innerHTML = '<option value="">-- Pilih Kategori --</option>' + 
-                categories.map(c => `<option value="${c}">${c}</option>`).join('');
-            
-            document.getElementById('input-date').valueAsDate = new Date();
-            loadPurchases();
-            addRow();
+            loadCategories();
+            loadTransactions();
+            renderDashboard();
         };
-
     </script>
 </body>
 </html>
