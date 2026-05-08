@@ -123,17 +123,27 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="glass p-6 rounded-2xl">
                         <h4 class="font-bold mb-6 flex justify-between items-center">
-                            Pengeluaran per Kategori
-                            <span class="text-xs font-normal opacity-50">Visualisasi Persentase</span>
+                            Pengeluaran per Kategori (Kumulatif)
+                            <span class="text-xs font-normal opacity-50">Keseluruhan Waktu</span>
                         </h4>
                         <canvas id="categoryChart" height="250"></canvas>
                     </div>
                     <div class="glass p-6 rounded-2xl">
-                        <h4 class="font-bold mb-6 flex justify-between items-center">
-                            Tren Belanja 6 Bulan
-                            <span class="text-xs font-normal opacity-50">Pertumbuhan Bulanan</span>
-                        </h4>
-                        <canvas id="trendChart" height="250"></canvas>
+                        <div class="flex justify-between items-center mb-6">
+                            <h4 class="font-bold">Persentase Belanja Kategori</h4>
+                            <div class="flex gap-2">
+                                <select id="dash-filter-month" onchange="renderCharts()" class="bg-slate-800 text-[10px] p-1 rounded border border-slate-700 outline-none">
+                                    <option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option>
+                                    <option value="4">Apr</option><option value="5">Mei</option><option value="6">Jun</option>
+                                    <option value="7">Jul</option><option value="8">Agu</option><option value="9">Sep</option>
+                                    <option value="10">Okt</option><option value="11">Nov</option><option value="12">Des</option>
+                                </select>
+                                <select id="dash-filter-year" onchange="renderCharts()" class="bg-slate-800 text-[10px] p-1 rounded border border-slate-700 outline-none">
+                                    <option>2024</option><option selected>2025</option><option>2026</option>
+                                </select>
+                            </div>
+                        </div>
+                        <canvas id="filteredCategoryChart" height="250"></canvas>
                     </div>
                 </div>
             </div>
@@ -160,6 +170,10 @@
                         <div class="flex-1 min-w-[200px]">
                             <label class="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-bold">Supplier / Vendor</label>
                             <input type="text" id="input-vendor" placeholder="Nama Supplier" class="w-full p-3 rounded-xl outline-none">
+                        </div>
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-bold">Tanggal Pembelian</label>
+                            <input type="date" id="input-date" class="w-full p-3 rounded-xl outline-none">
                         </div>
                     </div>
 
@@ -390,16 +404,16 @@
     import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, collection, query, onSnapshot, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Configuration from environment or defaults
+    // Configuration
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'logistic-pro-smart-v1';
     const firebaseConfig = {
-  apiKey: "AIzaSyDEXHSwJq7l-B9UgmYzqgDqKCNUS0ho-j0",
-  authDomain: "rekapbelanja.firebaseapp.com",
-  projectId: "rekapbelanja",
-  storageBucket: "rekapbelanja.firebasestorage.app",
-  messagingSenderId: "867729593347",
-  appId: "1:867729593347:web:1db201e3cc649490cdaa36"
-};
+      apiKey: "AIzaSyDEXHSwJq7l-B9UgmYzqgDqKCNUS0ho-j0",
+      authDomain: "rekapbelanja.firebaseapp.com",
+      projectId: "rekapbelanja",
+      storageBucket: "rekapbelanja.firebasestorage.app",
+      messagingSenderId: "867729593347",
+      appId: "1:867729593347:web:1db201e3cc649490cdaa36"
+    };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -410,25 +424,21 @@
     window.masterItems = [];
     window.purchases = [];
     let catChart = null;
-    let trendChart = null;
+    let filteredCatChart = null;
 
     async function initAuth() {
         try {
-            // Perbaikan: Coba masuk dengan custom token, jika gagal otomatis fallback ke anonymous
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                 try {
                     await signInWithCustomToken(auth, __initial_auth_token);
                 } catch (tokenErr) {
-                    console.warn("Custom token mismatch, falling back to anonymous auth...");
                     await signInAnonymously(auth);
                 }
             } else {
                 await signInAnonymously(auth);
             }
         } catch (err) {
-            console.error("Critical Auth Error:", err);
-            document.getElementById('cloud-status-text').innerText = "Auth Error";
-            document.getElementById('cloud-status-text').className = "font-bold text-red-500";
+            console.error("Auth Error:", err);
         }
     }
 
@@ -449,30 +459,26 @@
 
     function loadInitialData() {
         const appIdStr = appId;
-        
-        // Listen to Master Items
         const masterRef = collection(db, 'artifacts', appIdStr, 'public', 'data', 'master_items');
         onSnapshot(masterRef, (snap) => {
             window.masterItems = snap.docs.map(d => ({id: d.id, ...d.data()}));
             renderMasterTable();
             if(window.currentTab === 'input') filterMasterItemsForInput();
-        }, (err) => console.log("Master data error", err));
+        });
 
-        // Listen to Purchases
         const purchaseRef = collection(db, 'artifacts', appIdStr, 'public', 'data', 'purchases');
         onSnapshot(purchaseRef, (snap) => {
             window.purchases = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => new Date(b.date) - new Date(a.date));
             updateDashboard();
             renderDatabase();
             renderTrends();
-        }, (err) => console.log("Purchase data error", err));
+        });
     }
 
     window.switchTab = (tabId) => {
         window.currentTab = tabId;
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
         document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-        
         document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('sidebar-active'));
         document.getElementById(`btn-${tabId}`).classList.add('sidebar-active');
 
@@ -491,97 +497,41 @@
         }
     };
 
-    // Master Data Functions
+    // Master Data
     window.addMasterItem = async () => {
         const cat = document.getElementById('master-add-cat').value;
         const name = document.getElementById('master-add-name').value.trim();
-        if(!name) return showToast("Nama barang tidak boleh kosong", "error");
-
-        try {
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'), {
-                category: cat,
-                name: name,
-                createdAt: new Date().toISOString()
-            });
-            document.getElementById('master-add-name').value = "";
-            showToast("Master barang berhasil ditambahkan");
-        } catch (e) { console.error(e); }
+        if(!name) return showToast("Nama barang kosong!", "error");
+        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'), { category: cat, name: name });
+        document.getElementById('master-add-name').value = "";
+        showToast("Master barang ditambahkan");
     };
 
     function renderMasterTable() {
         const tbody = document.getElementById('master-table-body');
         tbody.innerHTML = window.masterItems.map(item => `
-            <tr class="border-b border-slate-800 hover:bg-white/5">
+            <tr class="border-b border-slate-800">
                 <td class="p-3 text-blue-400 font-bold text-xs">${item.category}</td>
                 <td class="p-3">${item.name}</td>
-                <td class="p-3 text-right">
-                    <button onclick="deleteMasterItem('${item.id}')" class="text-red-500 hover:text-red-400">&times; Hapus</button>
-                </td>
+                <td class="p-3 text-right"><button onclick="deleteMasterItem('${item.id}')" class="text-red-500">&times;</button></td>
             </tr>
         `).join('');
     }
 
     window.deleteMasterItem = async (id) => {
-        if(!confirm("Hapus master data ini?")) return;
-        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'master_items', id));
+        if(confirm("Hapus?")) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'master_items', id));
     };
 
-    window.exportMaster = () => {
-        let csv = "Kategori,Nama Barang\n";
-        window.masterItems.forEach(item => {
-            csv += `${item.category},${item.name}\n`;
-        });
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = "master_barang_logistik.csv";
-        a.click();
-    };
-
-    window.triggerImportMaster = () => document.getElementById('master-import-file').click();
-
-    window.importMaster = (input) => {
-        const file = input.files[0];
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            const text = e.target.result;
-            const rows = text.split('\n').slice(1);
-            for(let row of rows) {
-                const [cat, name] = row.split(',');
-                if(cat && name) {
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'), {
-                        category: cat.trim(),
-                        name: name.trim(),
-                        createdAt: new Date().toISOString()
-                    });
-                }
-            }
-            showToast(`Import Selesai: ${rows.length} data diproses`);
-        };
-        reader.readAsText(file);
-    };
-
+    // Input Purchases
     window.exportInputTemplate = () => {
         const cat = document.getElementById('input-main-category').value;
-        if(!cat) return showToast("Pilih kategori terlebih dahulu!", "error");
-        
+        if(!cat) return showToast("Pilih kategori!", "error");
         let csv = "Nama Barang,Qty,Harga Satuan\n";
-        const filteredMaster = window.masterItems.filter(i => i.category === cat);
-        
-        if(filteredMaster.length > 0) {
-            filteredMaster.forEach(item => {
-                csv += `"${item.name}",0,0\n`;
-            });
-        } else {
-            csv += "Nama Barang Baru,1,5000\n";
-        }
-
+        window.masterItems.filter(i => i.category === cat).forEach(item => csv += `"${item.name}",0,0\n`);
         const blob = new Blob([csv], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url;
-        a.download = `template_input_${cat.replace(/\s/g, '_')}.csv`;
+        a.href = URL.createObjectURL(blob);
+        a.download = `template_${cat}.csv`;
         a.click();
     };
 
@@ -589,8 +539,7 @@
         const cat = document.getElementById('input-main-category').value;
         const date = document.getElementById('input-date').value;
         const vendor = document.getElementById('input-vendor').value;
-
-        if(!cat || !date || !vendor) return showToast("Lengkapi Kategori, Tanggal, dan Vendor sebelum import!", "error");
+        if(!cat || !date || !vendor) return showToast("Lengkapi form!", "error");
         document.getElementById('purchase-import-file').click();
     };
 
@@ -598,40 +547,25 @@
         const cat = document.getElementById('input-main-category').value;
         const date = document.getElementById('input-date').value;
         const vendor = document.getElementById('input-vendor').value;
-        const file = input.files[0];
-        
         const reader = new FileReader();
         reader.onload = async (e) => {
-            const text = e.target.result;
-            const rows = text.split('\n').slice(1);
-            let count = 0;
-
+            const rows = e.target.result.split('\n').slice(1);
             for(let row of rows) {
                 const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                 if(cols.length >= 3) {
                     const itemName = cols[0].replace(/"/g, '').trim();
                     const qty = parseFloat(cols[1]);
                     const price = parseFloat(cols[2]);
-
-                    if(itemName && !isNaN(qty) && qty > 0) {
+                    if(itemName && qty > 0) {
                         await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'purchases'), {
-                            category: cat,
-                            date: date,
-                            vendor: vendor,
-                            itemName: itemName,
-                            qty: qty,
-                            price: price,
-                            total: qty * price,
-                            createdAt: new Date().toISOString()
+                            category: cat, date: date, vendor: vendor, itemName: itemName, qty: qty, price: price, total: qty * price
                         });
-                        count++;
                     }
                 }
             }
-            showToast(`Berhasil mengimpor ${count} data pembelian`);
-            input.value = ""; // reset file input
+            showToast("Import selesai");
         };
-        reader.readAsText(file);
+        reader.readAsText(input.files[0]);
     };
 
     window.addInputRow = () => {
@@ -639,21 +573,11 @@
         const tr = document.createElement('tr');
         tr.className = "row-item border-b border-slate-800";
         tr.innerHTML = `
-            <td class="p-3">
-                <select class="item-name w-full p-2 rounded-lg"></select>
-            </td>
-            <td class="p-3">
-                <input type="number" class="item-qty w-full p-2 rounded-lg" oninput="calculateRowTotal(this)" value="1">
-            </td>
-            <td class="p-3">
-                <input type="number" class="item-price w-full p-2 rounded-lg" oninput="calculateRowTotal(this)" value="0">
-            </td>
-            <td class="p-3">
-                <span class="row-total font-mono">Rp 0</span>
-            </td>
-            <td class="p-3 text-center">
-                <button onclick="this.closest('tr').remove(); updateGrandTotal();" class="text-red-500 text-xl font-bold">&times;</button>
-            </td>
+            <td class="p-3"><select class="item-name w-full p-2 rounded-lg"></select></td>
+            <td class="p-3"><input type="number" class="item-qty w-full p-2 rounded-lg" oninput="calculateRowTotal(this)" value="1"></td>
+            <td class="p-3"><input type="number" class="item-price w-full p-2 rounded-lg" oninput="calculateRowTotal(this)" value="0"></td>
+            <td class="p-3"><span class="row-total font-mono">Rp 0</span></td>
+            <td class="p-3 text-center"><button onclick="this.closest('tr').remove(); updateGrandTotal();" class="text-red-500 font-bold">&times;</button></td>
         `;
         tbody.appendChild(tr);
         filterMasterItemsForInput();
@@ -663,12 +587,8 @@
         const cat = document.getElementById('input-main-category').value;
         const selects = document.querySelectorAll('.item-name');
         const filtered = window.masterItems.filter(i => i.category === cat);
-        
         selects.forEach(sel => {
-            const currentVal = sel.value;
-            sel.innerHTML = filtered.length > 0 
-                ? filtered.map(i => `<option ${i.name === currentVal ? 'selected' : ''}>${i.name}</option>`).join('')
-                : `<option value="">Pilih Kategori Dulu</option>`;
+            sel.innerHTML = filtered.map(i => `<option>${i.name}</option>`).join('') || `<option value="">Pilih Kategori</option>`;
         });
     };
 
@@ -676,18 +596,13 @@
         const tr = input.closest('tr');
         const qty = tr.querySelector('.item-qty').value || 0;
         const price = tr.querySelector('.item-price').value || 0;
-        const total = qty * price;
-        tr.querySelector('.row-total').innerText = formatIDR(total);
+        tr.querySelector('.row-total').innerText = formatIDR(qty * price);
         updateGrandTotal();
     };
 
     window.updateGrandTotal = () => {
         let grand = 0;
-        document.querySelectorAll('.row-item').forEach(tr => {
-            const qty = tr.querySelector('.item-qty').value || 0;
-            const price = tr.querySelector('.item-price').value || 0;
-            grand += (qty * price);
-        });
+        document.querySelectorAll('.row-item').forEach(tr => grand += (tr.querySelector('.item-qty').value * tr.querySelector('.item-price').value));
         document.getElementById('input-grand-total').innerText = formatIDR(grand);
     };
 
@@ -695,348 +610,151 @@
         const cat = document.getElementById('input-main-category').value;
         const date = document.getElementById('input-date').value;
         const vendor = document.getElementById('input-vendor').value;
-
-        if(!cat || !date || !vendor) return showToast("Mohon lengkapi Kategori, Tanggal, dan Vendor", "error");
-
+        if(!cat || !date || !vendor) return showToast("Lengkapi form!", "error");
         const rows = document.querySelectorAll('.row-item');
-        if(rows.length === 0) return;
-
-        try {
-            for(let row of rows) {
-                const itemName = row.querySelector('.item-name').value;
-                const qty = parseFloat(row.querySelector('.item-qty').value);
-                const price = parseFloat(row.querySelector('.item-price').value);
-                
-                if(itemName && qty > 0) {
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'purchases'), {
-                        category: cat,
-                        date: date,
-                        vendor: vendor,
-                        itemName: itemName,
-                        qty: qty,
-                        price: price,
-                        total: qty * price,
-                        createdAt: new Date().toISOString()
-                    });
-                }
+        for(let row of rows) {
+            const name = row.querySelector('.item-name').value;
+            const qty = parseFloat(row.querySelector('.item-qty').value);
+            const price = parseFloat(row.querySelector('.item-price').value);
+            if(name && qty > 0) {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'purchases'), {
+                    category: cat, date: date, vendor: vendor, itemName: name, qty: qty, price: price, total: qty * price
+                });
             }
-            showToast("Transaksi berhasil disimpan");
-            document.getElementById('input-rows').innerHTML = "";
-            addInputRow();
-            updateGrandTotal();
-        } catch (e) { console.error(e); }
+        }
+        document.getElementById('input-rows').innerHTML = "";
+        addInputRow();
+        updateGrandTotal();
+        showToast("Tersimpan");
     };
 
-    function updateDashboard() {
+    // Dashboard & Charts
+    window.updateDashboard = () => {
         const now = new Date();
         const thisMonth = now.getMonth() + 1;
         const thisYear = now.getFullYear();
-
         const monthPurchases = window.purchases.filter(p => {
             const d = new Date(p.date);
             return (d.getMonth() + 1) === thisMonth && d.getFullYear() === thisYear;
         });
-
-        const totalSpend = monthPurchases.reduce((acc, curr) => acc + curr.total, 0);
-        document.getElementById('stat-total-spend').innerText = formatIDR(totalSpend);
+        document.getElementById('stat-total-spend').innerText = formatIDR(monthPurchases.reduce((a,c) => a + c.total, 0));
         document.getElementById('stat-total-items').innerText = window.purchases.length;
-        
-        // Top Category Logic
-        const catCounts = {};
-        window.purchases.forEach(p => catCounts[p.category] = (catCounts[p.category] || 0) + 1);
-        let topCat = "-";
-        let max = 0;
-        for(let key in catCounts) {
-            if(catCounts[key] > max) { max = catCounts[key]; topCat = key; }
-        }
-        document.getElementById('stat-top-cat').innerText = topCat;
         document.getElementById('stat-last-sync').innerText = new Date().toLocaleTimeString();
-
         renderCharts();
-    }
+    };
 
-    function renderCharts() {
+    window.renderCharts = () => {
+        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+        
+        // Cumulative Chart
         const ctx1 = document.getElementById('categoryChart').getContext('2d');
         const catData = {};
         window.purchases.forEach(p => catData[p.category] = (catData[p.category] || 0) + p.total);
-        
         if(catChart) catChart.destroy();
         catChart = new Chart(ctx1, {
             type: 'doughnut',
-            data: {
-                labels: Object.keys(catData),
-                datasets: [{
-                    data: Object.values(catData),
-                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8' } } },
-                maintainAspectRatio: false
-            }
+            data: { labels: Object.keys(catData), datasets: [{ data: Object.values(catData), backgroundColor: colors, borderWidth: 0 }] },
+            options: { plugins: { legend: { labels: { color: '#94a3b8' } } }, maintainAspectRatio: false }
         });
 
-        // Trend Chart (Monthly spend)
-        const ctx2 = document.getElementById('trendChart').getContext('2d');
-        const monthlyData = {};
-        window.purchases.forEach(p => {
+        // Filtered Category Chart (Dashboard)
+        const fMonth = parseInt(document.getElementById('dash-filter-month').value);
+        const fYear = parseInt(document.getElementById('dash-filter-year').value);
+        const ctx2 = document.getElementById('filteredCategoryChart').getContext('2d');
+        const fCatData = {};
+        
+        window.purchases.filter(p => {
             const d = new Date(p.date);
-            const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-            monthlyData[key] = (monthlyData[key] || 0) + p.total;
-        });
-        const sortedKeys = Object.keys(monthlyData).sort().slice(-6);
+            return (d.getMonth() + 1) === fMonth && d.getFullYear() === fYear;
+        }).forEach(p => fCatData[p.category] = (fCatData[p.category] || 0) + p.total);
 
-        if(trendChart) trendChart.destroy();
-        trendChart = new Chart(ctx2, {
-            type: 'line',
-            data: {
-                labels: sortedKeys,
-                datasets: [{
-                    label: 'Total Belanja',
-                    data: sortedKeys.map(k => monthlyData[k]),
-                    borderColor: '#3b82f6',
-                    tension: 0.4,
-                    fill: true,
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)'
-                }]
+        if(filteredCatChart) filteredCatChart.destroy();
+        filteredCatChart = new Chart(ctx2, {
+            type: 'pie',
+            data: { 
+                labels: Object.keys(fCatData).length ? Object.keys(fCatData) : ['No Data'], 
+                datasets: [{ 
+                    data: Object.values(fCatData).length ? Object.values(fCatData) : [1], 
+                    backgroundColor: Object.keys(fCatData).length ? colors : ['#1e293b'], 
+                    borderWidth: 0 
+                }] 
             },
-            options: {
-                scales: { 
-                    y: { ticks: { color: '#64748b' }, grid: { color: '#1e293b' } },
-                    x: { ticks: { color: '#64748b' }, grid: { color: '#1e293b' } }
-                },
-                plugins: { legend: { display: false } },
-                maintainAspectRatio: false
+            options: { 
+                plugins: { 
+                    legend: { labels: { color: '#94a3b8' } },
+                    tooltip: { enabled: Object.keys(fCatData).length > 0 }
+                }, 
+                maintainAspectRatio: false 
             }
         });
-    }
+    };
 
+    // Database & Reports
     window.renderDatabase = () => {
         const search = document.getElementById('db-search').value.toLowerCase();
         const filter = document.getElementById('db-filter-cat').value;
-        const tbody = document.getElementById('db-table-body');
-        
-        const filtered = window.purchases.filter(p => {
-            const matchesSearch = p.itemName.toLowerCase().includes(search) || p.vendor.toLowerCase().includes(search);
-            const matchesCat = filter === "" || p.category === filter;
-            return matchesSearch && matchesCat;
-        });
-
-        tbody.innerHTML = filtered.map(p => `
-            <tr class="hover:bg-white/5 transition-colors">
+        const filtered = window.purchases.filter(p => (p.itemName.toLowerCase().includes(search) || p.vendor.toLowerCase().includes(search)) && (filter === "" || p.category === filter));
+        document.getElementById('db-table-body').innerHTML = filtered.map(p => `
+            <tr class="hover:bg-white/5">
                 <td class="p-4 opacity-70">${p.date}</td>
                 <td class="p-4"><span class="px-2 py-1 rounded bg-blue-600/20 text-blue-400 text-xs">${p.category}</span></td>
-                <td class="p-4 font-semibold">${p.itemName}</td>
-                <td class="p-4 text-slate-400">${p.vendor}</td>
+                <td class="p-4">${p.itemName}</td>
+                <td class="p-4">${p.vendor}</td>
                 <td class="p-4">${p.qty}</td>
                 <td class="p-4 font-mono text-emerald-400 font-bold">${formatIDR(p.total)}</td>
-                <td class="p-4 text-center space-x-2">
-                    <button onclick="openEditModal('${p.id}')" class="p-2 bg-blue-600/10 text-blue-400 rounded-lg hover:bg-blue-600 hover:text-white transition-all">Edit</button>
-                    <button onclick="deletePurchase('${p.id}')" class="p-2 bg-red-600/10 text-red-400 rounded-lg hover:bg-red-600 hover:text-white transition-all">Hapus</button>
-                </td>
+                <td class="p-4"><button onclick="deletePurchase('${p.id}')" class="text-red-500">Hapus</button></td>
             </tr>
         `).join('');
     };
 
-    window.openEditModal = (id) => {
-        const p = window.purchases.find(item => item.id === id);
-        const container = document.getElementById('edit-form-content');
-        container.innerHTML = `
-            <div class="col-span-2">
-                <label class="block text-xs mb-1 opacity-50">Kategori</label>
-                <select id="edit-cat" class="w-full p-2 rounded-lg">
-                    <option ${p.category === 'ATK' ? 'selected' : ''}>ATK</option>
-                    <option ${p.category === 'Plastik' ? 'selected' : ''}>Plastik</option>
-                    <option ${p.category === 'Alat Kebersihan/RT' ? 'selected' : ''}>Alat Kebersihan/RT</option>
-                    <option ${p.category === 'Chemical Laundry' ? 'selected' : ''}>Chemical Laundry</option>
-                    <option ${p.category === 'Bahan Basah&Kering' ? 'selected' : ''}>Bahan Basah&Kering</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-xs mb-1 opacity-50">Tanggal</label>
-                <input type="date" id="edit-date" class="w-full p-2 rounded-lg" value="${p.date}">
-            </div>
-            <div>
-                <label class="block text-xs mb-1 opacity-50">Supplier</label>
-                <input type="text" id="edit-vendor" class="w-full p-2 rounded-lg" value="${p.vendor}">
-            </div>
-            <div class="col-span-2">
-                <label class="block text-xs mb-1 opacity-50">Nama Barang</label>
-                <input type="text" id="edit-name" class="w-full p-2 rounded-lg" value="${p.itemName}">
-            </div>
-            <div>
-                <label class="block text-xs mb-1 opacity-50">Qty</label>
-                <input type="number" id="edit-qty" class="w-full p-2 rounded-lg" value="${p.qty}">
-            </div>
-            <div>
-                <label class="block text-xs mb-1 opacity-50">Harga Satuan</label>
-                <input type="number" id="edit-price" class="w-full p-2 rounded-lg" value="${p.price}">
-            </div>
-        `;
-        
-        document.getElementById('btn-save-edit').onclick = () => updatePurchase(id);
-        document.getElementById('edit-modal').classList.remove('hidden');
-    };
-
-    window.updatePurchase = async (id) => {
-        const updated = {
-            category: document.getElementById('edit-cat').value,
-            date: document.getElementById('edit-date').value,
-            vendor: document.getElementById('edit-vendor').value,
-            itemName: document.getElementById('edit-name').value,
-            qty: parseFloat(document.getElementById('edit-qty').value),
-            price: parseFloat(document.getElementById('edit-price').value),
-            total: parseFloat(document.getElementById('edit-qty').value) * parseFloat(document.getElementById('edit-price').value)
-        };
-
-        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'purchases', id), updated);
-        closeEditModal();
-        showToast("Data berhasil diperbarui");
-    };
-
-    window.closeEditModal = () => document.getElementById('edit-modal').classList.add('hidden');
-
-    window.deletePurchase = async (id) => {
-        if(!confirm("Yakin ingin menghapus data ini?")) return;
-        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'purchases', id));
-        showToast("Data dihapus", "error");
-    };
+    window.deletePurchase = async (id) => { if(confirm("Hapus?")) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'purchases', id)); };
 
     window.renderTrends = () => {
         const cat = document.getElementById('trend-cat').value;
         const container = document.getElementById('trend-cards');
-        if(!cat) { container.innerHTML = ""; return; }
-
         const items = {};
         window.purchases.filter(p => p.category === cat).forEach(p => {
             if(!items[p.itemName]) items[p.itemName] = [];
             items[p.itemName].push(p.price);
         });
-
         container.innerHTML = Object.keys(items).map(name => {
             const prices = items[name].sort((a,b) => b-a);
-            const high = prices[0];
-            const low = prices[prices.length-1];
-            return `
-                <div class="glass p-6 rounded-2xl border-l-4 border-blue-500">
-                    <h5 class="font-bold text-lg mb-4 truncate">${name}</h5>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs opacity-50 uppercase">Harga Tertinggi</span>
-                            <span class="text-red-400 font-mono font-bold">${formatIDR(high)}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs opacity-50 uppercase">Harga Terendah</span>
-                            <span class="text-emerald-400 font-mono font-bold">${formatIDR(low)}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
+            return `<div class="glass p-6 rounded-2xl border-l-4 border-blue-500"><h5 class="font-bold mb-4">${name}</h5><p class="text-xs opacity-50 uppercase">Tinggi: <span class="text-red-400">${formatIDR(prices[0])}</span></p><p class="text-xs opacity-50 uppercase">Rendah: <span class="text-emerald-400">${formatIDR(prices[prices.length-1])}</span></p></div>`;
         }).join('');
     };
 
     window.generateReport = () => {
         const m = document.getElementById('report-month').value;
         const y = document.getElementById('report-year').value;
-        const filtered = window.purchases.filter(p => {
-            const d = new Date(p.date);
-            return (d.getMonth()+1) == m && d.getFullYear() == y;
-        });
-
-        document.getElementById('report-timestamp').innerText = `Dicetak pada: ${new Date().toLocaleString('id-ID')}`;
-        
-        let html = `
-            <table class="w-full text-left border border-slate-700">
-                <thead class="bg-slate-800 text-xs">
-                    <tr>
-                        <th class="p-3 border border-slate-700">Tgl</th>
-                        <th class="p-3 border border-slate-700">Kategori</th>
-                        <th class="p-3 border border-slate-700">Nama Barang</th>
-                        <th class="p-3 border border-slate-700">Vendor</th>
-                        <th class="p-3 border border-slate-700 text-right">Harga</th>
-                        <th class="p-3 border border-slate-700 text-center">Qty</th>
-                        <th class="p-3 border border-slate-700 text-right">Total</th>
-                    </tr>
-                </thead>
-                <tbody class="text-xs">
-        `;
-
+        const filtered = window.purchases.filter(p => { const d = new Date(p.date); return (d.getMonth()+1) == m && d.getFullYear() == y; });
+        document.getElementById('report-timestamp').innerText = `Dicetak: ${new Date().toLocaleString('id-ID')}`;
         let total = 0;
-        filtered.forEach(p => {
-            total += p.total;
-            html += `
-                <tr>
-                    <td class="p-2 border border-slate-800">${p.date}</td>
-                    <td class="p-2 border border-slate-800">${p.category}</td>
-                    <td class="p-2 border border-slate-800">${p.itemName}</td>
-                    <td class="p-2 border border-slate-800">${p.vendor}</td>
-                    <td class="p-2 border border-slate-800 text-right">${formatIDR(p.price)}</td>
-                    <td class="p-2 border border-slate-800 text-center">${p.qty}</td>
-                    <td class="p-2 border border-slate-800 text-right font-bold">${formatIDR(p.total)}</td>
-                </tr>
-            `;
-        });
-
-        html += `
-                </tbody>
-                <tfoot class="bg-slate-800 font-bold">
-                    <tr>
-                        <td colspan="6" class="p-3 text-right">TOTAL PENGELUARAN</td>
-                        <td class="p-3 text-right text-emerald-400 text-sm">${formatIDR(total)}</td>
-                    </tr>
-                </tfoot>
+        document.getElementById('report-content').innerHTML = `
+            <table class="w-full text-left border border-slate-700">
+                <thead class="bg-slate-800 text-xs"><tr><th class="p-3 border border-slate-700">Tgl</th><th class="p-3 border border-slate-700">Nama Barang</th><th class="p-3 border border-slate-700 text-right">Total</th></tr></thead>
+                <tbody class="text-xs">${filtered.map(p => { total += p.total; return `<tr><td class="p-2 border border-slate-800">${p.date}</td><td class="p-2 border border-slate-800">${p.itemName}</td><td class="p-2 border border-slate-800 text-right">${formatIDR(p.total)}</td></tr>`; }).join('')}</tbody>
+                <tfoot class="bg-slate-800 font-bold"><tr><td colspan="2" class="p-3 text-right">TOTAL</td><td class="p-3 text-right text-emerald-400">${formatIDR(total)}</td></tr></tfoot>
             </table>
         `;
-        document.getElementById('report-content').innerHTML = filtered.length > 0 ? html : "<p class='text-center py-10 opacity-30'>Tidak ada data untuk periode ini.</p>";
     };
 
     window.exportToPDF = () => {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('l', 'pt', 'a4');
-        
-        // Use autoTable for better formatting
-        doc.setFontSize(18);
-        doc.text("RUMAH SAKIT LOGISTICS CENTER", 40, 40);
-        doc.setFontSize(10);
-        doc.text("Laporan Mutasi Barang Bulanan", 40, 60);
-        doc.text(document.getElementById('report-timestamp').innerText, 40, 75);
-
-        doc.autoTable({
-            html: '#report-content table',
-            startY: 100,
-            theme: 'grid',
-            headStyles: { fillColor: [30, 41, 59] },
-            styles: { fontSize: 8 }
-        });
-
-        doc.save(`Laporan_Logistik_${Date.now()}.pdf`);
+        doc.text("LAPORAN MUTASI LOGISTIK", 40, 40);
+        doc.autoTable({ html: '#report-content table', startY: 60 });
+        doc.save("Laporan.pdf");
     };
 
-    // Helper: Toast & Format
     function showToast(msg, type = "success") {
         const t = document.getElementById('toast');
-        t.innerText = msg;
-        t.classList.remove('translate-y-32', 'bg-blue-600', 'bg-red-600');
-        t.classList.add(type === "success" ? 'bg-blue-600' : 'bg-red-600');
+        t.innerText = msg; t.className = `fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full text-white font-bold shadow-2xl z-[100] ${type === "success" ? 'bg-blue-600' : 'bg-red-600'}`;
         setTimeout(() => t.classList.add('translate-y-32'), 3000);
     }
 
-    function formatIDR(num) {
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
-    }
-
-    // Clock
-    setInterval(() => {
-        document.getElementById('live-clock').innerText = new Date().toLocaleString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    }, 1000);
-
-    // Initial State
-    window.onload = () => {
-        initAuth();
-        switchTab('dashboard');
-    };
-
+    function formatIDR(num) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num); }
+    setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }, 1000);
+    window.onload = () => { initAuth(); switchTab('dashboard'); };
 </script>
 </body>
 </html>
