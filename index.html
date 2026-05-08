@@ -17,9 +17,66 @@
         .sync-icon { animation: pulse-blue 2s infinite; }
         .no-print { display: block; }
         @media print { .no-print { display: none; } .ml-64 { margin-left: 0 !important; } }
+        
+        #setup-guide { backdrop-filter: blur(8px); }
+        .code-block { font-family: 'Courier New', Courier, monospace; background: #0f172a; color: #38bdf8; padding: 1.25rem; border-radius: 0.75rem; overflow-x: auto; border: 1px solid #334155; }
+        .error-pulse { border: 2px solid #ef4444; animation: border-pulse 2s infinite; }
+        @keyframes border-pulse { 0% { border-color: #ef4444; } 50% { border-color: #fee2e2; } 100% { border-color: #ef4444; } }
     </style>
 </head>
 <body class="flex min-h-screen">
+
+    <div id="setup-guide" class="fixed inset-0 z-[100] bg-gray-900/60 flex items-center justify-center hidden p-4">
+        <div class="bg-white max-w-2xl w-full rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+            <div class="p-8">
+                <div class="flex items-center space-x-3 text-red-600 mb-4">
+                    <div class="bg-red-100 p-3 rounded-2xl">
+                        <i class="fas fa-shield-alt text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold">Koneksi Database Terblokir</h2>
+                </div>
+                <p class="text-gray-600 mb-6 leading-relaxed">Firebase menolak permintaan data karena <b>Security Rules</b> belum diizinkan. Ikuti 3 langkah cepat ini agar aplikasi bisa menyimpan ke Cloud:</p>
+                
+                <div class="space-y-6 text-sm text-gray-700 mb-8">
+                    <div class="flex items-start bg-gray-50 p-4 rounded-2xl">
+                        <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 font-bold text-xs">1</span>
+                        <p>Buka <a href="https://console.firebase.google.com/" target="_blank" class="text-blue-600 font-bold underline">Firebase Console</a>, pilih Project Anda, lalu klik menu <b>Firestore Database</b>.</p>
+                    </div>
+                    
+                    <div class="flex items-start bg-gray-50 p-4 rounded-2xl">
+                        <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 font-bold text-xs">2</span>
+                        <div class="w-full">
+                            <p class="mb-3">Klik tab <b>Rules</b> (Aturan) dan ganti kodenya dengan ini:</p>
+                            <div class="code-block text-[11px] leading-relaxed relative group">
+                                <pre>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start bg-gray-50 p-4 rounded-2xl">
+                        <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 flex-shrink-0 font-bold text-xs">3</span>
+                        <p>Klik tombol <b>Publish</b> di Firebase. Tunggu 30 detik, lalu <b>Refresh</b> halaman ini.</p>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button onclick="location.reload()" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200">
+                        Refresh Sekarang
+                    </button>
+                    <button onclick="document.getElementById('setup-guide').classList.add('hidden')" class="px-6 bg-gray-100 text-gray-600 py-4 rounded-2xl font-bold hover:bg-gray-200 transition">
+                        Gunakan Mode Lokal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <aside class="w-64 bg-white border-r border-gray-200 fixed h-full z-20 no-print flex flex-col">
         <div class="p-6">
@@ -37,25 +94,36 @@
                 <button onclick="switchTab('input')" id="nav-input" class="nav-btn w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
                     <i class="fas fa-file-invoice-dollar w-6"></i> Input Transaksi
                 </button>
+                <button onclick="switchTab('master-items')" id="nav-master-items" class="nav-btn w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                    <i class="fas fa-boxes w-6"></i> Master Barang
+                </button>
                 <button onclick="switchTab('history')" id="nav-history" class="nav-btn w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
-                    <i class="fas fa-history w-6"></i> Riwayat Database
+                    <i class="fas fa-database w-6"></i> Database Transaksi
                 </button>
                 <button onclick="switchTab('categories')" id="nav-categories" class="nav-btn w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
                     <i class="fas fa-tags w-6"></i> Kelola Kategori
                 </button>
+                <button onclick="switchTab('migration')" id="nav-migration" class="nav-btn w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                    <i class="fas fa-exchange-alt w-6"></i> Export / Import
+                </button>
             </nav>
             
             <div class="mt-auto p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-                <div class="flex items-center space-x-2 text-xs font-bold text-emerald-600">
-                    <i class="fas fa-circle sync-icon text-[8px]"></i>
-                    <span id="connection-status">INITIALIZING CLOUD...</span>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2 text-xs font-bold text-emerald-600">
+                        <i class="fas fa-circle sync-icon text-[8px]"></i>
+                        <span id="connection-status">INITIALIZING CLOUD...</span>
+                    </div>
+                    <button id="retry-link" onclick="location.reload()" class="hidden text-[10px] font-bold text-blue-600 hover:underline">RETRY</button>
                 </div>
                 <p class="text-[10px] text-emerald-400 mt-1">Firestore Real-time</p>
+                <button onclick="document.getElementById('setup-guide').classList.remove('hidden')" class="mt-2 text-[9px] text-gray-400 hover:text-gray-600 transition block">Show Setup Instructions</button>
             </div>
         </div>
     </aside>
 
     <main class="flex-1 ml-64 p-8 min-w-0">
+        <!-- Dashboard Tab -->
         <section id="tab-dashboard" class="tab-content space-y-6">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -63,7 +131,6 @@
                     <p class="text-sm text-gray-500 font-medium" id="current-date"></p>
                 </div>
                 
-                <!-- Time Filters -->
                 <div class="flex items-center space-x-2 bg-white p-2 rounded-xl border border-gray-100 shadow-sm">
                     <div class="flex items-center px-2 text-gray-400">
                         <i class="fas fa-calendar-alt text-xs"></i>
@@ -77,65 +144,93 @@
                         <option value="09">September</option><option value="10">Oktober</option>
                         <option value="11">November</option><option value="12">Desember</option>
                     </select>
-                    <div class="h-4 w-[1px] bg-gray-200"></div>
-                    <select id="filter-year" onchange="renderDashboard()" class="bg-transparent text-sm font-bold text-gray-700 outline-none p-1">
-                        <!-- Populated via JS -->
-                    </select>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-xs font-bold text-gray-400 uppercase mb-1">Total Biaya Filter</p>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Total Pengadaan</p>
                     <h3 id="stat-total" class="text-2xl font-black text-blue-600">Rp 0</h3>
                 </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-xs font-bold text-gray-400 uppercase mb-1">Transaksi Filter</p>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Volume Transaksi</p>
                     <h3 id="stat-count" class="text-2xl font-black text-gray-800">0</h3>
                 </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p class="text-xs font-bold text-gray-400 uppercase mb-1">Kategori Aktif</p>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Kategori Terdaftar</p>
                     <h3 id="stat-cats" class="text-2xl font-black text-emerald-600">0</h3>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                    <h4 class="font-bold text-gray-700 mb-4">Total per Kategori (Hasil Filter)</h4>
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                    <h4 class="font-bold text-gray-700 mb-4 flex items-center">
+                        <i class="fas fa-chart-bar mr-2 text-blue-500"></i> Alokasi Dana per Kategori
+                    </h4>
                     <div class="chart-container"><canvas id="barChart"></canvas></div>
                 </div>
-                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                    <h4 class="font-bold text-gray-700 mb-4">Porsi Pengeluaran</h4>
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                    <h4 class="font-bold text-gray-700 mb-4 flex items-center">
+                        <i class="fas fa-chart-pie mr-2 text-emerald-500"></i> Proporsi Pengadaan
+                    </h4>
                     <div class="chart-container"><canvas id="pieChart"></canvas></div>
                 </div>
             </div>
+        </section>
 
-            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                <h4 class="font-bold text-gray-700 mb-4">Detail Pengeluaran per Kategori</h4>
-                <div id="category-summary-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Dynamic content -->
+        <!-- Master Barang Tab -->
+        <section id="tab-master-items" class="tab-content hidden space-y-6">
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Master Data Barang</h2>
+                        <p class="text-gray-500 text-sm">Daftar barang referensi berdasarkan kategori</p>
+                    </div>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <button onclick="exportMasterCSV()" class="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-sm font-bold border border-emerald-100 hover:bg-emerald-100 transition">
+                            <i class="fas fa-download mr-2"></i> Export Master
+                        </button>
+                        <input type="file" id="master-csv-input" class="hidden" accept=".csv" onchange="handleMasterImport(event)">
+                        <button onclick="document.getElementById('master-csv-input').click()" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-sm font-bold border border-blue-100 hover:bg-blue-100 transition">
+                            <i class="fas fa-upload mr-2"></i> Import Master
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="md:col-span-1">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Pilih Kategori</label>
+                        <select id="master-filter-cat" onchange="renderMasterItems()" class="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-xl outline-none font-bold text-gray-700"></select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Tambah Barang Baru ke Kategori Ini</label>
+                        <input type="text" id="master-new-name" placeholder="Nama barang (misal: Paracetamol 500mg)" class="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-xl outline-none">
+                    </div>
+                    <div class="md:col-span-1 flex items-end">
+                        <button onclick="addMasterItem()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition">
+                            <i class="fas fa-plus mr-2"></i> Tambah
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto border rounded-2xl">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase">Nama Barang</th>
+                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase">Kategori</th>
+                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase text-center w-24">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="master-items-rows" class="divide-y divide-gray-100">
+                            <!-- JS populated -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
 
-        <section id="tab-categories" class="tab-content hidden space-y-6">
-            <div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
-                <h2 class="text-2xl font-bold text-gray-800 mb-2">Manajemen Kategori</h2>
-                <p class="text-gray-500 text-sm mb-6">Tambahkan kategori barang secara manual ke database cloud.</p>
-                
-                <div class="flex space-x-2 mb-6">
-                    <input type="text" id="cat-input" placeholder="Contoh: Alat Kesehatan, Logistik..." class="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
-                    <button id="cat-save-btn" onclick="addCategoryToCloud()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition flex items-center">
-                        <i class="fas fa-save mr-2"></i> Simpan
-                    </button>
-                </div>
-
-                <div id="cat-list" class="space-y-2">
-                    <p class="text-center text-gray-400 py-4 italic">Memuat kategori dari cloud...</p>
-                </div>
-            </div>
-        </section>
-
+        <!-- Input Tab -->
         <section id="tab-input" class="tab-content hidden space-y-6">
             <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
                 <div class="flex justify-between items-center mb-8">
@@ -146,7 +241,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Kategori Barang</label>
-                        <select id="form-cat" class="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-xl outline-none"></select>
+                        <select id="form-cat" onchange="updateItemSuggestions()" class="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-xl outline-none"></select>
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Supplier / Distributor</label>
@@ -158,7 +253,7 @@
                     <table class="w-full text-left mb-6 min-w-[600px]">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase">Item</th>
+                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase">Item (Gunakan Suggestion)</th>
                                 <th class="p-4 text-[10px] font-bold text-gray-400 uppercase w-24 text-center">Qty</th>
                                 <th class="p-4 text-[10px] font-bold text-gray-400 uppercase w-40">Harga Satuan</th>
                                 <th class="p-4 text-[10px] font-bold text-gray-400 uppercase text-right">Subtotal</th>
@@ -186,24 +281,74 @@
             </div>
         </section>
 
+        <!-- History Tab -->
         <section id="tab-history" class="tab-content hidden">
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div class="p-6 bg-gray-50 flex justify-between items-center border-b border-gray-200">
-                    <h2 class="font-bold text-gray-800">Database Real-time Cloud</h2>
+            <div class="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden">
+                <div class="p-6 bg-gray-50 flex flex-col md:flex-row justify-between items-center border-b border-gray-200 gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">Database Transaksi Real-time</h2>
+                        <p class="text-xs text-gray-500">Data tersinkronisasi langsung dari Cloud Firestore</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="renderHistory()" class="bg-white text-gray-600 px-4 py-2 rounded-xl text-sm font-bold border border-gray-200 hover:bg-gray-50 transition">
+                            <i class="fas fa-sync-alt mr-2"></i> Refresh Tampilan
+                        </button>
+                    </div>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead>
-                            <tr class="bg-gray-100">
-                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase">Tanggal</th>
-                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase">Item</th>
-                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase text-center">Qty</th>
-                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase">Kategori</th>
-                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase text-right">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody id="history-rows"></tbody>
-                    </table>
+                            <tr class="bg-gray-100/50">
+                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-center w-16">ID</th>
+                                <th class="p-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tanggal</th>
+        <section id="tab-categories" class="tab-content hidden space-y-6">
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm max-w-2xl mx-auto">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Manajemen Kategori</h2>
+                <p class="text-gray-500 text-sm mb-6">Tambahkan kategori barang baru ke sistem cloud.</p>
+                <div class="flex gap-2 mb-6">
+                    <input type="text" id="new-cat-name" placeholder="Nama kategori baru..." class="flex-1 bg-gray-50 border border-gray-200 px-4 py-3 rounded-xl outline-none">
+                    <button onclick="addNewCategory()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition">Simpan</button>
+                </div>
+                <div id="category-list" class="space-y-2">
+                    <!-- JS Populated -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Migration Tab -->
+        <section id="tab-migration" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm text-center">
+                    <div class="bg-emerald-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-file-csv text-2xl text-emerald-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Export ke CSV</h3>
+                    <p class="text-sm text-gray-500 mb-6">Cadangkan seluruh data transaksi cloud Anda ke file format CSV (Excel) untuk keperluan laporan offline.</p>
+                    <button onclick="exportCSV()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold hover:bg-emerald-700 transition shadow-lg shadow-emerald-100">
+                        <i class="fas fa-download mr-2"></i> Download CSV Database
+                    </button>
+                </div>
+
+                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm text-center">
+                    <div class="bg-blue-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-upload text-2xl text-blue-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Import Data Massal</h3>
+                    <p class="text-sm text-gray-500 mb-6">Unggah banyak data sekaligus ke Cloud. Pastikan format file CSV sesuai dengan template sistem.</p>
+                    <input type="file" id="csv-file-input" class="hidden" accept=".csv" onchange="handleImport(event)">
+                    <button onclick="document.getElementById('csv-file-input').click()" id="import-btn" class="w-full bg-blue-50 text-blue-600 py-4 rounded-2xl font-bold border-2 border-dashed border-blue-200 hover:bg-blue-100 transition">
+                        <i class="fas fa-plus-circle mr-2"></i> Pilih File & Sinkron Cloud
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-blue-900 p-6 rounded-3xl text-white">
+                <div class="flex items-start space-x-4">
+                    <i class="fas fa-info-circle mt-1 text-blue-300"></i>
+                    <div>
+                        <h4 class="font-bold mb-1">Panduan Import</h4>
+                        <p class="text-xs text-blue-200 leading-relaxed">Gunakan header CSV berikut: <code>Tanggal, Nama, Qty, Kategori, Supplier, Harga, Total</code>. Data yang diimport akan langsung tersedia di dashboard seluruh pengguna yang terhubung ke Cloud ID yang sama.</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -216,304 +361,467 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp, doc, setDoc, deleteDoc, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'hospital-procurement';
-        cconst firebaseConfig = {
-  apiKey: "AIzaSyBiEWqdYX8zOjRwv4Mo1DRlFcSLsG8OhlQ",
-  authDomain: "gudangatk.firebaseapp.com",
-  databaseURL: "https://gudangatk-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "gudangatk",
-  storageBucket: "gudangatk.firebasestorage.app",
-  messagingSenderId: "274324790135",
-  appId: "1:274324790135:web:8b67b0c39524d2cf2cdf72",
-  measurementId: "G-KCYZG0ZZGR"
+        const firebaseConfig = {
+  apiKey: "AIzaSyDEXHSwJq7l-B9UgmYzqgDqKCNUS0ho-j0",
+  authDomain: "rekapbelanja.firebaseapp.com",
+  projectId: "rekapbelanja",
+  storageBucket: "rekapbelanja.firebasestorage.app",
+  messagingSenderId: "867729593347",
+  appId: "1:867729593347:web:1db201e3cc649490cdaa36"
 };
         
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'hospital-procurement';
 
-        // Path Collections - Ensuring valid Firestore path segments
+        // Firestore Paths
         const transactionsPath = `artifacts/${appId}/public/data/transactions`;
         const categoriesPath = `artifacts/${appId}/public/data/categories`;
+        const masterItemsPath = `artifacts/${appId}/public/data/master_items`;
 
         let transactions = [];
-        let categories = ['Obat-obatan', 'Alat Kesehatan', 'Laboratorium'];
-        let barChart, pieChart;
-        let currentUser = null;
+        let categories = [];
+        let masterItems = [];
+        let barChart = null;
+        let pieChart = null;
 
-        const initAuth = async () => {
-            try {
-                await signInAnonymously(auth);
-            } catch (e) {
-                console.error("Auth error", e);
-                document.getElementById('connection-status').innerText = "AUTH FAILED";
-                document.getElementById('connection-status').parentElement.classList.replace('bg-emerald-50', 'bg-red-50');
+        // Ensure global access for onclick attributes
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            const activeTab = document.getElementById('tab-' + tabId);
+            if (activeTab) activeTab.classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('sidebar-active'));
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if (activeBtn) activeBtn.classList.add('sidebar-active');
+            
+            if (tabId === 'dashboard') renderDashboard();
+            if (tabId === 'history') renderHistory();
+            if (tabId === 'categories') renderCategories();
+            if (tabId === 'master-items') {
+                updateMasterFilterSelect();
+                renderMasterItems();
             }
         };
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('connection-status').innerText = "CLOUD CONNECTED";
-                loadCategories();
-                loadTransactions();
-            } else {
-                document.getElementById('connection-status').innerText = "OFFLINE MODE";
-            }
-        });
+        window.renderCategories = () => {
+            const container = document.getElementById('category-list');
+            if (!container) return;
+            container.innerHTML = categories.map((c, i) => `
+                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl border border-transparent hover:border-blue-100 transition group">
+                    <span class="font-medium text-gray-700">${c}</span>
+                    <button onclick="deleteCategory('${c}')" class="text-gray-300 group-hover:text-red-500 transition">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        };
 
-        const loadCategories = () => {
+        window.addNewCategory = async () => {
+            const name = document.getElementById('new-cat-name').value.trim();
+            if (!name) return;
             try {
-                const q = query(collection(db, ...categoriesPath.split('/')));
-                onSnapshot(q, (snapshot) => {
-                    const cloudCats = snapshot.docs.map(doc => doc.data().name);
-                    if (cloudCats.length > 0) {
-                        categories = [...new Set(['Obat-obatan', 'Alat Kesehatan', 'Laboratorium', ...cloudCats])];
-                    }
-                    renderCategories();
-                    updateCategorySelect();
-                }, (err) => {
-                    console.warn("Firestore Permission Issue (Categories): Using local defaults.", err);
-                    showToast("Cloud restricted. Using local categories.");
-                    renderCategories();
-                    updateCategorySelect();
+                const colRef = collection(db, ...categoriesPath.split('/'));
+                await addDoc(colRef, { name, createdAt: serverTimestamp() });
+                document.getElementById('new-cat-name').value = '';
+                showToast("Kategori baru berhasil disimpan!");
+            } catch (e) { showToast("Gagal menyimpan kategori."); }
+        };
+
+        window.deleteCategory = async (name) => {
+            if(!confirm(`Hapus kategori ${name}?`)) return;
+            try {
+                const q = query(collection(db, ...categoriesPath.split('/')), where("name", "==", name));
+                const snap = await getDocs(q);
+                snap.forEach(async (d) => {
+                    await deleteDoc(doc(db, ...categoriesPath.split('/'), d.id));
                 });
+                showToast("Kategori dihapus.");
+            } catch (e) { showToast("Gagal menghapus."); }
+        };
+
+        const renderMasterItems = () => {
+            const filterCat = document.getElementById('master-filter-cat').value;
+            const tbody = document.getElementById('master-items-rows');
+            
+            const filtered = masterItems.filter(item => filterCat === 'all' || item.category === filterCat);
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-8 text-center text-gray-400 italic">Tidak ada data master untuk kategori ini.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(item => `
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="p-4 font-medium text-gray-700">${item.name}</td>
+                    <td class="p-4"><span class="px-2 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-bold uppercase">${item.category}</span></td>
+                    <td class="p-4 text-center">
+                        <button onclick="deleteMasterItem('${item.id}')" class="text-gray-300 hover:text-red-500 transition">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        window.addMasterItem = async () => {
+            const name = document.getElementById('master-new-name').value.trim();
+            const category = document.getElementById('master-filter-cat').value;
+
+            if (!name || category === 'all') return showToast("Lengkapi nama barang dan pilih kategori spesifik!");
+
+            try {
+                await addDoc(collection(db, ...masterItemsPath.split('/')), {
+                    name, category, createdAt: serverTimestamp()
+                });
+                document.getElementById('master-new-name').value = '';
+                showToast("Barang ditambahkan ke Master!");
             } catch (e) {
-                console.error("Category load error", e);
+                console.error(e);
+                showToast("Gagal menyimpan ke Cloud.");
             }
         };
 
-        const loadTransactions = () => {
+        window.deleteMasterItem = async (id) => {
+            if (!confirm("Hapus barang ini dari Master?")) return;
             try {
-                const q = query(collection(db, ...transactionsPath.split('/')), orderBy('date', 'desc'));
-                onSnapshot(q, (snapshot) => {
-                    transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    populateYearFilter();
-                    renderDashboard();
-                    renderHistory();
-                }, (err) => {
-                    console.error("Firestore Permission Issue (Transactions):", err);
-                    if (err.code === 'permission-denied') {
-                        showToast("Akses Cloud Ditolak. Cek Security Rules Firebase.");
-                        document.getElementById('connection-status').innerText = "PERMISSION DENIED";
+                await deleteDoc(doc(db, ...masterItemsPath.split('/'), id));
+                showToast("Barang dihapus.");
+            } catch (e) { showToast("Gagal menghapus."); }
+        };
+
+        const updateMasterFilterSelect = () => {
+            const select = document.getElementById('master-filter-cat');
+            const current = select.value;
+            select.innerHTML = '<option value="all">Semua Kategori</option>' + 
+                categories.map(c => `<option value="${c}">${c}</option>`).join('');
+            if (current) select.value = current;
+        };
+
+        window.exportMasterCSV = () => {
+            if (masterItems.length === 0) return showToast("Tidak ada data master!");
+            let csv = "Nama Barang,Kategori\n";
+            masterItems.forEach(item => {
+                csv += `"${item.name.replace(/"/g, '""')}","${item.category}"\n`;
+            });
+            downloadCSV(csv, "Master_Barang_RS");
+        };
+
+        window.handleMasterImport = async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const lines = e.target.result.split('\n').filter(l => l.trim() !== '');
+                if (lines.length <= 1) return;
+                
+                showToast("Mengimport Master...");
+                const colRef = collection(db, ...masterItemsPath.split('/'));
+                for (let i = 1; i < lines.length; i++) {
+                    const [name, cat] = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    if (name && cat) {
+                        await addDoc(colRef, { 
+                            name: name.replace(/"/g, '').trim(), 
+                            category: cat.replace(/"/g, '').trim(),
+                            createdAt: serverTimestamp()
+                        });
                     }
-                });
-            } catch (e) {
-                console.error("Transaction load error", e);
+                }
+                showToast("Import Master Berhasil!");
+            };
+            reader.readAsText(file);
+        };
+
+        const downloadCSV = (content, filename) => {
+            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `${filename}_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        };
+
+        const loadMasterItems = () => {
+            onSnapshot(collection(db, ...masterItemsPath.split('/')), (snap) => {
+                masterItems = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderMasterItems();
+                updateItemSuggestions();
+            });
+        };
+
+        window.updateItemSuggestions = () => {
+            const currentCat = document.getElementById('form-cat').value;
+            const itemsInCat = masterItems.filter(i => i.category === currentCat).map(i => i.name);
+            
+            // Re-render item input datalist/suggestions logic if needed
+            // Untuk simplisitas, kita bisa gunakan atribut list pada input
+            let dataList = document.getElementById('item-suggestions');
+            if (!dataList) {
+                dataList = document.createElement('datalist');
+                dataList.id = 'item-suggestions';
+                document.body.appendChild(dataList);
             }
+            dataList.innerHTML = itemsInCat.map(name => `<option value="${name}">`).join('');
+            
+            document.querySelectorAll('.name-input').forEach(input => {
+                input.setAttribute('list', 'item-suggestions');
+            });
         };
 
         window.saveTransactionToCloud = async () => {
-            if (!currentUser) {
-                showToast("Menunggu koneksi cloud...");
-                await initAuth();
-                if (!currentUser) return;
-            }
-            
             const date = document.getElementById('form-date').value;
             const cat = document.getElementById('form-cat').value;
             const supplier = document.getElementById('form-supplier').value;
             const btn = document.getElementById('save-btn');
-
             const rows = document.querySelectorAll('#input-rows tr');
-            if (!date || !cat || rows.length === 0) return showToast("Lengkapi data!");
+
+            if (!date || !cat || rows.length === 0) return showToast("Lengkapi data transaksi!");
 
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> SYNCING...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Sinkronisasi Cloud...';
 
             try {
                 const colRef = collection(db, ...transactionsPath.split('/'));
                 for (let row of rows) {
-                    const name = row.querySelector('.name-input').value;
+                    const name = row.querySelector('.name-input').value.trim();
                     const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
                     const price = parseFloat(row.querySelector('.price-input').value) || 0;
-
+                    
                     if (name && qty > 0) {
                         await addDoc(colRef, {
-                            date, category: cat, supplier, name, qty, price, total: qty * price, createdAt: serverTimestamp()
+                            date, category: cat, supplier, name, qty, price, total: qty * price,
+                            createdAt: serverTimestamp()
                         });
                     }
                 }
-                showToast("Data tersinkronisasi ke Cloud!");
+                showToast("Transaksi Berhasil Disimpan ke Cloud!");
+                resetInputForm();
                 switchTab('dashboard');
             } catch (e) {
-                console.error("Save error", e);
-                showToast(e.code === 'permission-denied' ? "Gagal: Izin Cloud Ditolak" : "Error Upload");
+                console.error(e);
+                showToast("Gagal menyimpan. Cek koneksi.");
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> <span>SIMPAN KE CLOUD DATABASE</span>';
             }
         };
 
-        const populateYearFilter = () => {
-            const years = [...new Set(transactions.map(t => t.date.split('-')[0]))];
-            const currentYear = new Date().getFullYear();
-            if (!years.includes(currentYear.toString())) years.push(currentYear.toString());
-            years.sort((a,b) => b - a);
-
-            const select = document.getElementById('filter-year');
-            const currentVal = select.value;
-            select.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
-            if (currentVal) select.value = currentVal;
-            else select.value = currentYear;
+        const resetInputForm = () => {
+            document.getElementById('input-rows').innerHTML = '';
+            document.getElementById('form-supplier').value = '';
+            addRow();
+            calculateTotal();
         };
+
+        window.addRow = () => {
+            const tbody = document.getElementById('input-rows');
+            const row = document.createElement('tr');
+            row.className = "border-b border-gray-50 hover:bg-gray-50/50 transition";
+            row.innerHTML = `
+                <td class="p-4">
+                    <input type="text" class="w-full bg-transparent outline-none name-input font-medium text-gray-700" placeholder="Ketik nama barang..." list="item-suggestions">
+                </td>
+                <td class="p-4">
+                    <input type="number" class="w-full bg-transparent outline-none qty-input text-center font-bold" value="1" min="1" oninput="calculateTotal()">
+                </td>
+                <td class="p-4">
+                    <div class="flex items-center bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
+                        <span class="text-gray-400 text-xs mr-1">Rp</span>
+                        <input type="number" class="w-full bg-transparent outline-none price-input text-sm" value="0" oninput="calculateTotal()">
+                    </div>
+                </td>
+                <td class="p-4 text-right">
+                    <span class="subtotal-display font-black text-gray-800">Rp 0</span>
+                </td>
+                <td class="p-4 text-center">
+                    <button onclick="this.closest('tr').remove(); calculateTotal();" class="text-gray-300 hover:text-red-500 transition">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+            updateItemSuggestions();
+        };
+
+        window.calculateTotal = () => {
+            let grandTotal = 0;
+            document.querySelectorAll('#input-rows tr').forEach(row => {
+                const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
+                const price = parseFloat(row.querySelector('.price-input').value) || 0;
+                const sub = qty * price;
+                row.querySelector('.subtotal-display').innerText = 'Rp ' + sub.toLocaleString('id-ID');
+                grandTotal += sub;
+            });
+            document.getElementById('total-display').innerText = 'Rp ' + grandTotal.toLocaleString('id-ID');
+        };
+
+        const loadCategories = () => {
+            onSnapshot(collection(db, ...categoriesPath.split('/')), (snap) => {
+                if (snap.empty) {
+                    // Initial seed if empty
+                    categories = ['Obat-obatan', 'Alat Kesehatan', 'Laboratorium'];
+                } else {
+                    categories = snap.docs.map(doc => doc.data().name);
+                }
+                const catSelect = document.getElementById('form-cat');
+                const currentVal = catSelect.value;
+                catSelect.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+                if (currentVal) catSelect.value = currentVal;
+                updateMasterFilterSelect();
+            });
+        };
+
+        const loadTransactions = () => {
+            const q = query(collection(db, ...transactionsPath.split('/')), orderBy('date', 'desc'));
+            onSnapshot(q, (snap) => {
+                transactions = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderDashboard();
+                renderHistory();
+            }, (error) => {
+                console.error("Firestore Listen Error:", error);
+                document.getElementById('setup-guide').classList.remove('hidden');
+                document.getElementById('connection-status').innerText = "CONNECTION ERROR";
+                document.getElementById('connection-status').parentElement.classList.replace('text-emerald-600', 'text-red-600');
+            });
+        };
+
 
         window.renderDashboard = () => {
-            const month = document.getElementById('filter-month').value;
-            const year = document.getElementById('filter-year').value;
-            
-            // Filter Data
+            const filterMonth = document.getElementById('filter-month').value;
             const filtered = transactions.filter(t => {
-                const [tYear, tMonth] = t.date.split('-');
-                const matchMonth = month === 'all' || tMonth === month;
-                const matchYear = tYear === year;
-                return matchMonth && matchYear;
+                if (filterMonth === 'all') return true;
+                return t.date.split('-')[1] === filterMonth;
             });
 
-            document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            
-            const total = filtered.reduce((acc, c) => acc + c.total, 0);
-            document.getElementById('stat-total').innerText = 'Rp ' + total.toLocaleString('id-ID');
+            // Update Stats
+            const totalExp = filtered.reduce((sum, t) => sum + (t.total || 0), 0);
+            document.getElementById('stat-total').innerText = 'Rp ' + totalExp.toLocaleString('id-ID');
             document.getElementById('stat-count').innerText = filtered.length;
-            
-            const catStats = {};
-            categories.forEach(c => catStats[c] = 0);
-            filtered.forEach(t => { if(catStats[t.category] !== undefined) catStats[t.category] += t.total; });
+            document.getElementById('stat-cats').innerText = categories.length;
+            document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-            // Stats Count for categories that have values
-            const activeCats = Object.values(catStats).filter(v => v > 0).length;
-            document.getElementById('stat-cats').innerText = activeCats;
+            // Prepare Chart Data
+            const catTotals = {};
+            categories.forEach(c => catTotals[c] = 0);
+            filtered.forEach(t => {
+                if (catTotals[t.category] !== undefined) catTotals[t.category] += t.total;
+            });
 
-            renderSummaryCards(catStats);
-            updateCharts(catStats);
-        };
+            const labels = Object.keys(catTotals);
+            const data = Object.values(catTotals);
 
-        const renderSummaryCards = (stats) => {
-            const container = document.getElementById('category-summary-list');
-            const sorted = Object.entries(stats).sort((a,b) => b[1] - a[1]);
-            
-            container.innerHTML = sorted.map(([cat, val]) => `
-                <div class="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase">${cat}</p>
-                    <p class="text-sm font-black text-gray-800 mt-1">Rp ${val.toLocaleString('id-ID')}</p>
-                    <div class="w-full bg-gray-200 h-1 mt-2 rounded-full overflow-hidden">
-                        <div class="bg-blue-500 h-full" style="width: ${val > 0 ? '100%' : '0%'}"></div>
-                    </div>
-                </div>
-            `).join('');
-        };
-
-        const updateCharts = (stats) => {
-            const labels = Object.keys(stats).filter(k => stats[k] > 0);
-            const data = labels.map(k => stats[k]);
-
-            if(barChart) barChart.destroy();
-            if(pieChart) pieChart.destroy();
-
+            if (barChart) barChart.destroy();
             const ctxBar = document.getElementById('barChart').getContext('2d');
             barChart = new Chart(ctxBar, {
                 type: 'bar',
                 data: {
                     labels,
-                    datasets: [{ label: 'Total Rp', data, backgroundColor: '#3b82f6', borderRadius: 8 }]
+                    datasets: [{
+                        label: 'Total Pengeluaran (Rp)',
+                        data: data,
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 12,
+                        borderSkipped: false,
+                    }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
+                }
             });
 
+            if (pieChart) pieChart.destroy();
             const ctxPie = document.getElementById('pieChart').getContext('2d');
             pieChart = new Chart(ctxPie, {
                 type: 'doughnut',
                 data: {
                     labels,
-                    datasets: [{ data, backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'], borderWidth: 0 }]
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
+                        borderWidth: 0,
+                        hoverOffset: 20
+                    }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 10 } } } } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom', 
+                            labels: { usePointStyle: true, padding: 20, font: { family: 'Inter', weight: 'bold', size: 11 } } 
+                        } 
+                    }
+                }
             });
         };
 
         window.renderHistory = () => {
-            const rows = document.getElementById('history-rows');
-            rows.innerHTML = transactions.map(t => `
-                <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
-                    <td class="p-4 text-xs text-gray-500">${t.date}</td>
-                    <td class="p-4 text-xs font-bold text-gray-800">${t.name}</td>
-                    <td class="p-4 text-xs text-center">${t.qty}</td>
-                    <td class="p-4 text-xs"><span class="px-2 py-1 bg-blue-50 text-blue-600 rounded-md text-[10px]">${t.category}</span></td>
-                    <td class="p-4 text-xs text-right font-black">Rp ${t.total.toLocaleString('id-ID')}</td>
+            const tbody = document.getElementById('history-rows');
+            if (transactions.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-12 text-center text-gray-400 italic">Belum ada transaksi di cloud.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = transactions.map((t, idx) => `
+                <tr class="hover:bg-gray-50 transition group">
+                    <td class="p-4 text-center text-[10px] font-bold text-gray-300">#${transactions.length - idx}</td>
+                    <td class="p-4 text-xs font-medium text-gray-600">${t.date}</td>
+                    <td class="p-4">
+                        <div class="font-bold text-gray-800 text-sm">${t.name}</div>
+                        <div class="text-[10px] text-gray-400">${t.qty} unit @ Rp ${t.price.toLocaleString('id-ID')}</div>
+                    </td>
+                    <td class="p-4"><span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-[9px] font-bold uppercase">${t.category}</span></td>
+                    <td class="p-4 text-xs text-gray-500 italic">${t.supplier || '-'}</td>
+                    <td class="p-4 text-right font-black text-blue-600">Rp ${(t.total || 0).toLocaleString('id-ID')}</td>
                 </tr>
             `).join('');
         };
 
-        const renderCategories = () => {
-            const list = document.getElementById('cat-list');
-            list.innerHTML = categories.map(c => `
-                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl border border-transparent hover:border-blue-100 transition">
-                    <span class="font-medium text-gray-700">${c}</span>
-                    <i class="fas fa-check-circle text-emerald-500"></i>
-                </div>
-            `).join('');
+        window.exportCSV = () => {
+            if (transactions.length === 0) return showToast("Tidak ada data untuk diexport!");
+            let csv = "Tanggal,Nama,Qty,Kategori,Supplier,Harga,Total\n";
+            transactions.forEach(t => {
+                csv += `"${t.date}","${t.name}",${t.qty},"${t.category}","${t.supplier}",${t.price},${t.total}\n`;
+            });
+            downloadCSV(csv, "Database_RS_Cloud");
         };
 
-        const updateCategorySelect = () => {
-            const select = document.getElementById('form-cat');
-            if(select) select.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+        const init = async () => {
+            const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+            try {
+                if (token) await signInWithCustomToken(auth, token);
+                else await signInAnonymously(auth);
+                
+                // Set connection status to success
+                document.getElementById('connection-status').innerText = "CLOUD CONNECTED";
+                document.getElementById('connection-status').parentElement.classList.replace('text-emerald-600', 'text-blue-600');
+            } catch (e) { 
+                console.error("Auth Error", e);
+                document.getElementById('setup-guide').classList.remove('hidden');
+            }
         };
 
-        // Navigation
-        window.switchTab = (tabId) => {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-            document.getElementById('tab-' + tabId).classList.remove('hidden');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('sidebar-active'));
-            document.getElementById('nav-' + tabId).classList.add('sidebar-active');
-            if(tabId === 'input') setupInput();
-        };
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                loadCategories();
+                loadTransactions();
+                loadMasterItems();
+            }
+        });
 
-        const setupInput = () => {
+        window.onload = () => {
             document.getElementById('form-date').valueAsDate = new Date();
-            updateCategorySelect();
-            document.getElementById('input-rows').innerHTML = '';
+            init();
             addRow();
         };
-
-        window.addRow = () => {
-            const row = document.createElement('tr');
-            row.className = "border-b border-gray-50";
-            row.innerHTML = `
-                <td class="p-4"><input type="text" class="w-full bg-transparent outline-none name-input font-medium" placeholder="Nama item..."></td>
-                <td class="p-4"><input type="number" class="w-full bg-transparent outline-none qty-input text-center" value="1" oninput="calculateTotal()"></td>
-                <td class="p-4"><input type="number" class="w-full bg-transparent outline-none price-input" value="0" oninput="calculateTotal()"></td>
-                <td class="p-4 text-right font-bold text-gray-700 subtotal">Rp 0</td>
-                <td class="p-4"><button onclick="this.closest('tr').remove(); calculateTotal();" class="text-gray-300 hover:text-red-500"><i class="fas fa-times"></i></button></td>
-            `;
-            document.getElementById('input-rows').appendChild(row);
-        };
-
-        window.calculateTotal = () => {
-            let grand = 0;
-            document.querySelectorAll('#input-rows tr').forEach(row => {
-                const q = parseFloat(row.querySelector('.qty-input').value) || 0;
-                const p = parseFloat(row.querySelector('.price-input').value) || 0;
-                const sub = q * p;
-                row.querySelector('.subtotal').innerText = 'Rp ' + sub.toLocaleString('id-ID');
-                grand += sub;
-            });
-            document.getElementById('total-display').innerText = 'Rp ' + grand.toLocaleString('id-ID');
-        };
-
-        window.showToast = (msg) => {
-            const t = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = msg;
-            t.classList.replace('opacity-0', 'opacity-100');
-            setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 3000);
-        };
-
-        // Initialize Everything
-        initAuth();
-        window.addRow = addRow;
-        window.calculateTotal = calculateTotal;
     </script>
 </body>
 </html>
