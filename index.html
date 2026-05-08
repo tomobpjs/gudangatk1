@@ -39,7 +39,7 @@
         </div>
 
         <nav class="flex-1 px-4 space-y-2 overflow-y-auto custom-scrollbar">
-            <button onclick="switchTab('dashboard')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all" id="btn-dashboard">
+            <button onclick="switchTab('dashboard')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all sidebar-active" id="btn-dashboard">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                 Dashboard
             </button>
@@ -58,6 +58,10 @@
             <button onclick="switchTab('master')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all" id="btn-master">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                 Master Data Barang
+            </button>
+            <button onclick="switchTab('master-cat')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all" id="btn-master-cat">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                Master Kategori
             </button>
             <button onclick="switchTab('reports')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all" id="btn-reports">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 012-2H5a2 2 0 012 2v4a2 2 0 002 2m8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
@@ -122,15 +126,19 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="glass p-6 rounded-2xl">
-                        <h4 class="font-bold mb-6 flex justify-between items-center">
-                            Pengeluaran per Kategori (Kumulatif)
-                            <span class="text-xs font-normal opacity-50">Keseluruhan Waktu</span>
+                    <div class="glass p-6 rounded-2xl flex flex-col h-[450px]">
+                        <h4 class="font-bold mb-4 flex justify-between items-center">
+                            Tren Pengeluaran per Kategori
+                            <select id="dash-main-filter-year" class="bg-slate-800 text-[10px] p-1 rounded border border-slate-700 outline-none">
+                                <option>2024</option><option selected>2025</option><option>2026</option>
+                            </select>
                         </h4>
-                        <canvas id="categoryChart" height="250"></canvas>
+                        <div class="flex-1 min-h-0">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
                     </div>
-                    <div class="glass p-6 rounded-2xl">
-                        <div class="flex justify-between items-center mb-6">
+                    <div class="glass p-6 rounded-2xl flex flex-col h-[450px]">
+                        <div class="flex justify-between items-center mb-4">
                             <h4 class="font-bold">Persentase Belanja Kategori</h4>
                             <div class="flex gap-2">
                                 <select id="dash-filter-month" class="bg-slate-800 text-[10px] p-1 rounded border border-slate-700 outline-none">
@@ -144,7 +152,9 @@
                                 </select>
                             </div>
                         </div>
-                        <canvas id="filteredCategoryChart" height="250"></canvas>
+                        <div class="flex-1 min-h-0 relative">
+                            <canvas id="filteredCategoryChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -155,13 +165,9 @@
                     <div class="flex flex-wrap gap-4 items-end mb-8 border-b border-slate-700 pb-6">
                         <div class="flex-1 min-w-[200px]">
                             <label class="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-bold">Pilih Kategori</label>
-                            <select id="input-main-category" class="w-full p-3 rounded-xl focus:ring-2 ring-blue-500 outline-none">
+                            <select id="input-main-category" class="w-full p-3 rounded-xl focus:ring-2 ring-blue-500 outline-none category-dropdown">
                                 <option value="">-- Pilih Kategori --</option>
-                                <option>ATK</option>
-                                <option>Plastik</option>
-                                <option>Alat Kebersihan/RT</option>
-                                <option>Chemical Laundry</option>
-                                <option>Bahan Basah&Kering</option>
+                                <!-- Categories dynamically loaded -->
                             </select>
                         </div>
                         <div class="flex gap-2 mb-1">
@@ -184,6 +190,7 @@
                             <thead>
                                 <tr class="text-slate-500 text-xs uppercase">
                                     <th class="p-3 border-b border-slate-700">Nama Barang</th>
+                                    <th class="p-3 border-b border-slate-700 w-32">Satuan</th>
                                     <th class="p-3 border-b border-slate-700 w-32">Jumlah (Qty)</th>
                                     <th class="p-3 border-b border-slate-700 w-48">Harga Satuan (Rp)</th>
                                     <th class="p-3 border-b border-slate-700 w-48">Total</th>
@@ -252,13 +259,8 @@
             <div id="tab-trends" class="tab-content hidden space-y-6">
                 <div class="glass p-8 rounded-2xl">
                     <div class="flex gap-4 mb-8">
-                        <select id="trend-cat" class="px-4 py-2 rounded-xl w-64">
+                        <select id="trend-cat" class="px-4 py-2 rounded-xl w-64 category-dropdown">
                             <option value="">Pilih Kategori</option>
-                            <option>ATK</option>
-                            <option>Plastik</option>
-                            <option>Alat Kebersihan/RT</option>
-                            <option>Chemical Laundry</option>
-                            <option>Bahan Basah&Kering</option>
                         </select>
                         <p class="flex-1 text-slate-400 text-sm self-center">Menampilkan perbandingan harga pasar dari transaksi yang tercatat.</p>
                     </div>
@@ -277,12 +279,8 @@
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-xs mb-1 opacity-50">Kategori</label>
-                                <select id="master-add-cat" class="w-full p-3 rounded-xl">
-                                    <option>ATK</option>
-                                    <option>Plastik</option>
-                                    <option>Alat Kebersihan/RT</option>
-                                    <option>Chemical Laundry</option>
-                                    <option>Bahan Basah&Kering</option>
+                                <select id="master-add-cat" class="w-full p-3 rounded-xl category-dropdown">
+                                    <!-- Dynamic -->
                                 </select>
                             </div>
                             <div>
@@ -313,6 +311,39 @@
                                 </thead>
                                 <tbody id="master-table-body" class="text-sm">
                                     <!-- Master items -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Master Kategori -->
+            <div id="tab-master-cat" class="tab-content hidden space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="glass p-6 rounded-2xl">
+                        <h4 class="font-bold mb-6 border-b border-slate-700 pb-4">Tambah Kategori Baru</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs mb-1 opacity-50">Nama Kategori</label>
+                                <input type="text" id="master-cat-add-name" class="w-full p-3 rounded-xl" placeholder="Contoh: ATK, Medis, dll">
+                            </div>
+                            <button onclick="addCategory()" class="w-full btn-gradient py-3 rounded-xl font-bold">Simpan Kategori</button>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 glass p-6 rounded-2xl">
+                        <h4 class="font-bold mb-6">Database Kategori</h4>
+                        <div class="overflow-y-auto max-h-[400px] custom-scrollbar">
+                            <table class="w-full text-left">
+                                <thead class="sticky top-0 bg-slate-800 text-xs uppercase text-slate-400">
+                                    <tr>
+                                        <th class="p-3">Nama Kategori</th>
+                                        <th class="p-3 text-right">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="master-cat-table-body" class="text-sm">
+                                    <!-- Dynamic categories -->
                                 </tbody>
                             </table>
                         </div>
@@ -425,7 +456,7 @@
     // Global State
     window.masterItems = [];
     window.purchases = [];
-    let currentEditId = null;
+    window.categories = [];    let currentEditId = null;
     let mainCategoryChart = null;
     let filteredCategoryChart = null;
 
@@ -454,6 +485,12 @@
     });
 
     const loadListeners = () => {
+        onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'master_categories'), (snap) => {
+            window.categories = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderCategoryDropdowns();
+            renderCategoryTable();
+        }, (err) => console.error("Category Sync Error:", err));
+
         // Master Items Listener
         onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'), (snap) => {
             window.masterItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -480,6 +517,46 @@
     };
 
     const formatIDR = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
+
+    window.renderCategoryDropdowns = () => {
+        const dropdowns = document.querySelectorAll('.category-dropdown');
+        const options = `<option value="">-- Pilih Kategori --</option>` + 
+                        window.categories.sort((a,b) => a.name.localeCompare(b.name))
+                                         .map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+        dropdowns.forEach(d => {
+            const currentVal = d.value;
+            d.innerHTML = options;
+            d.value = currentVal;
+        });
+    };
+
+    window.addCategory = async () => {
+        const name = document.getElementById('master-cat-add-name').value.trim();
+        if (!name) return showToast("Nama kategori tidak boleh kosong", "error");
+        try {
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'master_categories'), { name });
+            document.getElementById('master-cat-add-name').value = "";
+            showToast("Kategori baru disimpan");
+        } catch (e) { showToast("Gagal menyimpan kategori", "error"); }
+    };
+
+    window.deleteCategory = async (id) => {
+        if (!confirm("Hapus kategori ini? Data master barang dengan kategori ini tidak akan hilang, tapi kategori tidak akan muncul di pilihan.")) return;
+        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'master_categories', id));
+        showToast("Kategori dihapus");
+    };
+
+    const renderCategoryTable = () => {
+        const tbody = document.getElementById('master-cat-table-body');
+        tbody.innerHTML = window.categories.map(c => `
+            <tr class="border-b border-slate-800 hover:bg-slate-800/30">
+                <td class="p-3 font-bold text-blue-400">${c.name}</td>
+                <td class="p-3 text-right">
+                    <button onclick="deleteCategory('${c.id}')" class="text-red-500 hover:scale-110 transition-transform">&times;</button>
+                </td>
+            </tr>
+        `).join('');
+    };
 
     window.switchTab = (tabId) => {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -541,6 +618,9 @@
                 </select>
             </td>
             <td class="p-3">
+                <input type="text" placeholder="Pcs/Box/Unit" value="${data.unit || ''}" class="w-full p-2 rounded row-unit">
+            </td>
+            <td class="p-3">
                 <input type="number" step="any" value="${data.qty || 1}" class="w-full p-2 rounded row-qty" oninput="calcRow(this)">
             </td>
             <td class="p-3">
@@ -586,10 +666,10 @@
         const items = [];
         rows.forEach(row => {
             const itemName = row.querySelector('.row-item-name').value;
-            const qty = parseFloat(row.querySelector('.row-qty').value);
+            const unit = row.querySelector('.row-unit').value || '-';            const qty = parseFloat(row.querySelector('.row-qty').value);
             const price = parseFloat(row.querySelector('.row-price').value);
             if (itemName && qty > 0) {
-                items.push({ itemName, qty, price, total: qty * price, category, vendor, date });
+                items.push({ itemName, unit, qty, price, total: qty * price, category, vendor, date });
             }
         });
 
@@ -725,24 +805,59 @@
         const ctx1 = document.getElementById('categoryChart').getContext('2d');
         const ctx2 = document.getElementById('filteredCategoryChart').getContext('2d');
 
+        const selectedYear = parseInt(document.getElementById('dash-main-filter-year').value);
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
         const cats = [...new Set(window.purchases.map(p => p.category))];
-        const catTotals = cats.map(c => window.purchases.filter(p => p.category === c).reduce((a,b) => a + b.total, 0));
+        
+        // Dynamic colors for each category
+        const catColors = {
+            'ATK': '#3b82f6',
+            'Plastik': '#10b981',
+            'Alat Kebersihan/RT': '#f59e0b',
+            'Chemical Laundry': '#ef4444',
+            'Bahan Basah&Kering': '#8b5cf6',
+            'Default': '#64748b'
+        };
+
+        const datasets = cats.map((cat, idx) => {
+            const data = Array(12).fill(0);
+            window.purchases.filter(p => p.category === cat && new Date(p.date).getFullYear() === selectedYear)
+                .forEach(p => {
+                    const monthIdx = new Date(p.date).getMonth();
+                    data[monthIdx] += p.total;
+                });
+            
+            return {
+                label: cat,
+                data: data,
+                backgroundColor: catColors[cat] || `hsl(${(idx * 360) / cats.length}, 70%, 60%)`,
+                borderColor: catColors[cat] || `hsl(${(idx * 360) / cats.length}, 70%, 60%)`,
+                borderWidth: 2,
+                borderRadius: 4,
+                tension: 0.3
+            };
+        });
 
         if (mainCategoryChart) mainCategoryChart.destroy();
         mainCategoryChart = new Chart(ctx1, {
             type: 'bar',
-            data: {
-                labels: cats,
-                datasets: [{
-                    label: 'Total Pengeluaran (Rp)',
-                    data: catTotals,
-                    backgroundColor: 'rgba(59, 130, 246, 0.5)',
-                    borderColor: '#3b82f6',
-                    borderWidth: 1,
-                    borderRadius: 8
-                }]
-            },
-            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } } } }
+            data: { labels: months, datasets: datasets },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 10, font: { size: 10 } } },
+                    tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatIDR(ctx.parsed.y)}` } }
+                }, 
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#64748b', font: { size: 10 }, callback: (v) => v >= 1000000 ? (v/1000000).toFixed(1) + 'jt' : v }
+                    },
+                    x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { display: false } }
+                } 
+            }
         });
 
         const fMonth = parseInt(document.getElementById('dash-filter-month').value);
@@ -754,6 +869,7 @@
 
         const fCats = [...new Set(filtered.map(p => p.category))];
         const fTotals = fCats.map(c => filtered.filter(p => p.category === c).reduce((a,b) => a + b.total, 0));
+        const totalSum = fTotals.reduce((a,b) => a + b, 0);
 
         if (filteredCategoryChart) filteredCategoryChart.destroy();
         filteredCategoryChart = new Chart(ctx2, {
@@ -762,11 +878,28 @@
                 labels: fCats,
                 datasets: [{
                     data: fTotals,
-                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
-                    borderWidth: 0
+                    backgroundColor: fCats.map(c => catColors[c] || '#64748b'),
+                    borderWidth: 0,
+                    hoverOffset: 15
                 }]
             },
-            options: { responsive: true, cutout: '70%' }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: { 
+                    legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 10 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => {
+                                const val = ctx.parsed;
+                                const pc = ((val / totalSum) * 100).toFixed(1);
+                                return ` ${ctx.label}: ${pc}% (${formatIDR(val)})`;
+                            }
+                        }
+                    }
+                }
+            }
         });
     };
 
@@ -911,6 +1044,7 @@
 
     initAuth();
     window.currentTab = 'dashboard';
+    document.getElementById('dash-main-filter-year').onchange = renderCharts;
     document.getElementById('dash-filter-month').onchange = renderCharts;
     document.getElementById('dash-filter-year').onchange = renderCharts;
     document.getElementById('input-main-category').onchange = () => {
