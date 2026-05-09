@@ -8,6 +8,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <!-- Tambahan SheetJS untuk ekspor Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; overflow-x: hidden; }
@@ -171,7 +173,7 @@
                             </select>
                         </div>
                         <div class="flex gap-2 mb-1">
-                            <button onclick="exportInputTemplate()" class="px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-xs font-bold border border-slate-600">Template CSV</button>
+                            <button onclick="exportInputTemplate()" class="px-4 py-3 bg-green-700 hover:bg-green-600 rounded-xl text-xs font-bold border border-green-600">Template EXCEL</button>
                             <button onclick="document.getElementById('purchase-import-file').click()" class="px-4 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-bold shadow-lg">Import CSV</button>
                             <input type="file" id="purchase-import-file" class="hidden" accept=".csv">
                         </div>
@@ -226,11 +228,7 @@
                         <input type="text" id="db-search" placeholder="Cari barang atau vendor..." class="px-4 py-2 rounded-xl w-64 text-sm">
                         <select id="db-filter-cat" class="px-4 py-2 rounded-xl text-sm">
                             <option value="">Semua Kategori</option>
-                            <option>ATK</option>
-                            <option>Plastik</option>
-                            <option>Alat Kebersihan/RT</option>
-                            <option>Chemical Laundry</option>
-                            <option>Bahan Basah&Kering</option>
+                            <!-- Filter categories dynamically -->
                         </select>
                     </div>
                 </div>
@@ -295,7 +293,7 @@
                         <div class="flex justify-between items-center mb-6">
                             <h4 class="font-bold">Database Master Barang</h4>
                             <div class="flex gap-2">
-                                <button onclick="exportMasterCSV()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs">Export CSV</button>
+                                <button onclick="exportMasterExcel()" class="px-4 py-2 bg-green-700 hover:bg-green-600 rounded-lg text-xs">Export EXCEL</button>
                                 <button onclick="document.getElementById('master-import-file').click()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs">Import CSV</button>
                                 <input type="file" id="master-import-file" class="hidden" accept=".csv">
                             </div>
@@ -442,13 +440,13 @@
     // App constants
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'logistic-pro-smart-v1';
     const firebaseConfig = {
-  apiKey: "AIzaSyDEXHSwJq7l-B9UgmYzqgDqKCNUS0ho-j0",
-  authDomain: "rekapbelanja.firebaseapp.com",
-  projectId: "rekapbelanja",
-  storageBucket: "rekapbelanja.firebasestorage.app",
-  messagingSenderId: "867729593347",
-  appId: "1:867729593347:web:1db201e3cc649490cdaa36"
-};
+      apiKey: "AIzaSyDEXHSwJq7l-B9UgmYzqgDqKCNUS0ho-j0",
+      authDomain: "rekapbelanja.firebaseapp.com",
+      projectId: "rekapbelanja",
+      storageBucket: "rekapbelanja.firebasestorage.app",
+      messagingSenderId: "867729593347",
+      appId: "1:867729593347:web:1db201e3cc649490cdaa36"
+    };
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
@@ -456,7 +454,8 @@
     // Global State
     window.masterItems = [];
     window.purchases = [];
-    window.categories = [];    let currentEditId = null;
+    window.categories = [];
+    let currentEditId = null;
     let mainCategoryChart = null;
     let filteredCategoryChart = null;
 
@@ -489,15 +488,14 @@
             window.categories = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderCategoryDropdowns();
             renderCategoryTable();
+            renderFilterCategoryDropdown();
         }, (err) => console.error("Category Sync Error:", err));
 
-        // Master Items Listener
         onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'), (snap) => {
             window.masterItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderMasterTable();
         }, (err) => console.error("Master Sync Error:", err));
 
-        // Purchases Listener
         onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'purchases'), (snap) => {
             window.purchases = snap.docs.map(d => ({ id: d.id, ...d.data() }))
                 .sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -528,6 +526,15 @@
             d.innerHTML = options;
             d.value = currentVal;
         });
+    };
+
+    const renderFilterCategoryDropdown = () => {
+        const d = document.getElementById('db-filter-cat');
+        if(!d) return;
+        const options = `<option value="">Semua Kategori</option>` + 
+                        window.categories.sort((a,b) => a.name.localeCompare(b.name))
+                                         .map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+        d.innerHTML = options;
     };
 
     window.addCategory = async () => {
@@ -666,7 +673,8 @@
         const items = [];
         rows.forEach(row => {
             const itemName = row.querySelector('.row-item-name').value;
-            const unit = row.querySelector('.row-unit').value || '-';            const qty = parseFloat(row.querySelector('.row-qty').value);
+            const unit = row.querySelector('.row-unit').value || '-';
+            const qty = parseFloat(row.querySelector('.row-qty').value);
             const price = parseFloat(row.querySelector('.row-price').value);
             if (itemName && qty > 0) {
                 items.push({ itemName, unit, qty, price, total: qty * price, category, vendor, date });
@@ -816,7 +824,8 @@
             'Alat Kebersihan/RT': '#f59e0b',
             'Chemical Laundry': '#ef4444',
             'Bahan Basah&Kering': '#8b5cf6',
-            'Default': '#64748b'
+            'Medis': '#06b6d4',
+            'Lainnya': '#64748b'
         };
 
         const datasets = cats.map((cat, idx) => {
@@ -827,20 +836,23 @@
                     data[monthIdx] += p.total;
                 });
             
+            const color = catColors[cat] || `hsl(${(idx * 360) / Math.max(cats.length, 1)}, 70%, 60%)`;
             return {
                 label: cat,
                 data: data,
-                backgroundColor: catColors[cat] || `hsl(${(idx * 360) / cats.length}, 70%, 60%)`,
-                borderColor: catColors[cat] || `hsl(${(idx * 360) / cats.length}, 70%, 60%)`,
-                borderWidth: 2,
-                borderRadius: 4,
-                tension: 0.3
+                backgroundColor: color,
+                borderColor: color,
+                borderWidth: 3,
+                tension: 0.4, // Membuat line melengkung smooth
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                fill: false // Permintaan Line Chart (bukan area)
             };
         });
 
         if (mainCategoryChart) mainCategoryChart.destroy();
         mainCategoryChart = new Chart(ctx1, {
-            type: 'bar',
+            type: 'line', // PERMINTAAN: Berubah jadi Line
             data: { labels: months, datasets: datasets },
             options: { 
                 responsive: true, 
@@ -875,11 +887,12 @@
         filteredCategoryChart = new Chart(ctx2, {
             type: 'doughnut',
             data: {
-                labels: fCats,
+                labels: fCats.map((cat, idx) => `${cat} (${formatIDR(fTotals[idx])})`), // PERMINTAAN: Tampilkan nominal
                 datasets: [{
                     data: fTotals,
-                    backgroundColor: fCats.map(c => catColors[c] || '#64748b'),
-                    borderWidth: 0,
+                    backgroundColor: fCats.map((c, idx) => catColors[c] || `hsl(${(idx * 360) / Math.max(fCats.length, 1)}, 65%, 55%)`),
+                    borderWidth: 2,
+                    borderColor: '#1e293b',
                     hoverOffset: 15
                 }]
             },
@@ -888,13 +901,21 @@
                 maintainAspectRatio: false,
                 cutout: '65%',
                 plugins: { 
-                    legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 10 } } },
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { 
+                            color: '#94a3b8', 
+                            font: { size: 9 }, 
+                            padding: 10,
+                            boxWidth: 8
+                        } 
+                    },
                     tooltip: {
                         callbacks: {
                             label: (ctx) => {
                                 const val = ctx.parsed;
                                 const pc = ((val / totalSum) * 100).toFixed(1);
-                                return ` ${ctx.label}: ${pc}% (${formatIDR(val)})`;
+                                return ` ${pc}% (${formatIDR(val)})`;
                             }
                         }
                     }
@@ -958,7 +979,6 @@
         const doc = new jsPDF('p', 'pt', 'a4');
         const element = document.getElementById('report-container');
         
-        // Simulating PDF generation with autoTable for structured layout
         doc.setFontSize(18);
         doc.text("LAPORAN MUTASI LOGISTIK", 40, 50);
         doc.setFontSize(10);
@@ -978,27 +998,38 @@
         doc.save(`Laporan_Logistik_${Date.now()}.pdf`);
     };
 
-    // CSV Logic
+    // EXCEL Logic (Using XLSX)
     window.exportInputTemplate = () => {
         const cat = document.getElementById('input-main-category').value;
         if (!cat) return showToast("Pilih kategori dulu", "error");
+        
         const filtered = window.masterItems.filter(m => m.category === cat);
-        const csv = "Nama Barang,Qty,Harga Satuan\n" + filtered.map(m => `"${m.name}",1,0`).join("\n");
-        downloadCSV(csv, `Template_${cat}.csv`);
+        
+        // PERMINTAAN: Template Excel dengan kolom penginputan lengkap
+        const data = filtered.map(m => ({
+            "Nama Barang": m.name,
+            "Satuan": "Pcs",
+            "Jumlah (Qty)": 0,
+            "Harga Satuan (Rp)": 0
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Template " + cat);
+        XLSX.writeFile(wb, `Template_Input_${cat}.xlsx`);
     };
 
-    window.exportMasterCSV = () => {
-        const csv = "Kategori,Nama Barang\n" + window.masterItems.map(m => `"${m.category}","${m.name}"`).join("\n");
-        downloadCSV(csv, "Master_Logistics.csv");
-    };
+    window.exportMasterExcel = () => {
+        // PERMINTAAN: Kolom A: Kategori, Kolom B: Nama Barang
+        const data = window.masterItems.map(m => ({
+            "Kategori": m.category,
+            "Nama Barang": m.name
+        }));
 
-    const downloadCSV = (content, filename) => {
-        const blob = new Blob([content], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        a.click();
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Master Barang");
+        XLSX.writeFile(wb, "Master_Data_Logistics.xlsx");
     };
 
     document.getElementById('purchase-import-file').onchange = (e) => {
@@ -1010,7 +1041,11 @@
             lines.forEach(line => {
                 const parts = line.split(',');
                 if (parts.length >= 3) {
-                    addInputRow({ itemName: parts[0].replace(/"/g, ''), qty: parseFloat(parts[1]), price: parseFloat(parts[2]) });
+                    addInputRow({ 
+                        itemName: parts[0].replace(/"/g, ''), 
+                        qty: parseFloat(parts[1]) || 0, 
+                        price: parseFloat(parts[2]) || 0 
+                    });
                 }
             });
             showToast("Data CSV diimpor ke baris");
@@ -1028,7 +1063,7 @@
                 const parts = line.split(',');
                 if (parts.length >= 2) {
                     const newDoc = doc(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'));
-                    batch.set(newDoc, { category: parts[0].replace(/"/g, ''), name: parts[1].replace(/"/g, '') });
+                    batch.set(newDoc, { category: parts[0].replace(/"/g, '').trim(), name: parts[1].replace(/"/g, '').trim() });
                 }
             });
             await batch.commit();
@@ -1039,7 +1074,8 @@
 
     // Live Clock
     setInterval(() => {
-        document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + " WIB";
+        const d = new Date();
+        document.getElementById('live-clock').innerText = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + " WIB";
     }, 1000);
 
     initAuth();
