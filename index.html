@@ -860,9 +860,43 @@
     document.getElementById('master-import-file').onchange = (e) => {
         const reader = new FileReader();
         reader.onload = async (evt) => {
-            const lines = evt.target.result.split('\n').slice(1), batch = writeBatch(db);
-            lines.forEach(l => { const p = l.split(','); if (p.length >= 2) batch.set(doc(collection(db, 'artifacts', appId, 'public', 'data', 'master_items')), { category: p[0].replace(/"/g, '').trim(), name: p[1].replace(/"/g, '').trim() }); });
-            await batch.commit();
+            try {
+                const lines = evt.target.result.split(/\r?\n/).filter(l => l.trim() !== "").slice(1);
+                if (lines.length === 0) return showToast("File kosong atau hanya berisi header", "error");
+
+                // Firestore batch limit is 500, we process in chunks to prevent crashes
+                const chunkSize = 500;
+                let successCount = 0;
+
+                for (let i = 0; i < lines.length; i += chunkSize) {
+                    const chunk = lines.slice(i, i + chunkSize);
+                    const batch = writeBatch(db);
+
+                    chunk.forEach(l => {
+                        // Regex split to handle commas inside quoted strings if necessary
+                        const p = l.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                        if (p.length >= 2) {
+                            const cat = p[0].replace(/^"|"$/g, '').trim();
+                            const name = p[1].replace(/^"|"$/g, '').trim();
+                            if (cat && name) {
+                                batch.set(doc(collection(db, 'artifacts', appId, 'public', 'data', 'master_items')), { 
+                                    category: cat, 
+                                    name: name 
+                                });
+                                successCount++;
+                            }
+                        }
+                    });
+                    await batch.commit();
+                }
+
+                showToast(`${successCount} Item Master berhasil diimpor ke Cloud!`);
+            } catch (err) {
+                console.error("Import Error:", err);
+                showToast("Gagal impor: Periksa format file CSV Anda", "error");
+            } finally {
+                e.target.value = ''; // Reset input agar bisa upload file yang sama jika perlu
+            }
         };
         reader.readAsText(e.target.files[0]);
     };
