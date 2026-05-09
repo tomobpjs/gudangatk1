@@ -12,423 +12,429 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; overflow-x: hidden; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .sidebar-item:hover { background: rgba(59, 130, 246, 0.2); }
-        .sidebar-active { background: #3b82f6; color: white; }
-        .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 8rem; opacity: 0.03; pointer-events: none; white-space: nowrap; font-weight: 800; z-index: 0; }
-        marquee { background: #1e293b; padding: 5px 0; font-weight: 500; border-bottom: 1px solid #334155; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        input, select { background: #1e293b !important; border: 1px solid #334155 !important; color: white !important; }
-        .btn-gradient { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); transition: all 0.3s; }
-        .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
-        @media print { .no-print { display: none; } }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass-dark { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .sidebar-item { transition: all 0.3s ease; border-left: 3px solid transparent; }
+        .sidebar-item.active { background: rgba(59, 130, 246, 0.1); border-left: 3px solid #3b82f6; color: #3b82f6; }
+        .sidebar-item:hover:not(.active) { background: rgba(255, 255, 255, 0.05); }
+        .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        .loading-shimmer { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        
+        /* Login Overlay Styling */
+        #login-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+        }
+        .hidden-app { display: none !important; }
     </style>
 </head>
-<body class="custom-scrollbar">
+<body class="antialiased">
 
-<div class="watermark">LOGISTICS PRO-SMART</div>
-
-<div class="flex h-screen overflow-hidden">
-    <!-- Sidebar -->
-    <aside class="w-64 glass h-full flex flex-col no-print z-20">
-        <div class="p-6">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-xl">L</div>
-                <h1 class="text-xl font-bold tracking-tight">SISTEM INVENTORY <span class="text-blue-500">RSDK</span></h1>
-            </div>
-        </div>
-
-        <nav class="flex-1 px-4 space-y-2 overflow-y-auto custom-scrollbar">
-            <button onclick="switchTab('dashboard')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all sidebar-active" id="btn-dashboard">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                Dashboard
-            </button>
-            <button onclick="switchTab('input')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all" id="btn-input">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"></path></svg>
-                Input Barang
-            </button>
-            <button onclick="switchTab('database')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all" id="btn-database">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
-                Database Recap
-            </button>
-            <button onclick="switchTab('trends')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all" id="btn-trends">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                Tren Harga
-            </button>
-            <button onclick="switchTab('master')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all" id="btn-master">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-                Master Data Barang
-            </button>
-            <button onclick="switchTab('master-cat')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all" id="btn-master-cat">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                Master Kategori
-            </button>
-            <button onclick="switchTab('reports')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all" id="btn-reports">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 012-2H5a2 2 0 012 2v4a2 2 0 002 2m8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                Laporan & Mutasi
-            </button>
-        </nav>
-
-        <div class="p-4 border-t border-slate-800">
-            <div class="bg-slate-800/50 p-3 rounded-lg text-xs">
-                <div class="flex items-center gap-2">
-                    <div id="connection-dot" class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div>
-                    <p class="opacity-50">Cloud Status:</p>
-                    <span id="cloud-status-text" class="font-bold text-yellow-500">Connecting...</span>
+    <!-- LOGIN SECTION -->
+    <div id="login-overlay">
+        <div class="glass p-10 rounded-2xl shadow-2xl w-full max-w-md text-center">
+            <div class="mb-6">
+                <div class="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue-500/20">
+                    <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
                 </div>
-                <p id="user-id-display" class="font-mono mt-2 text-blue-400 truncate text-[10px]">Syncing...</p>
+                <h1 class="text-3xl font-bold text-white tracking-tight">Logistics Pro-Smart</h1>
+                <p class="text-slate-400 mt-2">Rumah Sakit - Inventory System</p>
             </div>
-        </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col relative z-10 overflow-hidden">
-        <header class="no-print">
-            <marquee behavior="scroll" direction="left">
-                ⚠️ Pengumuman: Update database logistik dilakukan setiap jam 16:00 WIB • Gunakan format input massal untuk efisiensi • Pantau tren harga untuk optimasi pembelian bulan depan • Logistics Pro-Smart V.2.1 Stable.
-            </marquee>
-            <div class="p-4 glass flex justify-between items-center px-8">
-                <h2 id="current-page-title" class="text-xl font-semibold">Dashboard Analitik</h2>
-                <div class="flex gap-4 items-center">
-                    <span id="live-clock" class="text-sm font-mono opacity-70"></span>
-                    <button class="bg-blue-600/20 text-blue-400 px-4 py-1.5 rounded-full text-xs font-bold border border-blue-600/30">ONLINE</button>
-                </div>
-            </div>
-        </header>
-
-        <section id="main-scroll" class="flex-1 overflow-y-auto p-8 custom-scrollbar">
             
-            <!-- Tab: Dashboard -->
-            <div id="tab-dashboard" class="tab-content space-y-8">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="glass p-6 rounded-2xl">
-                        <p class="text-slate-400 text-sm">Total Belanja (Bulan Ini)</p>
-                        <h3 id="stat-total-spend" class="text-2xl font-bold mt-2 text-emerald-400">Rp 0</h3>
-                        <p id="stat-spend-compare" class="text-xs text-emerald-500/50 mt-1">↑ 0% vs bulan lalu</p>
-                    </div>
-                    <div class="glass p-6 rounded-2xl">
-                        <p class="text-slate-400 text-sm">Total Item Terinput</p>
-                        <h3 id="stat-total-items" class="text-2xl font-bold mt-2">0</h3>
-                        <p id="stat-category-count" class="text-xs opacity-50 mt-1">Dari 0 Kategori</p>
-                    </div>
-                    <div class="glass p-6 rounded-2xl">
-                        <p class="text-slate-400 text-sm">Kategori Dominan</p>
-                        <h3 id="stat-top-cat" class="text-2xl font-bold mt-2 text-blue-400">-</h3>
-                        <p class="text-xs opacity-50 mt-1">Volume transaksi tertinggi</p>
-                    </div>
-                    <div class="glass p-6 rounded-2xl">
-                        <p class="text-slate-400 text-sm">Update Terakhir</p>
-                        <h3 id="stat-last-sync" class="text-2xl font-bold mt-2 opacity-80 text-sm">Just now</h3>
-                        <p class="text-xs opacity-50 mt-1">Cloud synchronized</p>
-                    </div>
+            <div id="login-form" class="space-y-4">
+                <div class="text-left">
+                    <label class="text-xs font-semibold text-slate-400 uppercase ml-1">Nama Pengguna</label>
+                    <input type="text" id="username" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-white" placeholder="admin">
                 </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="glass p-6 rounded-2xl flex flex-col h-[600px]">
-                        <h4 class="font-bold mb-4 flex justify-between items-center">
-                            Tren Pengeluaran per Kategori
-                            <select id="dash-main-filter-year" class="bg-slate-800 text-[10px] p-1 rounded border border-slate-700 outline-none">
-                                <option>2024</option><option selected>2025</option><option>2026</option>
-                            </select>
-                        </h4>
-                        <div class="flex-1 min-h-0">
-                            <canvas id="categoryChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="glass p-6 rounded-2xl flex flex-col h-[600px] overflow-hidden">
-                        <div class="flex justify-between items-center mb-4">
-                            <h4 class="font-bold">Persentase Belanja Kategori</h4>
-                            <div class="flex gap-2">
-                                <select id="dash-filter-month" class="bg-slate-800 text-[10px] p-1 rounded border border-slate-700 outline-none">
-                                    <option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option>
-                                    <option value="3">Apr</option><option value="4">Mei</option><option value="5">Jun</option>
-                                    <option value="6">Jul</option><option value="7">Agu</option><option value="8">Sep</option>
-                                    <option value="9">Okt</option><option value="10">Nov</option><option value="11">Des</option>
-                                </select>
-                                <select id="dash-filter-year" class="bg-slate-800 text-[10px] p-1 rounded border border-slate-700 outline-none">
-                                    <option>2024</option><option selected>2025</option><option>2026</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="h-1/2 min-h-0 relative mb-4">
-                            <canvas id="filteredCategoryChart"></canvas>
-                        </div>
-                        <div class="h-1/2 overflow-y-auto custom-scrollbar border-t border-slate-700 pt-4">
-                            <table class="w-full text-left text-xs">
-                                <thead class="text-slate-400 uppercase">
-                                    <tr>
-                                        <th class="pb-2">Kategori</th>
-                                        <th class="pb-2 text-right">Nominal (Rp)</th>
-                                        <th class="pb-2 text-right">Kontribusi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="cat-summary-table-body" class="divide-y divide-slate-800">
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                <div class="text-left">
+                    <label class="text-xs font-semibold text-slate-400 uppercase ml-1">Kata Sandi</label>
+                    <input type="password" id="password" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-white" placeholder="••••••••">
                 </div>
+                <button id="btn-login" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg shadow-lg shadow-blue-600/20 transition-all mt-4 flex items-center justify-center gap-2">
+                    Masuk ke Sistem
+                </button>
+                <div id="login-error" class="hidden text-red-400 text-sm mt-2 font-medium">Username atau password salah</div>
             </div>
-
-            <!-- Tab: Input -->
-            <div id="tab-input" class="tab-content hidden space-y-6">
-                <div class="glass p-6 rounded-2xl">
-                    <div class="flex flex-wrap gap-4 items-end mb-8 border-b border-slate-700 pb-6">
-                        <div class="flex-1 min-w-[200px]">
-                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-bold">Pilih Kategori</label>
-                            <select id="input-main-category" class="w-full p-3 rounded-xl focus:ring-2 ring-blue-500 outline-none category-dropdown">
-                                <option value="">-- Pilih Kategori --</option>
-                            </select>
-                        </div>
-                        <div class="flex gap-2 mb-1">
-                            <button onclick="exportInputTemplate()" class="px-4 py-3 bg-green-700 hover:bg-green-600 rounded-xl text-xs font-bold border border-green-600">Template EXCEL</button>
-                            <button onclick="document.getElementById('purchase-import-file').click()" class="px-4 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-bold shadow-lg">Import CSV</button>
-                            <input type="file" id="purchase-import-file" class="hidden" accept=".csv">
-                        </div>
-                        <div class="flex-1 min-w-[200px]">
-                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-bold">Supplier / Vendor</label>
-                            <input type="text" id="input-vendor" placeholder="Nama Supplier" class="w-full p-3 rounded-xl outline-none">
-                        </div>
-                        <div class="flex-1 min-w-[200px]">
-                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-bold">Tanggal Pembelian</label>
-                            <input type="date" id="input-date" class="w-full p-3 rounded-xl outline-none">
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse" id="input-table">
-                            <thead>
-                                <tr class="text-slate-500 text-xs uppercase">
-                                    <th class="p-3 border-b border-slate-700">Nama Barang</th>
-                                    <th class="p-3 border-b border-slate-700 w-32">Satuan</th>
-                                    <th class="p-3 border-b border-slate-700 w-32">Jumlah (Qty)</th>
-                                    <th class="p-3 border-b border-slate-700 w-48">Harga Satuan (Rp)</th>
-                                    <th class="p-3 border-b border-slate-700 w-48">Total</th>
-                                    <th class="p-3 border-b border-slate-700 w-20"></th>
-                                </tr>
-                            </thead>
-                            <tbody id="input-rows"></tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="mt-6 flex justify-between items-center">
-                        <button onclick="addInputRow()" class="flex items-center gap-2 text-blue-400 hover:text-blue-300 font-medium px-4 py-2 rounded-lg border border-blue-400/30">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"></path></svg>
-                            Tambah Baris
-                        </button>
-                        <div class="flex items-center gap-4">
-                            <div class="text-right">
-                                <p class="text-xs opacity-50">Grand Total</p>
-                                <h3 id="input-grand-total" class="text-xl font-bold text-emerald-400">Rp 0</h3>
-                            </div>
-                            <button onclick="savePurchase()" class="btn-gradient px-8 py-3 rounded-xl font-bold shadow-lg">Simpan ke Cloud</button>
-                        </div>
-                    </div>
-                </div>
+            
+            <div id="login-loading" class="hidden flex flex-col items-center gap-4 py-10">
+                <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-slate-400 text-sm">Menghubungkan ke Firebase...</p>
             </div>
-
-            <!-- Tab: Database -->
-            <div id="tab-database" class="tab-content hidden space-y-6">
-                <div class="flex justify-between items-center no-print">
-                    <div class="flex gap-4">
-                        <input type="text" id="db-search" oninput="renderDatabase()" placeholder="Cari barang atau vendor..." class="px-4 py-2 rounded-xl w-64 text-sm">
-                        <select id="db-filter-cat" onchange="renderDatabase()" class="px-4 py-2 rounded-xl text-sm category-dropdown">
-                            <option value="">Semua Kategori</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="glass rounded-2xl overflow-hidden overflow-x-auto">
-                    <table class="w-full text-left min-w-[800px]">
-                        <thead class="bg-slate-800/50 text-slate-400 text-xs uppercase">
-                            <tr>
-                                <th class="p-4">Tanggal</th>
-                                <th class="p-4">Kategori</th>
-                                <th class="p-4">Nama Barang</th>
-                                <th class="p-4">Supplier</th>
-                                <th class="p-4">Qty</th>
-                                <th class="p-4">Total</th>
-                                <th class="p-4 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="db-table-body" class="text-sm divide-y divide-slate-800"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Tab: Trends -->
-            <div id="tab-trends" class="tab-content hidden space-y-6">
-                <div class="glass p-8 rounded-2xl">
-                    <div class="flex gap-4 mb-8">
-                        <select id="trend-cat" onchange="renderTrends()" class="px-4 py-2 rounded-xl w-64 category-dropdown">
-                            <option value="">Pilih Kategori</option>
-                        </select>
-                        <p class="flex-1 text-slate-400 text-sm self-center">Menampilkan perbandingan harga pasar dari transaksi yang tercatat.</p>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="trend-cards"></div>
-                </div>
-            </div>
-
-            <!-- Tab: Master -->
-            <div id="tab-master" class="tab-content hidden space-y-6">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="glass p-6 rounded-2xl">
-                        <h4 class="font-bold mb-6 border-b border-slate-700 pb-4">Tambah Master Barang</h4>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-xs mb-1 opacity-50">Kategori</label>
-                                <select id="master-add-cat" class="w-full p-3 rounded-xl category-dropdown"></select>
-                            </div>
-                            <div>
-                                <label class="block text-xs mb-1 opacity-50">Nama Barang</label>
-                                <input type="text" id="master-add-name" class="w-full p-3 rounded-xl" placeholder="Contoh: Kertas A4">
-                            </div>
-                            <button onclick="addMasterItem()" class="w-full btn-gradient py-3 rounded-xl font-bold">Simpan Master</button>
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-2 glass p-6 rounded-2xl">
-                        <div class="flex justify-between items-center mb-6">
-                            <h4 class="font-bold">Database Master Barang</h4>
-                            <div class="flex gap-2">
-                                <button onclick="exportMasterExcel()" class="px-4 py-2 bg-green-700 hover:bg-green-600 rounded-lg text-xs">Export EXCEL</button>
-                                <button onclick="document.getElementById('master-import-file').click()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs">Import CSV</button>
-                                <input type="file" id="master-import-file" class="hidden" accept=".csv">
-                            </div>
-                        </div>
-                        <div class="overflow-y-auto max-h-[400px] custom-scrollbar">
-                            <table class="w-full text-left">
-                                <thead class="sticky top-0 bg-slate-800 text-xs uppercase text-slate-400">
-                                    <tr>
-                                        <th class="p-3">Kategori</th>
-                                        <th class="p-3">Nama Barang</th>
-                                        <th class="p-3 text-right">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="master-table-body" class="text-sm"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tab: Master Kategori -->
-            <div id="tab-master-cat" class="tab-content hidden space-y-6">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="glass p-6 rounded-2xl">
-                        <h4 class="font-bold mb-6 border-b border-slate-700 pb-4">Tambah Kategori Baru</h4>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-xs mb-1 opacity-50">Nama Kategori</label>
-                                <input type="text" id="master-cat-add-name" class="w-full p-3 rounded-xl" placeholder="Contoh: ATK, Medis, dll">
-                            </div>
-                            <button onclick="addCategory()" class="w-full btn-gradient py-3 rounded-xl font-bold">Simpan Kategori</button>
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-2 glass p-6 rounded-2xl">
-                        <h4 class="font-bold mb-6">Database Kategori</h4>
-                        <div class="overflow-y-auto max-h-[400px] custom-scrollbar">
-                            <table class="w-full text-left">
-                                <thead class="sticky top-0 bg-slate-800 text-xs uppercase text-slate-400">
-                                    <tr>
-                                        <th class="p-3">Nama Kategori</th>
-                                        <th class="p-3 text-right">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="master-cat-table-body" class="text-sm"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tab: Reports -->
-            <div id="tab-reports" class="tab-content hidden space-y-6">
-                <div class="glass p-10 rounded-2xl max-w-5xl mx-auto shadow-2xl" id="report-container">
-                    <div class="border-b-4 border-double border-slate-600 pb-6 mb-8 flex items-center justify-between">
-                        <div class="flex items-center gap-6">
-                            <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center font-bold text-2xl">RS</div>
-                            <div>
-                                <h1 class="text-2xl font-extrabold tracking-widest text-blue-400 uppercase">Rumah Sakit Logistics Center</h1>
-                                <p class="text-xs opacity-70 italic">Jl. Kesehatan Internasional No. 88, Kawasan Medis Terpadu</p>
-                                <p class="text-xs opacity-70">Telp: (021) 555-LOGISTIC | email: logistics@rs-center.com</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <h2 class="text-lg font-bold underline decoration-blue-500">LAPORAN MUTASI BARANG</h2>
-                            <p class="text-xs opacity-50 mt-1" id="report-timestamp">Dicetak: -</p>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-wrap gap-4 mb-8 no-print items-center">
-                        <select id="report-month" class="px-4 py-2 rounded-xl text-sm">
-                            <option value="0">Januari</option><option value="1">Februari</option><option value="2">Maret</option>
-                            <option value="3">April</option><option value="4">Mei</option><option value="5">Juni</option>
-                            <option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option>
-                            <option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
-                        </select>
-                        <select id="report-year" class="px-4 py-2 rounded-xl text-sm">
-                            <option>2024</option><option selected>2025</option><option>2026</option>
-                        </select>
-                        <button onclick="generateReport()" class="bg-blue-600 px-6 py-2 rounded-xl font-bold text-sm">Filter Laporan</button>
-                        <button onclick="exportToPDF()" class="bg-red-600 px-6 py-2 rounded-xl font-bold flex items-center gap-2 text-sm">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 16l-6-6h12l-6 6z"></path></svg>
-                            Cetak PDF
-                        </button>
-                    </div>
-
-                    <div id="report-content" class="text-slate-200 min-h-[400px]">
-                        <div class="text-center py-20 opacity-30">Silahkan pilih periode dan klik Filter Laporan</div>
-                    </div>
-
-                    <div class="mt-12 flex justify-between items-end border-t border-slate-700 pt-8 opacity-70">
-                        <div class="text-center">
-                            <p class="text-xs mb-16">Mengetahui, Kepala Logistik</p>
-                            <p class="font-bold underline">( ______________________ )</p>
-                        </div>
-                        <div class="text-center text-[10px] opacity-40">
-                            Validitas Data Terverifikasi Cloud Database<br>
-                            Logistic Pro-Smart V2.1 Encryption Active
-                        </div>
-                        <div class="text-center">
-                            <p class="text-xs mb-16">Admin Penginput</p>
-                            <p class="font-bold underline">( ______________________ )</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </section>
-    </main>
-</div>
-
-<!-- Modal Edit -->
-<div id="edit-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="glass max-w-md w-full p-8 rounded-3xl shadow-2xl">
-        <h3 class="text-xl font-bold mb-6 flex justify-between">
-            Edit Transaksi
-            <button onclick="closeEditModal()" class="opacity-50 hover:opacity-100">&times;</button>
-        </h3>
-        <div id="edit-form-content" class="space-y-4"></div>
-        <div class="mt-8 flex gap-3 justify-end">
-            <button onclick="closeEditModal()" class="px-6 py-2 rounded-xl bg-slate-700">Batal</button>
-            <button id="btn-save-edit" class="px-6 py-2 rounded-xl btn-gradient">Simpan</button>
         </div>
     </div>
-</div>
 
-<div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full bg-blue-600 text-white font-bold shadow-2xl transition-all duration-300 z-[100] opacity-0 pointer-events-none">
-    Notifikasi Berhasil!
-</div>
+    <!-- MAIN APP WRAPPER (Hidden initially) -->
+    <div id="app-content" class="hidden-app min-h-screen flex">
+        <!-- Sidebar -->
+        <aside class="w-64 glass border-r border-slate-800 flex flex-col fixed h-full z-20">
+            <div class="p-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-white tracking-tight">Logistics Pro</h2>
+                        <span class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">Smart-V2</span>
+                    </div>
+                </div>
+            </div>
 
-<script type="module">
+            <nav class="flex-1 px-4 mt-4 space-y-1 overflow-y-auto">
+                <p class="text-[10px] font-bold text-slate-500 uppercase px-3 mb-2 tracking-widest">Utama</p>
+                <button onclick="switchTab('dashboard')" id="tab-dashboard" class="sidebar-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-width="2" /></svg>
+                    Dashboard
+                </button>
+                <button onclick="switchTab('stok')" id="tab-stok" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-width="2" /></svg>
+                    Persediaan Stok
+                </button>
+
+                <p class="text-[10px] font-bold text-slate-500 uppercase px-3 mt-6 mb-2 tracking-widest">Transaksi</p>
+                <button onclick="switchTab('input')" id="tab-input" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" /></svg>
+                    Barang Masuk
+                </button>
+                <button onclick="switchTab('output')" id="tab-output" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" /></svg>
+                    Barang Keluar
+                </button>
+                <button onclick="switchTab('history')" id="tab-history" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" /></svg>
+                    Riwayat
+                </button>
+
+                <p class="text-[10px] font-bold text-slate-500 uppercase px-3 mt-6 mb-2 tracking-widest">Sistem</p>
+                <button onclick="switchTab('master')" id="tab-master" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-width="2" /></svg>
+                    Master Data
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-slate-800">
+                <div class="glass-dark rounded-xl p-3 flex items-center gap-3">
+                    <div class="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center text-xs font-bold text-blue-400">AD</div>
+                    <div class="flex-1 overflow-hidden">
+                        <p class="text-xs font-bold text-white truncate" id="display-user">Administrator</p>
+                        <p class="text-[10px] text-slate-500 truncate" id="display-role">Sistem Logistik</p>
+                    </div>
+                    <button onclick="handleLogout()" class="p-1.5 hover:bg-red-500/10 rounded-lg text-slate-500 hover:text-red-500 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-width="2" /></svg>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 ml-64 p-8">
+            <!-- Header -->
+            <header class="flex justify-between items-center mb-10">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-white tracking-tight" id="main-title">Dashboard Analitik</h1>
+                    <p class="text-slate-400 text-sm mt-1">Status logistik real-time unit RS.</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="glass-dark px-4 py-2 rounded-xl border border-slate-800 flex items-center gap-3">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span class="text-xs font-medium text-slate-300" id="live-clock">Loading...</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <section id="content-dashboard" class="tab-content space-y-8">
+                <!-- Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="glass p-6 rounded-2xl card-hover">
+                        <div class="flex justify-between items-start">
+                            <div class="p-3 bg-blue-500/10 rounded-xl text-blue-500">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-width="2" /></svg>
+                            </div>
+                        </div>
+                        <h3 class="text-slate-400 text-sm font-medium mt-4">Total Jenis Barang</h3>
+                        <p class="text-3xl font-bold text-white mt-1" id="dash-total-items">0</p>
+                    </div>
+                    <div class="glass p-6 rounded-2xl card-hover">
+                        <div class="flex justify-between items-start">
+                            <div class="p-3 bg-green-500/10 rounded-xl text-green-500">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" /></svg>
+                            </div>
+                        </div>
+                        <h3 class="text-slate-400 text-sm font-medium mt-4">Penerimaan (Bulan Ini)</h3>
+                        <p class="text-3xl font-bold text-white mt-1" id="dash-in-month">0</p>
+                    </div>
+                    <div class="glass p-6 rounded-2xl card-hover">
+                        <div class="flex justify-between items-start">
+                            <div class="p-3 bg-purple-500/10 rounded-xl text-purple-500">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" /></svg>
+                            </div>
+                        </div>
+                        <h3 class="text-slate-400 text-sm font-medium mt-4">Pengeluaran (Bulan Ini)</h3>
+                        <p class="text-3xl font-bold text-white mt-1" id="dash-out-month">0</p>
+                    </div>
+                    <div class="glass p-6 rounded-2xl card-hover border-l-4 border-yellow-500/50">
+                        <div class="flex justify-between items-start">
+                            <div class="p-3 bg-yellow-500/10 rounded-xl text-yellow-500">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-width="2" /></svg>
+                            </div>
+                        </div>
+                        <h3 class="text-slate-400 text-sm font-medium mt-4">Stok Menipis</h3>
+                        <p class="text-3xl font-bold text-white mt-1" id="dash-low-stock">0</p>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="glass p-6 rounded-2xl">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-bold text-white flex items-center gap-2">
+                                <span class="w-1 h-4 bg-blue-600 rounded-full"></span>
+                                Arus Transaksi Bulanan
+                            </h3>
+                            <select id="dash-main-filter-year" class="bg-slate-800 text-xs border-none rounded-lg px-3 py-1.5 focus:ring-0"></select>
+                        </div>
+                        <div class="h-64"><canvas id="chart-main"></canvas></div>
+                    </div>
+                    <div class="glass p-6 rounded-2xl">
+                        <h3 class="font-bold text-white mb-6 flex items-center gap-2">
+                            <span class="w-1 h-4 bg-purple-600 rounded-full"></span>
+                            Distribusi Kategori
+                        </h3>
+                        <div class="h-64"><canvas id="chart-pie"></canvas></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stock Table Section -->
+            <section id="content-stok" class="tab-content hidden space-y-6">
+                <div class="glass p-6 rounded-2xl">
+                    <div class="flex flex-col md:flex-row justify-between gap-4 mb-6">
+                        <div class="flex gap-4">
+                            <input type="text" id="search-stok" placeholder="Cari barang..." class="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 w-64">
+                            <select id="filter-kategori-stok" class="bg-slate-800 border-slate-700 rounded-xl px-4 py-2 text-sm">
+                                <option value="">Semua Kategori</option>
+                            </select>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="exportToExcel('table-stok-raw')" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-xl text-xs font-bold transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" /></svg>
+                                EXCEL
+                            </button>
+                            <button onclick="exportToPDF('stok')" class="flex items-center gap-2 bg-red-600 hover:bg-red-500 px-4 py-2 rounded-xl text-xs font-bold transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-width="2" /></svg>
+                                PDF
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left" id="table-stok-raw">
+                            <thead>
+                                <tr class="text-slate-400 text-[10px] uppercase tracking-widest border-b border-slate-800">
+                                    <th class="py-4 px-4">Nama Barang</th>
+                                    <th class="py-4 px-4">Kategori</th>
+                                    <th class="py-4 px-4 text-center">Masuk</th>
+                                    <th class="py-4 px-4 text-center">Keluar</th>
+                                    <th class="py-4 px-4 text-center">Stok Akhir</th>
+                                    <th class="py-4 px-4 text-right">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-stok-body" class="text-sm divide-y divide-slate-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Input Barang Section -->
+            <section id="content-input" class="tab-content hidden space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 glass p-8 rounded-2xl">
+                        <div class="flex items-center justify-between mb-8">
+                            <h2 class="text-xl font-bold text-white flex items-center gap-3">
+                                <span class="p-2 bg-blue-500/10 rounded-lg text-blue-500">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-width="2" /></svg>
+                                </span>
+                                Form Penerimaan Barang
+                            </h2>
+                            <div class="text-right">
+                                <p class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">No. Dokumen</p>
+                                <p class="text-sm font-mono text-blue-400" id="in-doc-num">...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="space-y-1">
+                                    <label class="text-xs font-bold text-slate-500 uppercase ml-1">Kategori</label>
+                                    <select id="input-main-category" class="w-full bg-slate-800 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500"></select>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-xs font-bold text-slate-500 uppercase ml-1">Tanggal Terima</label>
+                                    <input type="date" id="input-date" class="w-full bg-slate-800 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-xs font-bold text-slate-500 uppercase ml-1">Daftar Item</label>
+                                    <button onclick="addInputRow()" class="text-[10px] bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded-md transition-colors">+ TAMBAH BARIS</button>
+                                </div>
+                                <div id="input-rows" class="space-y-3"></div>
+                            </div>
+
+                            <div class="pt-6 border-t border-slate-800 flex justify-between items-center">
+                                <div>
+                                    <input type="file" id="input-import-file" class="hidden" accept=".csv">
+                                    <label for="input-import-file" class="cursor-pointer text-xs text-blue-400 hover:text-blue-300 font-bold flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" stroke-width="2" /></svg>
+                                        IMPORT CSV
+                                    </label>
+                                </div>
+                                <button onclick="saveTransaction('in')" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2">
+                                    SIMPAN TRANSAKSI
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="glass p-6 rounded-2xl">
+                            <h3 class="font-bold text-white mb-4">Informasi</h3>
+                            <ul class="text-xs text-slate-400 space-y-4">
+                                <li class="flex gap-3">
+                                    <span class="w-5 h-5 bg-blue-500/10 text-blue-500 rounded flex-shrink-0 flex items-center justify-center font-bold">1</span>
+                                    Pilih kategori utama terlebih dahulu untuk memuat daftar item.
+                                </li>
+                                <li class="flex gap-3">
+                                    <span class="w-5 h-5 bg-blue-500/10 text-blue-500 rounded flex-shrink-0 flex items-center justify-center font-bold">2</span>
+                                    Pastikan tanggal sesuai dengan fisik barang yang diterima.
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Output Barang Section (Simplified clone of Input) -->
+            <section id="content-output" class="tab-content hidden space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 glass p-8 rounded-2xl">
+                        <div class="flex items-center justify-between mb-8">
+                            <h2 class="text-xl font-bold text-white flex items-center gap-3">
+                                <span class="p-2 bg-purple-500/10 rounded-lg text-purple-500">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" /></svg>
+                                </span>
+                                Form Pengeluaran Barang
+                            </h2>
+                            <div class="text-right">
+                                <p class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">No. Dokumen</p>
+                                <p class="text-sm font-mono text-purple-400" id="out-doc-num">...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="space-y-1">
+                                    <label class="text-xs font-bold text-slate-500 uppercase ml-1">Kategori</label>
+                                    <select id="output-main-category" class="w-full bg-slate-800 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500"></select>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-xs font-bold text-slate-500 uppercase ml-1">Tanggal Keluar</label>
+                                    <input type="date" id="output-date" class="w-full bg-slate-800 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500">
+                                </div>
+                            </div>
+                            
+                            <div id="output-rows" class="space-y-3"></div>
+                            <button onclick="addOutputRow()" class="text-[10px] bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded-md">+ TAMBAH BARIS</button>
+
+                            <div class="pt-6 border-t border-slate-800 text-right">
+                                <button onclick="saveTransaction('out')" class="bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-purple-600/20 transition-all">
+                                    SIMPAN PENGELUARAN
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section id="content-history" class="tab-content hidden space-y-6">
+                <div class="glass p-6 rounded-2xl">
+                    <div class="flex flex-wrap gap-4 mb-6">
+                        <select id="dash-filter-month" class="bg-slate-800 border-none rounded-xl px-4 py-2 text-sm"></select>
+                        <select id="dash-filter-year" class="bg-slate-800 border-none rounded-xl px-4 py-2 text-sm"></select>
+                        <select id="filter-type-history" class="bg-slate-800 border-none rounded-xl px-4 py-2 text-sm">
+                            <option value="">Semua Transaksi</option>
+                            <option value="in">Hanya Masuk</option>
+                            <option value="out">Hanya Keluar</option>
+                        </select>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="text-slate-400 text-[10px] uppercase tracking-widest border-b border-slate-800">
+                                    <th class="py-4 px-4">Waktu</th>
+                                    <th class="py-4 px-4">Item</th>
+                                    <th class="py-4 px-4">Tipe</th>
+                                    <th class="py-4 px-4">Kategori</th>
+                                    <th class="py-4 px-4 text-center">Jumlah</th>
+                                    <th class="py-4 px-4 text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-history-body" class="text-sm divide-y divide-slate-800"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Master Data Section -->
+            <section id="content-master" class="tab-content hidden space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="glass p-6 rounded-2xl">
+                        <h3 class="font-bold text-white mb-6">Kelola Item Barang</h3>
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <input type="text" id="master-category" placeholder="Kategori (e.g. Obat)" class="bg-slate-800 border-none rounded-xl px-4 py-2 text-sm">
+                                <input type="text" id="master-name" placeholder="Nama Barang" class="bg-slate-800 border-none rounded-xl px-4 py-2 text-sm">
+                            </div>
+                            <button onclick="addMasterItem()" class="w-full bg-slate-700 hover:bg-slate-600 py-2 rounded-xl text-sm font-bold transition-all">TAMBAH KE MASTER</button>
+                            <div class="mt-4">
+                                <input type="file" id="master-import-file" class="hidden" accept=".csv">
+                                <label for="master-import-file" class="block text-center border-2 border-dashed border-slate-700 py-4 rounded-xl cursor-pointer text-slate-500 hover:text-slate-400 hover:border-slate-600">
+                                    Upload CSV Master Item
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass p-6 rounded-2xl overflow-y-auto max-h-[500px]">
+                        <h3 class="font-bold text-white mb-4">Daftar Master</h3>
+                        <div id="master-list-container" class="space-y-2"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, updateDoc, deleteDoc, collection, onSnapshot, addDoc, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, deleteDoc, doc, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'logistic-pro-smart-v1';
     const firebaseConfig = {
   apiKey: "AIzaSyDEXHSwJq7l-B9UgmYzqgDqKCNUS0ho-j0",
   authDomain: "rekapbelanja.firebaseapp.com",
@@ -440,642 +446,360 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-    // Global State
-    window.masterItems = [];
-    window.purchases = [];
-    window.categories = [];
-    let currentEditId = null;
-    let mainCategoryChart = null;
-    let filteredCategoryChart = null;
+    let allMasterItems = [], allTransactions = [], chartMain = null, chartPie = null;
 
-    // --- Authentication ---
+    // --- AUTH LOGIC ---
     const initAuth = async () => {
-        try {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
-            }
-        } catch (err) {
-            console.error("Auth Failure:", err);
-            showToast("Gagal menyambung ke Cloud", "error");
+        // Mode development: check local storage first if needed or direct init
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            await signInWithCustomToken(auth, __initial_auth_token);
         }
     };
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            document.getElementById('user-id-display').innerText = `UID: ${user.uid}`;
-            document.getElementById('cloud-status-text').innerText = "Connected";
-            document.getElementById('cloud-status-text').className = "font-bold text-emerald-400";
-            document.getElementById('connection-dot').className = "w-2 h-2 rounded-full bg-emerald-500";
-            loadListeners();
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('app-content').classList.remove('hidden-app');
+            initializeData();
+        } else {
+            document.getElementById('login-overlay').style.display = 'flex';
+            document.getElementById('app-content').classList.add('hidden-app');
         }
     });
 
-    // --- Data Listeners ---
-    const loadListeners = () => {
-        // Categories
-        onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'master_categories'), (snap) => {
-            window.categories = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => a.name.localeCompare(b.name));
-            renderCategoryDropdowns();
-            renderCategoryTable();
-        }, (err) => console.error("Category Sync Error:", err));
+    // Handle Login Button
+    document.getElementById('btn-login').onclick = async () => {
+        const u = document.getElementById('username').value;
+        const p = document.getElementById('password').value;
+        const form = document.getElementById('login-form');
+        const loader = document.getElementById('login-loading');
+        const error = document.getElementById('login-error');
 
-        // Master Items
-        onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'), (snap) => {
-            window.masterItems = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => a.name.localeCompare(b.name));
-            renderMasterTable();
-        }, (err) => console.error("Master Sync Error:", err));
-
-        // Purchases
-        onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'purchases'), (snap) => {
-            window.purchases = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-                .sort((a, b) => new Date(b.date) - new Date(a.date));
-            updateDashboard();
-            renderDatabase();
-            renderTrends();
-        }, (err) => console.error("Purchase Sync Error:", err));
+        // Simple validation logic (You can change this or rely on Firebase Auth Providers)
+        if (u === 'admin' && p === 'admin123') {
+            form.classList.add('hidden');
+            loader.classList.remove('hidden');
+            error.classList.add('hidden');
+            
+            try {
+                // In this environment, we use anonymous auth for session management
+                await signInAnonymously(auth);
+            } catch (e) {
+                console.error(e);
+                form.classList.remove('hidden');
+                loader.classList.add('hidden');
+                error.innerText = "Koneksi Firebase Gagal";
+                error.classList.remove('hidden');
+            }
+        } else {
+            error.classList.remove('hidden');
+        }
     };
 
-    // --- UI Utilities ---
-    window.showToast = (msg, type = "success") => {
-        const t = document.getElementById('toast');
-        t.innerText = msg;
-        t.style.backgroundColor = type === 'success' ? '#059669' : '#dc2626';
-        t.style.opacity = '1';
-        setTimeout(() => t.style.opacity = '0', 3000);
+    window.handleLogout = async () => {
+        if(confirm('Apakah Anda yakin ingin keluar?')) {
+            await signOut(auth);
+            location.reload();
+        }
     };
 
-    window.switchTab = (tabId) => {
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-        document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('sidebar-active'));
-        document.getElementById(`btn-${tabId}`).classList.add('sidebar-active');
-        
-        const titles = {
-            'dashboard': 'Dashboard Analitik',
-            'input': 'Input Transaksi Logistik',
-            'database': 'Database Recap & History',
-            'trends': 'Analisis Tren Harga Pasar',
-            'master': 'Master Database Barang',
-            'master-cat': 'Manajemen Kategori',
-            'reports': 'Laporan Mutasi & Cetak'
-        };
-        document.getElementById('current-page-title').innerText = titles[tabId];
-        if (tabId === 'dashboard') updateDashboard();
-    };
-
-    window.formatIDR = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
-
-    // --- Master Data Logic ---
-    window.addCategory = async () => {
-        const name = document.getElementById('master-cat-add-name').value.trim();
-        if (!name) return showToast("Nama kategori kosong", "error");
-        try {
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'master_categories'), { name });
-            document.getElementById('master-cat-add-name').value = "";
-            showToast("Kategori ditambahkan");
-        } catch (e) { showToast("Gagal menyimpan", "error"); }
-    };
-
-    window.deleteCategory = async (id) => {
-        if (!confirm("Hapus kategori ini?")) return;
-        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'master_categories', id));
-        showToast("Kategori dihapus");
-    };
-
-    window.renderCategoryDropdowns = () => {
-        const selects = document.querySelectorAll('.category-dropdown');
-        selects.forEach(s => {
-            const currentVal = s.value;
-            s.innerHTML = `<option value="">${s.id.includes('filter') ? 'Semua Kategori' : '-- Pilih Kategori --'}</option>`;
-            window.categories.forEach(c => {
-                s.innerHTML += `<option value="${c.name}" ${currentVal === c.name ? 'selected' : ''}>${c.name}</option>`;
-            });
+    // --- CORE LOGIC ---
+    function initializeData() {
+        // Init Filters
+        const curY = new Date().getFullYear();
+        ['dash-main-filter-year', 'dash-filter-year'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el.options.length === 0) {
+                for(let i=0; i<3; i++) el.add(new Option(curY-i, curY-i));
+            }
         });
+
+        const months = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+        const mEl = document.getElementById('dash-filter-month');
+        if(mEl.options.length === 0) {
+            months.forEach((m, i) => mEl.add(new Option(m, i + 1)));
+            mEl.value = new Date().getMonth() + 1;
+        }
+
+        // Snapshots
+        onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'), (s) => {
+            allMasterItems = s.docs.map(d => ({ id: d.id, ...d.data() }));
+            updateMasterUI();
+        }, (e) => console.error(e));
+
+        onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'transactions'), (s) => {
+            allTransactions = s.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderCharts();
+            renderStockTable();
+            renderHistory();
+        }, (e) => console.error(e));
+
+        document.getElementById('in-doc-num').innerText = 'IN-' + Date.now().toString().slice(-6);
+        document.getElementById('out-doc-num').innerText = 'OUT-' + Date.now().toString().slice(-6);
+        document.getElementById('input-date').valueAsDate = new Date();
+        document.getElementById('output-date').valueAsDate = new Date();
+    }
+
+    // Tab Switching
+    window.switchTab = (tab) => {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+        document.getElementById(`content-${tab}`).classList.remove('hidden');
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        document.getElementById('main-title').innerText = tab.charAt(0).toUpperCase() + tab.slice(1);
     };
 
-    window.renderCategoryTable = () => {
-        const body = document.getElementById('master-cat-table-body');
-        body.innerHTML = window.categories.map(c => `
-            <tr class="border-b border-slate-800">
-                <td class="p-3">${c.name}</td>
-                <td class="p-3 text-right">
-                    <button onclick="deleteCategory('${c.id}')" class="text-red-400 hover:text-red-300">Hapus</button>
-                </td>
-            </tr>
+    function updateMasterUI() {
+        const cats = [...new Set(allMasterItems.map(i => i.category))];
+        const selects = ['input-main-category', 'output-main-category', 'filter-kategori-stok'];
+        selects.forEach(id => {
+            const el = document.getElementById(id);
+            const val = el.value;
+            el.innerHTML = id.includes('filter') ? '<option value="">Semua Kategori</option>' : '';
+            cats.forEach(c => el.add(new Option(c, c)));
+            el.value = val || el.options[0]?.value;
+        });
+
+        const container = document.getElementById('master-list-container');
+        container.innerHTML = allMasterItems.map(i => `
+            <div class="flex justify-between items-center p-3 glass-dark rounded-xl">
+                <div>
+                    <p class="text-xs font-bold text-white">${i.name}</p>
+                    <p class="text-[10px] text-blue-400 font-medium">${i.category}</p>
+                </div>
+                <button onclick="deleteMaster('${i.id}')" class="text-slate-600 hover:text-red-500 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" /></svg>
+                </button>
+            </div>
         `).join('');
-    };
+    }
 
     window.addMasterItem = async () => {
-        const cat = document.getElementById('master-add-cat').value;
-        const name = document.getElementById('master-add-name').value.trim();
-        if (!cat || !name) return showToast("Lengkapi form", "error");
-        try {
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'), { category: cat, name });
-            document.getElementById('master-add-name').value = "";
-            showToast("Barang ditambahkan ke Master");
-        } catch (e) { showToast("Gagal menyimpan", "error"); }
+        const category = document.getElementById('master-category').value.trim();
+        const name = document.getElementById('master-name').value.trim();
+        if (!category || !name) return;
+        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'), { category, name });
+        document.getElementById('master-name').value = "";
     };
 
-    window.deleteMasterItem = async (id) => {
-        if (!confirm("Hapus item master ini?")) return;
-        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'master_items', id));
-        showToast("Item master dihapus");
-    };
+    window.deleteMaster = async (id) => { if(confirm('Hapus item ini?')) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'master_items', id)); };
 
-    window.renderMasterTable = () => {
-        const body = document.getElementById('master-table-body');
-        body.innerHTML = window.masterItems.map(m => `
-            <tr class="border-b border-slate-800 hover:bg-slate-800/30">
-                <td class="p-3 text-xs opacity-70">${m.category}</td>
-                <td class="p-3 font-medium">${m.name}</td>
-                <td class="p-3 text-right">
-                    <button onclick="deleteMasterItem('${m.id}')" class="text-red-400 hover:text-red-300">Hapus</button>
-                </td>
-            </tr>
-        `).join('');
-    };
-
-    // --- Input Logic ---
     window.addInputRow = () => {
         const cat = document.getElementById('input-main-category').value;
-        if (!cat) return showToast("Pilih kategori terlebih dahulu", "error");
-        
-        const row = document.createElement('tr');
-        const items = window.masterItems.filter(m => m.category === cat);
-        const optionsHtml = items.map(i => `<option value="${i.name}">${i.name}</option>`).join('');
-        
-        row.innerHTML = `
-            <td class="p-2 border-b border-slate-800">
-                <select class="w-full p-2 rounded bg-slate-900 border-none outline-none row-name">
-                    <option value="">-- Pilih Barang --</option>
-                    ${optionsHtml}
+        if(!cat) return;
+        const items = allMasterItems.filter(i => i.category === cat);
+        const div = document.createElement('div');
+        div.className = "grid grid-cols-12 gap-3 animate-fade-in";
+        div.innerHTML = `
+            <div class="col-span-8">
+                <select class="item-select w-full bg-slate-800 border-none rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-blue-500">
+                    ${items.map(i => `<option value="${i.name}">${i.name}</option>`).join('')}
                 </select>
-            </td>
-            <td class="p-2 border-b border-slate-800"><input type="text" class="w-full p-2 rounded bg-slate-900 border-none row-unit" placeholder="Pcs/Box"></td>
-            <td class="p-2 border-b border-slate-800"><input type="number" class="w-full p-2 rounded bg-slate-900 border-none row-qty" oninput="calcInputTotal()"></td>
-            <td class="p-2 border-b border-slate-800"><input type="number" class="w-full p-2 rounded bg-slate-900 border-none row-price" oninput="calcInputTotal()"></td>
-            <td class="p-2 border-b border-slate-800 text-emerald-400 font-bold row-total">Rp 0</td>
-            <td class="p-2 border-b border-slate-800 text-center"><button onclick="this.closest('tr').remove(); calcInputTotal()" class="text-red-500">&times;</button></td>
+            </div>
+            <div class="col-span-3">
+                <input type="number" placeholder="Qty" class="item-qty w-full bg-slate-800 border-none rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-blue-500" min="1" value="1">
+            </div>
+            <div class="col-span-1 flex items-center justify-center">
+                <button onclick="this.parentElement.parentElement.remove()" class="text-slate-600 hover:text-red-500">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" /></svg>
+                </button>
+            </div>
         `;
-        document.getElementById('input-rows').appendChild(row);
+        document.getElementById('input-rows').appendChild(div);
     };
 
-    window.calcInputTotal = () => {
-        let grand = 0;
-        document.querySelectorAll('#input-rows tr').forEach(tr => {
-            const q = parseFloat(tr.querySelector('.row-qty').value) || 0;
-            const p = parseFloat(tr.querySelector('.row-price').value) || 0;
-            const t = q * p;
-            tr.querySelector('.row-total').innerText = formatIDR(t);
-            grand += t;
-        });
-        document.getElementById('input-grand-total').innerText = formatIDR(grand);
+    window.addOutputRow = () => {
+        const cat = document.getElementById('output-main-category').value;
+        if(!cat) return;
+        const items = allMasterItems.filter(i => i.category === cat);
+        const div = document.createElement('div');
+        div.className = "grid grid-cols-12 gap-3";
+        div.innerHTML = `
+            <div class="col-span-8">
+                <select class="item-select w-full bg-slate-800 border-none rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-purple-500">
+                    ${items.map(i => `<option value="${i.name}">${i.name}</option>`).join('')}
+                </select>
+            </div>
+            <div class="col-span-3">
+                <input type="number" placeholder="Qty" class="item-qty w-full bg-slate-800 border-none rounded-xl px-4 py-3 text-sm focus:ring-1 focus:ring-purple-500" min="1" value="1">
+            </div>
+            <div class="col-span-1 flex items-center justify-center">
+                <button onclick="this.parentElement.parentElement.remove()" class="text-slate-600 hover:text-red-500">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" /></svg>
+                </button>
+            </div>
+        `;
+        document.getElementById('output-rows').appendChild(div);
     };
 
-    window.savePurchase = async () => {
-        const cat = document.getElementById('input-main-category').value;
-        const vendor = document.getElementById('input-vendor').value.trim();
-        const date = document.getElementById('input-date').value;
+    window.saveTransaction = async (type) => {
+        const rows = document.querySelectorAll(`#${type}-rows > div`);
+        if(rows.length === 0) return;
+        const date = document.getElementById(`${type}-date`).value;
+        const cat = document.getElementById(`${type}-main-category`).value;
+        const docNum = document.getElementById(`${type}-doc-num`).innerText;
         
-        if (!cat || !vendor || !date) return showToast("Lengkapi Header (Kategori/Vendor/Tanggal)", "error");
-        
-        const rows = document.querySelectorAll('#input-rows tr');
-        if (rows.length === 0) return showToast("Belum ada item", "error");
-
         const batch = writeBatch(db);
-        let valid = true;
-
-        rows.forEach(tr => {
-            const name = tr.querySelector('.row-name').value;
-            const unit = tr.querySelector('.row-unit').value.trim();
-            const qty = parseFloat(tr.querySelector('.row-qty').value);
-            const price = parseFloat(tr.querySelector('.row-price').value);
-
-            if (!name || isNaN(qty) || isNaN(price)) {
-                valid = false;
-                return;
+        rows.forEach(r => {
+            const name = r.querySelector('.item-select').value;
+            const qty = parseFloat(r.querySelector('.item-qty').value);
+            if(qty > 0) {
+                const ref = doc(collection(db, 'artifacts', appId, 'public', 'data', 'transactions'));
+                batch.set(ref, { type, category: cat, name, qty, date, docNum, timestamp: Date.now() });
             }
-
-            const ref = doc(collection(db, 'artifacts', appId, 'public', 'data', 'purchases'));
-            batch.set(ref, {
-                category: cat,
-                vendor: vendor,
-                date: date,
-                name: name,
-                unit: unit,
-                qty: qty,
-                price: price,
-                total: qty * price,
-                timestamp: Date.now()
-            });
         });
-
-        if (!valid) return showToast("Item tidak valid (Cek Nama/Qty/Harga)", "error");
-
-        try {
-            await batch.commit();
-            document.getElementById('input-rows').innerHTML = "";
-            document.getElementById('input-vendor').value = "";
-            document.getElementById('input-grand-total').innerText = "Rp 0";
-            showToast("Transaksi berhasil disimpan ke Cloud");
-            switchTab('database');
-        } catch (e) { showToast("Gagal sync ke Cloud", "error"); }
+        await batch.commit();
+        document.getElementById(`${type}-rows`).innerHTML = "";
+        alert('Transaksi berhasil disimpan!');
+        document.getElementById(`${type}-doc-num').innerText = (type === 'in' ? 'IN-' : 'OUT-') + Date.now().toString().slice(-6);
     };
 
-    // --- Database View & Trends ---
-    window.renderDatabase = () => {
-        const search = document.getElementById('db-search').value.toLowerCase();
-        const filterCat = document.getElementById('db-filter-cat').value;
-        const body = document.getElementById('db-table-body');
+    function renderCharts() {
+        const year = parseInt(document.getElementById('dash-main-filter-year').value);
+        const dataIn = Array(12).fill(0), dataOut = Array(12).fill(0);
         
-        const filtered = window.purchases.filter(p => {
-            const matchSearch = p.name.toLowerCase().includes(search) || p.vendor.toLowerCase().includes(search);
-            const matchCat = filterCat ? p.category === filterCat : true;
-            return matchSearch && matchCat;
-        });
-
-        body.innerHTML = filtered.map(p => `
-            <tr class="hover:bg-slate-800/30 transition-colors">
-                <td class="p-4 text-xs opacity-60">${p.date}</td>
-                <td class="p-4"><span class="bg-blue-900/40 text-blue-300 px-2 py-1 rounded text-[10px] uppercase font-bold">${p.category}</span></td>
-                <td class="p-4 font-medium">${p.name} <span class="text-[10px] opacity-40 ml-1">/ ${p.unit || '-'}</span></td>
-                <td class="p-4 opacity-70">${p.vendor}</td>
-                <td class="p-4">${p.qty}</td>
-                <td class="p-4 font-bold text-emerald-400">${formatIDR(p.total)}</td>
-                <td class="p-4 text-center space-x-3">
-                    <button onclick="openEditModal('${p.id}')" class="text-blue-400 hover:text-blue-300">Edit</button>
-                    <button onclick="deletePurchase('${p.id}')" class="text-red-400 hover:text-red-300">Hapus</button>
-                </td>
-            </tr>
-        `).join('');
-    };
-
-    window.deletePurchase = async (id) => {
-        if (!confirm("Hapus data transaksi ini secara permanen?")) return;
-        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'purchases', id));
-        showToast("Transaksi dihapus");
-    };
-
-    window.renderTrends = () => {
-        const cat = document.getElementById('trend-cat').value;
-        const container = document.getElementById('trend-cards');
-        container.innerHTML = "";
-
-        if (!cat) return;
-
-        // Group by Item Name
-        const groups = {};
-        window.purchases.filter(p => p.category === cat).forEach(p => {
-            if (!groups[p.name]) groups[p.name] = [];
-            groups[p.name].push(p);
-        });
-
-        Object.keys(groups).forEach(name => {
-            const sorted = groups[name].sort((a,b) => new Date(b.date) - new Date(a.date));
-            const latest = sorted[0];
-            const prev = sorted[1];
-            
-            let trendHtml = "";
-            if (prev) {
-                const diff = latest.price - prev.price;
-                const pct = (diff / prev.price * 100).toFixed(1);
-                if (diff > 0) trendHtml = `<span class="text-red-400 text-xs">↑ ${pct}% (${formatIDR(diff)})</span>`;
-                else if (diff < 0) trendHtml = `<span class="text-emerald-400 text-xs">↓ ${Math.abs(pct)}% (${formatIDR(Math.abs(diff))})</span>`;
-                else trendHtml = `<span class="text-slate-400 text-xs">Stabil</span>`;
+        allTransactions.forEach(t => {
+            const d = new Date(t.date);
+            if(d.getFullYear() === year) {
+                if(t.type === 'in') dataIn[d.getMonth()] += t.qty;
+                else dataOut[d.getMonth()] += t.qty;
             }
-
-            const card = document.createElement('div');
-            card.className = "glass p-6 rounded-2xl border-l-4 border-blue-500";
-            card.innerHTML = `
-                <p class="text-xs uppercase opacity-50 mb-1">Update: ${latest.date}</p>
-                <h5 class="font-bold mb-3">${name}</h5>
-                <div class="flex justify-between items-end">
-                    <div>
-                        <p class="text-xl font-extrabold text-blue-400">${formatIDR(latest.price)}</p>
-                        <p class="text-[10px] opacity-40">Vendor: ${latest.vendor}</p>
-                    </div>
-                    <div class="text-right">${trendHtml}</div>
-                </div>
-            `;
-            container.appendChild(card);
-        });
-    };
-
-    // --- Dashboard Analytics ---
-    const updateDashboard = () => {
-        const now = new Date();
-        const curMonth = now.getMonth();
-        const curYear = now.getFullYear();
-
-        const curPurchases = window.purchases.filter(p => {
-            const d = new Date(p.date);
-            return d.getMonth() === curMonth && d.getFullYear() === curYear;
         });
 
-        const prevPurchases = window.purchases.filter(p => {
-            const d = new Date(p.date);
-            let pm = curMonth - 1, py = curYear;
-            if (pm < 0) { pm = 11; py--; }
-            return d.getMonth() === pm && d.getFullYear() === py;
-        });
-
-        const totalSpend = curPurchases.reduce((a, b) => a + b.total, 0);
-        const prevSpend = prevPurchases.reduce((a, b) => a + b.total, 0);
-        
-        document.getElementById('stat-total-spend').innerText = formatIDR(totalSpend);
-        document.getElementById('stat-total-items').innerText = window.purchases.length;
-        document.getElementById('stat-category-count').innerText = `Dari ${window.categories.length} Kategori`;
-
-        if (prevSpend > 0) {
-            const diff = ((totalSpend - prevSpend) / prevSpend * 100).toFixed(1);
-            const color = diff > 0 ? 'text-red-400' : 'text-emerald-400';
-            document.getElementById('stat-spend-compare').innerText = `${diff > 0 ? '↑' : '↓'} ${Math.abs(diff)}% vs bulan lalu`;
-            document.getElementById('stat-spend-compare').className = `text-xs mt-1 ${color}`;
-        }
-
-        // Top Category
-        const catMap = {};
-        curPurchases.forEach(p => catMap[p.category] = (catMap[p.category] || 0) + p.total);
-        const topCat = Object.entries(catMap).sort((a,b) => b[1] - a[1])[0];
-        document.getElementById('stat-top-cat').innerText = topCat ? topCat[0] : '-';
-
-        renderCharts();
-    };
-
-    const renderCharts = () => {
-        const mainYear = parseInt(document.getElementById('dash-main-filter-year').value);
-        const filterMonth = parseInt(document.getElementById('dash-filter-month').value);
-        const filterYear = parseInt(document.getElementById('dash-filter-year').value);
-
-        // 1. Line Chart (Monthly Spend by Category)
-        const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-        const datasets = window.categories.map((c, i) => {
-            const data = Array(12).fill(0);
-            window.purchases.filter(p => p.category === c.name && new Date(p.date).getFullYear() === mainYear).forEach(p => {
-                data[new Date(p.date).getMonth()] += p.total;
-            });
-            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
-            return {
-                label: c.name,
-                data: data,
-                borderColor: colors[i % colors.length],
-                backgroundColor: colors[i % colors.length] + '22',
-                tension: 0.3,
-                fill: true
-            };
-        });
-
-        if (mainCategoryChart) mainCategoryChart.destroy();
-        mainCategoryChart = new Chart(document.getElementById('categoryChart'), {
+        if(chartMain) chartMain.destroy();
+        chartMain = new Chart(document.getElementById('chart-main'), {
             type: 'line',
-            data: { labels: months, datasets: datasets },
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: false,
-                scales: { 
-                    y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', callback: v => formatIDR(v) } },
-                    x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }
-                },
-                plugins: { legend: { labels: { color: 'white', font: { size: 10 } } } }
-            }
+            data: {
+                labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
+                datasets: [
+                    { label: 'Masuk', data: dataIn, borderColor: '#3b82f6', tension: 0.4, fill: true, backgroundColor: 'rgba(59,130,246,0.1)' },
+                    { label: 'Keluar', data: dataOut, borderColor: '#a855f7', tension: 0.4, fill: true, backgroundColor: 'rgba(168,85,247,0.1)' }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#1e293b' } }, x: { grid: { display: false } } } }
         });
 
-        // 2. Pie Chart & Table Summary
-        const filteredData = window.purchases.filter(p => {
-            const d = new Date(p.date);
-            return d.getMonth() === filterMonth && d.getFullYear() === filterYear;
-        });
-
-        const summary = {};
-        let grandTotal = 0;
-        window.categories.forEach(c => summary[c.name] = 0);
-        filteredData.forEach(p => {
-            summary[p.category] = (summary[p.category] || 0) + p.total;
-            grandTotal += p.total;
-        });
-
-        const pieLabels = Object.keys(summary).filter(k => summary[k] > 0);
-        const pieValues = pieLabels.map(k => summary[k]);
-
-        if (filteredCategoryChart) filteredCategoryChart.destroy();
-        filteredCategoryChart = new Chart(document.getElementById('filteredCategoryChart'), {
+        // Pie Chart
+        const catMap = {};
+        allTransactions.forEach(t => catMap[t.category] = (catMap[t.category] || 0) + t.qty);
+        if(chartPie) chartPie.destroy();
+        chartPie = new Chart(document.getElementById('chart-pie'), {
             type: 'doughnut',
             data: {
-                labels: pieLabels,
-                datasets: [{
-                    data: pieValues,
-                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
-                    borderWidth: 0
-                }]
+                labels: Object.keys(catMap),
+                datasets: [{ data: Object.values(catMap), backgroundColor: ['#3b82f6','#a855f7','#10b981','#f59e0b','#ef4444'] }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'right', labels: { color: 'white', font: { size: 10 } } } }
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 12 } } } }
+        });
+
+        // Stats
+        const now = new Date(), m = now.getMonth(), y = now.getFullYear();
+        document.getElementById('dash-total-items').innerText = allMasterItems.length;
+        document.getElementById('dash-in-month').innerText = allTransactions.filter(t => t.type === 'in' && new Date(t.date).getMonth() === m && new Date(t.date).getFullYear() === y).reduce((a,b) => a+b.qty, 0);
+        document.getElementById('dash-out-month').innerText = allTransactions.filter(t => t.type === 'out' && new Date(t.date).getMonth() === m && new Date(t.date).getFullYear() === y).reduce((a,b) => a+b.qty, 0);
+    }
+
+    function renderStockTable() {
+        const search = document.getElementById('search-stok').value.toLowerCase();
+        const catFilter = document.getElementById('filter-kategori-stok').value;
+        const stockData = {};
+        
+        allMasterItems.forEach(i => stockData[i.name] = { name: i.name, category: i.category, in: 0, out: 0 });
+        allTransactions.forEach(t => {
+            if(stockData[t.name]) {
+                if(t.type === 'in') stockData[t.name].in += t.qty;
+                else stockData[t.name].out += t.qty;
             }
         });
 
-        // Update Summary Table
-        const body = document.getElementById('cat-summary-table-body');
-        body.innerHTML = Object.entries(summary).sort((a,b) => b[1] - a[1]).map(([cat, amt]) => {
-            const pct = grandTotal > 0 ? (amt / grandTotal * 100).toFixed(1) : 0;
-            return `
-                <tr>
-                    <td class="py-2 opacity-70">${cat}</td>
-                    <td class="py-2 text-right font-medium">${formatIDR(amt)}</td>
-                    <td class="py-2 text-right">
-                        <span class="bg-blue-900/30 text-blue-400 px-2 py-0.5 rounded-full">${pct}%</span>
+        let lowStockCount = 0;
+        const tbody = document.getElementById('table-stok-body');
+        tbody.innerHTML = Object.values(stockData)
+            .filter(i => (i.name.toLowerCase().includes(search)) && (!catFilter || i.category === catFilter))
+            .map(i => {
+                const total = i.in - i.out;
+                if(total < 10) lowStockCount++;
+                return `
+                <tr class="hover:bg-white/5 transition-colors group">
+                    <td class="py-4 px-4 font-medium text-white">${i.name}</td>
+                    <td class="py-4 px-4 text-slate-400">${i.category}</td>
+                    <td class="py-4 px-4 text-center text-emerald-400 font-mono">${i.in}</td>
+                    <td class="py-4 px-4 text-center text-red-400 font-mono">${i.out}</td>
+                    <td class="py-4 px-4 text-center font-bold ${total < 10 ? 'text-yellow-500' : 'text-blue-400'} font-mono">${total}</td>
+                    <td class="py-4 px-4 text-right">
+                        <span class="px-2 py-1 rounded text-[10px] font-bold ${total < 10 ? 'bg-yellow-500/10 text-yellow-500' : 'bg-green-500/10 text-green-500'}">
+                            ${total < 10 ? 'RE-ORDER' : 'AMAN'}
+                        </span>
                     </td>
                 </tr>
-            `;
-        }).join('');
-    };
-
-    // --- Edit Modal ---
-    window.openEditModal = (id) => {
-        const p = window.purchases.find(x => x.id === id);
-        currentEditId = id;
-        document.getElementById('edit-form-content').innerHTML = `
-            <div>
-                <label class="text-xs opacity-50">Nama Barang</label>
-                <input type="text" id="edit-name" value="${p.name}" class="w-full p-2 rounded mt-1">
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="text-xs opacity-50">Qty</label>
-                    <input type="number" id="edit-qty" value="${p.qty}" class="w-full p-2 rounded mt-1">
-                </div>
-                <div>
-                    <label class="text-xs opacity-50">Harga Satuan</label>
-                    <input type="number" id="edit-price" value="${p.price}" class="w-full p-2 rounded mt-1">
-                </div>
-            </div>
-            <div>
-                <label class="text-xs opacity-50">Supplier</label>
-                <input type="text" id="edit-vendor" value="${p.vendor}" class="w-full p-2 rounded mt-1">
-            </div>
-            <div>
-                <label class="text-xs opacity-50">Tanggal</label>
-                <input type="date" id="edit-date" value="${p.date}" class="w-full p-2 rounded mt-1">
-            </div>
-        `;
-        document.getElementById('edit-modal').classList.remove('hidden');
-    };
-
-    window.closeEditModal = () => document.getElementById('edit-modal').classList.add('hidden');
-
-    document.getElementById('btn-save-edit').onclick = async () => {
-        const updates = {
-            name: document.getElementById('edit-name').value,
-            qty: parseFloat(document.getElementById('edit-qty').value),
-            price: parseFloat(document.getElementById('edit-price').value),
-            vendor: document.getElementById('edit-vendor').value,
-            date: document.getElementById('edit-date').value,
-        };
-        updates.total = updates.qty * updates.price;
-        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'purchases', currentEditId), updates);
-        closeEditModal();
-        showToast("Perubahan disimpan");
-    };
-
-    // --- Report System ---
-    window.generateReport = () => {
-        const month = parseInt(document.getElementById('report-month').value);
-        const year = parseInt(document.getElementById('report-year').value);
+            `}).join('');
         
-        const filtered = window.purchases.filter(p => {
-            const d = new Date(p.date);
-            return d.getMonth() === month && d.getFullYear() === year;
-        });
+        document.getElementById('dash-low-stock').innerText = lowStockCount;
+    }
 
-        document.getElementById('report-timestamp').innerText = `Dicetak: ${new Date().toLocaleString('id-ID')}`;
-        
-        if (filtered.length === 0) {
-            document.getElementById('report-content').innerHTML = `<div class="text-center py-20 opacity-30">Tidak ada data untuk periode ini</div>`;
-            return;
-        }
+    function renderHistory() {
+        const m = parseInt(document.getElementById('dash-filter-month').value);
+        const y = parseInt(document.getElementById('dash-filter-year').value);
+        const t = document.getElementById('filter-type-history').value;
 
-        // Grouping by Category for Report
-        const byCat = {};
-        filtered.forEach(p => {
-            if (!byCat[p.category]) byCat[p.category] = [];
-            byCat[p.category].push(p);
-        });
+        const tbody = document.getElementById('table-history-body');
+        tbody.innerHTML = allTransactions
+            .filter(trans => {
+                const d = new Date(trans.date);
+                return d.getMonth() + 1 === m && d.getFullYear() === y && (!t || trans.type === t);
+            })
+            .sort((a,b) => b.timestamp - a.timestamp)
+            .map(trans => `
+                <tr class="hover:bg-white/5">
+                    <td class="py-4 px-4 text-slate-400 text-xs">${trans.date}</td>
+                    <td class="py-4 px-4 font-bold text-white">${trans.name}</td>
+                    <td class="py-4 px-4">
+                        <span class="text-[10px] font-bold ${trans.type === 'in' ? 'text-emerald-500' : 'text-purple-500'} uppercase">
+                            ${trans.type === 'in' ? 'Masuk' : 'Keluar'}
+                        </span>
+                    </td>
+                    <td class="py-4 px-4 text-slate-400 text-xs">${trans.category}</td>
+                    <td class="py-4 px-4 text-center font-mono">${trans.qty}</td>
+                    <td class="py-4 px-4 text-right">
+                        <button onclick="deleteTransaction('${trans.id}')" class="text-slate-600 hover:text-red-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2" /></svg>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+    }
 
-        let html = "";
-        let totalAll = 0;
+    window.deleteTransaction = async (id) => { if(confirm('Batalkan transaksi ini?')) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'transactions', id)); };
 
-        Object.keys(byCat).sort().forEach(cat => {
-            const items = byCat[cat];
-            const catTotal = items.reduce((a, b) => a + b.total, 0);
-            totalAll += catTotal;
-
-            html += `
-                <div class="mb-8">
-                    <h3 class="bg-slate-800 p-2 text-sm font-bold border-l-4 border-blue-500 mb-2 uppercase tracking-widest">${cat}</h3>
-                    <table class="w-full text-xs text-left mb-2">
-                        <thead class="opacity-50">
-                            <tr>
-                                <th class="p-2 w-24">Tanggal</th>
-                                <th class="p-2">Uraian Barang</th>
-                                <th class="p-2">Vendor</th>
-                                <th class="p-2 text-right">Qty</th>
-                                <th class="p-2 text-right">Harga</th>
-                                <th class="p-2 text-right">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${items.map(p => `
-                                <tr class="border-b border-slate-800/50">
-                                    <td class="p-2">${p.date}</td>
-                                    <td class="p-2 font-medium">${p.name} <span class="text-[9px] opacity-40">(${p.unit})</span></td>
-                                    <td class="p-2 opacity-70">${p.vendor}</td>
-                                    <td class="p-2 text-right">${p.qty}</td>
-                                    <td class="p-2 text-right">${formatIDR(p.price)}</td>
-                                    <td class="p-2 text-right font-bold">${formatIDR(p.total)}</td>
-                                </tr>
-                            `).join('')}
-                            <tr class="bg-blue-900/10 font-bold text-blue-400">
-                                <td colspan="5" class="p-2 text-right uppercase">Subtotal ${cat}</td>
-                                <td class="p-2 text-right underline decoration-double">${formatIDR(catTotal)}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            `;
-        });
-
-        html += `
-            <div class="mt-10 p-6 glass border-2 border-emerald-500/30 rounded-2xl flex justify-between items-center">
-                <span class="text-xl font-black uppercase tracking-tighter">Grand Total Pengeluaran Logistik</span>
-                <span class="text-3xl font-black text-emerald-400">${formatIDR(totalAll)}</span>
-            </div>
-        `;
-
-        document.getElementById('report-content').innerHTML = html;
+    window.exportToExcel = (tableId) => {
+        const wb = XLSX.utils.table_to_book(document.getElementById(tableId));
+        XLSX.writeFile(wb, `Logistics_Export_${Date.now()}.xlsx`);
     };
 
-    window.exportToPDF = () => {
+    window.exportToPDF = (type) => {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
-        const element = document.getElementById('report-container');
-        
-        // Custom printing styling
-        const originalBg = element.style.background;
-        element.style.background = 'white';
-        element.style.color = 'black';
-        
-        window.print(); // Simple print for browser PDF
-        
-        element.style.background = originalBg;
-        element.style.color = '';
+        const doc = new jsPDF();
+        doc.text(`Laporan ${type.toUpperCase()}`, 10, 10);
+        doc.autoTable({ html: `#table-${type}-raw` });
+        doc.save(`Report_${type}_${Date.now()}.pdf`);
     };
 
-    // --- Templates & Exports ---
-    window.exportInputTemplate = () => {
-        const rows = [["Nama Barang", "Satuan", "Qty", "Harga Satuan"]];
-        const csv = rows.map(r => r.join(",")).join("\n");
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Template_Input_Logistik.csv`;
-        a.click();
-    };
-
-    window.exportMasterExcel = () => {
-        const data = window.masterItems.map(m => ({ Kategori: m.category, Nama: m.name }));
-        const ws = XLSX.utils.json_to_sheet(data);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Master Barang");
-        XLSX.writeFile(wb, "Master_Database_Logistik.xlsx");
-    };
-
-    // File Import Logic
-    document.getElementById('purchase-import-file').onchange = (e) => {
+    // CSV Imports
+    document.getElementById('input-import-file').onchange = (e) => {
         const reader = new FileReader();
-        reader.onload = (evt) => {
+        reader.onload = async (evt) => {
             const lines = evt.target.result.split('\n').slice(1);
-            const body = document.getElementById('input-rows');
+            const container = document.getElementById('input-rows');
             lines.forEach(l => {
                 const p = l.split(',');
-                if (p.length < 3) return;
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td class="p-2 border-b border-slate-800"><input type="text" class="w-full p-2 rounded bg-slate-900 border-none row-name" value="${p[0].replace(/"/g,'')}"></td>
-                    <td class="p-2 border-b border-slate-800"><input type="text" class="w-full p-2 rounded bg-slate-900 border-none row-unit" value="${p[1].replace(/"/g,'')}"></td>
-                    <td class="p-2 border-b border-slate-800"><input type="number" class="w-full p-2 rounded bg-slate-900 border-none row-qty" value="${p[2]}" oninput="calcInputTotal()"></td>
-                    <td class="p-2 border-b border-slate-800"><input type="number" class="w-full p-2 rounded bg-slate-900 border-none row-price" value="${p[3] || 0}" oninput="calcInputTotal()"></td>
-                    <td class="p-2 border-b border-slate-800 text-emerald-400 font-bold row-total">Rp 0</td>
-                    <td class="p-2 border-b border-slate-800 text-center"><button onclick="this.closest('tr').remove(); calcInputTotal()" class="text-red-500">&times;</button></td>
-                `;
-                body.appendChild(row);
+                if(p.length < 2) return;
+                const div = document.createElement('div');
+                div.className = "grid grid-cols-12 gap-3";
+                div.innerHTML = `<div class="col-span-8"><input value="${p[0].replace(/"/g, '')}" class="item-select w-full bg-slate-800 rounded-xl px-4 py-3 text-sm" readonly></div><div class="col-span-3"><input type="number" value="${parseFloat(p[1])}" class="item-qty w-full bg-slate-800 rounded-xl px-4 py-3 text-sm"></div>`;
+                container.appendChild(div);
             });
-            calcInputTotal();
-            showToast("CSV berhasil di-import ke grid");
         };
         reader.readAsText(e.target.files[0]);
     };
@@ -1083,39 +807,24 @@
     document.getElementById('master-import-file').onchange = (e) => {
         const reader = new FileReader();
         reader.onload = async (evt) => {
-            const lines = evt.target.result.split('\n').slice(1);
-            const batch = writeBatch(db);
-            lines.forEach(l => {
-                const p = l.split(',');
-                if (p.length >= 2) {
-                    const ref = doc(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'));
-                    batch.set(ref, { category: p[0].replace(/"/g, '').trim(), name: p[1].replace(/"/g, '').trim() });
-                }
-            });
+            const lines = evt.target.result.split('\n').slice(1), batch = writeBatch(db);
+            lines.forEach(l => { const p = l.split(','); if (p.length >= 2) batch.set(doc(collection(db, 'artifacts', appId, 'public', 'data', 'master_items')), { category: p[0].replace(/"/g, '').trim(), name: p[1].replace(/"/g, '').trim() }); });
             await batch.commit();
-            showToast("Master barang berhasil di-sync");
         };
         reader.readAsText(e.target.files[0]);
     };
 
-    // Live Clock
-    setInterval(() => {
-        document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('id-ID') + " WIB";
-    }, 1000);
+    setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('id-ID') + " WIB"; }, 1000);
 
-    // Initialization
     initAuth();
     document.getElementById('dash-main-filter-year').onchange = renderCharts;
     document.getElementById('dash-filter-month').onchange = renderCharts;
     document.getElementById('dash-filter-year').onchange = renderCharts;
-
-    // Set default dates
-    const d = new Date();
-    document.getElementById('input-date').valueAsDate = d;
-    document.getElementById('dash-filter-month').value = d.getMonth();
-    document.getElementById('report-month').value = d.getMonth();
-
-</script>
-
+    document.getElementById('input-main-category').onchange = () => { document.getElementById('input-rows').innerHTML = ""; addInputRow(); };
+    document.getElementById('output-main-category').onchange = () => { document.getElementById('output-rows').innerHTML = ""; addOutputRow(); };
+    document.getElementById('search-stok').oninput = renderStockTable;
+    document.getElementById('filter-kategori-stok').onchange = renderStockTable;
+    document.getElementById('filter-type-history').onchange = renderHistory;
+    </script>
 </body>
 </html>
