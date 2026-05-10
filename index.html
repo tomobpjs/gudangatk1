@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logistics RSDK | By:TomosJr2026</title>
+    <title>E-Log RSDK|By:TomosJr2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -35,7 +35,10 @@
         <div class="p-6">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-xl">DK</div>
-                <h1 class="text-xl font-bold tracking-tight">INVENTORY <span class="text-blue-500">RSDK</span></h1>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">INVENTORY <span class="text-blue-500">RSDK</span></h1>
+                    <p class="text-[10px] font-medium tracking-wider text-yellow-500/80">Copyright TOMOSJR2026</p>
+                </div>
             </div>
         </div>
 
@@ -431,13 +434,13 @@
 
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'logistic-pro-smart-v1';
     const firebaseConfig = {
-  apiKey: "AIzaSyDEXHSwJq7l-B9UgmYzqgDqKCNUS0ho-j0",
-  authDomain: "rekapbelanja.firebaseapp.com",
-  projectId: "rekapbelanja",
-  storageBucket: "rekapbelanja.firebasestorage.app",
-  messagingSenderId: "867729593347",
-  appId: "1:867729593347:web:1db201e3cc649490cdaa36"
-};
+      apiKey: "AIzaSyDEXHSwJq7l-B9UgmYzqgDqKCNUS0ho-j0",
+      authDomain: "rekapbelanja.firebaseapp.com",
+      projectId: "rekapbelanja",
+      storageBucket: "rekapbelanja.firebasestorage.app",
+      messagingSenderId: "867729593347",
+      appId: "1:867729593347:web:1db201e3cc649490cdaa36"
+    };
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
@@ -539,10 +542,10 @@
         const cat = document.getElementById('input-main-category').value;
         if (!cat) return;
         
-        // Filter dan urutkan masterItems berdasarkan abjad A-Z untuk dropdown menu input
+        // Urutkan master items sesuai abjad a-z untuk pemilihan
         const filteredMaster = window.masterItems
             .filter(i => i.category === cat)
-            .sort((a, b) => a.name.localeCompare(b.name, 'id', { sensitivity: 'base' }));
+            .sort((a, b) => a.name.localeCompare(b.name));
 
         const tbody = document.getElementById('input-rows');
         const rowId = Date.now();
@@ -1076,7 +1079,6 @@
             let successCount = 0;
             
             try {
-                // Batch processing simplified for clarity
                 for(let i = 1; i < lines.length; i++) {
                     const [cat, name] = lines[i];
                     if (cat && name) {
