@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Log RSDK | By: TomosJr2026</title>
+    <title>E-Log RSDK|By:TomosJr2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -14,7 +14,7 @@
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; overflow-x: hidden; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
         .sidebar-item:hover { background: rgba(59, 130, 246, 0.2); }
-        .sidebar-active { background: #3b82f6 !important; color: white !important; }
+        .sidebar-active { background: #3b82f6; color: white; }
         .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 8rem; opacity: 0.03; pointer-events: none; white-space: nowrap; font-weight: 800; z-index: 0; }
         marquee { background: #1e293b; padding: 5px 0; font-weight: 500; border-bottom: 1px solid #334155; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
@@ -22,7 +22,7 @@
         input, select { background: #1e293b !important; border: 1px solid #334155 !important; color: white !important; }
         .btn-gradient { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); transition: all 0.3s; }
         .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
-        @media print { .no-print { display: none !important; } .glass { background: white !important; color: black !important; border: none !important; } }
+        @media print { .no-print { display: none; } }
     </style>
 </head>
 <body class="custom-scrollbar">
@@ -36,8 +36,8 @@
             <div class="flex items-center gap-3">
                 <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-xl">DK</div>
                 <div>
-                    <h1 class="text-xl font-bold tracking-tight">INVENTORY <span class="text-blue-500">RSDK</span></h1>
-                    <p class="text-[10px] font-medium tracking-wider text-yellow-500/80 uppercase">Logistics System</p>
+                    <h1 class="text-2xl font-bold tracking-tight">INVENTORY <span class="text-blue-500">RSDK</span></h1>
+                    <p class="text-[14px] font-medium tracking-wider text-yellow-500/80">Copyright:TOMOSJR2026</p>
                 </div>
             </div>
         </div>
@@ -61,10 +61,10 @@
             </button>
             <button onclick="switchTab('master')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all" id="btn-master">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-                Master Barang
+                Master Data Barang
             </button>
             <button onclick="switchTab('master-cat')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all" id="btn-master-cat">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                 Master Kategori
             </button>
             <button onclick="switchTab('reports')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all" id="btn-reports">
@@ -89,7 +89,7 @@
     <main class="flex-1 flex flex-col relative z-10 overflow-hidden">
         <header class="no-print">
             <marquee behavior="scroll" direction="left">
-                ⚠️ Pengumuman: Selamat Datang Di Portal Inventory Bag. Rumah Tangga • Developed by: Tomos Jr 2026 • Pantau tren harga untuk optimasi pembelian bulan depan • Semoga Bahagia.
+                ⚠️ Pengumuman: Selamat Datang Di Portal Inventory Bag.Rumah Tangga • Developed by:Tomos Jr 2026 • Pantau tren harga untuk optimasi pembelian bulan depan • Semoga Bahagia.
             </marquee>
             <div class="p-4 glass flex justify-between items-center px-8">
                 <h2 id="current-page-title" class="text-xl font-semibold">Dashboard Analisis</h2>
@@ -108,7 +108,7 @@
                     <div class="glass p-6 rounded-2xl">
                         <p class="text-slate-400 text-sm">Total Belanja (Bulan Ini)</p>
                         <h3 id="stat-total-spend" class="text-2xl font-bold mt-2 text-emerald-400">Rp 0</h3>
-                        <p id="stat-spend-compare" class="text-xs text-emerald-500/50 mt-1">Status: Update</p>
+                        <p id="stat-spend-compare" class="text-xs text-emerald-500/50 mt-1">↑ 0% vs bulan lalu</p>
                     </div>
                     <div class="glass p-6 rounded-2xl">
                         <p class="text-slate-400 text-sm">Total Item Terinput</p>
@@ -122,13 +122,13 @@
                     </div>
                     <div class="glass p-6 rounded-2xl">
                         <p class="text-slate-400 text-sm">Update Terakhir</p>
-                        <h3 id="stat-last-sync" class="text-lg font-bold mt-2 opacity-80">Just now</h3>
+                        <h3 id="stat-last-sync" class="text-2xl font-bold mt-2 opacity-80 text-sm">Just now</h3>
                         <p class="text-xs opacity-50 mt-1">Cloud synchronized</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="glass p-6 rounded-2xl flex flex-col h-[500px]">
+                    <div class="glass p-6 rounded-2xl flex flex-col h-[600px]">
                         <h4 class="font-bold mb-4 flex justify-between items-center">
                             Tren Pengeluaran per Kategori
                             <select id="dash-main-filter-year" class="bg-slate-800 text-[10px] p-1 rounded border border-slate-700 outline-none">
@@ -139,14 +139,14 @@
                             <canvas id="categoryChart"></canvas>
                         </div>
                     </div>
-                    <div class="glass p-6 rounded-2xl flex flex-col h-[500px] overflow-hidden">
+                    <div class="glass p-6 rounded-2xl flex flex-col h-[600px] overflow-hidden">
                         <div class="flex justify-between items-center mb-4">
                             <h4 class="font-bold">Persentase Belanja Kategori</h4>
                             <div class="flex gap-2">
                                 <select id="dash-filter-month" class="bg-slate-800 text-[10px] p-1 rounded border border-slate-700 outline-none">
                                     <option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option>
                                     <option value="3">Apr</option><option value="4">Mei</option><option value="5">Jun</option>
-                                    <option value="6" selected>Jul</option><option value="7">Agu</option><option value="8">Sep</option>
+                                    <option value="6">Jul</option><option value="7">Agu</option><option value="8">Sep</option>
                                     <option value="9">Okt</option><option value="10">Nov</option><option value="11">Des</option>
                                 </select>
                                 <select id="dash-filter-year" class="bg-slate-800 text-[10px] p-1 rounded border border-slate-700 outline-none">
@@ -166,7 +166,9 @@
                                         <th class="pb-2 text-right">Kontribusi</th>
                                     </tr>
                                 </thead>
-                                <tbody id="cat-summary-table-body" class="divide-y divide-slate-800"></tbody>
+                                <tbody id="cat-summary-table-body" class="divide-y divide-slate-800">
+                                    <!-- Dynamic rows from script -->
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -182,6 +184,11 @@
                             <select id="input-main-category" class="w-full p-3 rounded-xl focus:ring-2 ring-blue-500 outline-none category-dropdown">
                                 <option value="">-- Pilih Kategori --</option>
                             </select>
+                        </div>
+                        <div class="flex gap-2 mb-1">
+                            <button onclick="exportInputTemplate()" class="px-4 py-3 bg-green-700 hover:bg-green-600 rounded-xl text-xs font-bold border border-green-600">Template EXCEL</button>
+                            <button onclick="document.getElementById('purchase-import-file').click()" class="px-4 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-bold shadow-lg">Import CSV</button>
+                            <input type="file" id="purchase-import-file" class="hidden" accept=".csv">
                         </div>
                         <div class="flex-1 min-w-[200px]">
                             <label class="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-bold">Supplier / Vendor</label>
@@ -199,9 +206,9 @@
                                 <tr class="text-slate-500 text-xs uppercase">
                                     <th class="p-3 border-b border-slate-700">Nama Barang</th>
                                     <th class="p-3 border-b border-slate-700 w-32">Satuan</th>
-                                    <th class="p-3 border-b border-slate-700 w-32">Jumlah</th>
+                                    <th class="p-3 border-b border-slate-700 w-32">Jumlah (Qty)</th>
                                     <th class="p-3 border-b border-slate-700 w-48">Harga Satuan (Rp)</th>
-                                    <th class="p-3 border-b border-slate-700 w-48 text-right">Total</th>
+                                    <th class="p-3 border-b border-slate-700 w-48">Total</th>
                                     <th class="p-3 border-b border-slate-700 w-20"></th>
                                 </tr>
                             </thead>
@@ -235,6 +242,7 @@
                         </select>
                     </div>
                 </div>
+
                 <div class="glass rounded-2xl overflow-hidden overflow-x-auto">
                     <table class="w-full text-left min-w-[800px]">
                         <thead class="bg-slate-800/50 text-slate-400 text-xs uppercase">
@@ -244,7 +252,7 @@
                                 <th class="p-4">Nama Barang</th>
                                 <th class="p-4">Supplier</th>
                                 <th class="p-4">Qty</th>
-                                <th class="p-4 text-right">Total</th>
+                                <th class="p-4">Total</th>
                                 <th class="p-4 text-center">Aksi</th>
                             </tr>
                         </thead>
@@ -283,9 +291,15 @@
                             <button onclick="addMasterItem()" class="w-full btn-gradient py-3 rounded-xl font-bold">Simpan Master</button>
                         </div>
                     </div>
+
                     <div class="lg:col-span-2 glass p-6 rounded-2xl">
                         <div class="flex justify-between items-center mb-6">
                             <h4 class="font-bold">Database Master Barang</h4>
+                            <div class="flex gap-2">
+                                <button onclick="exportMasterExcel()" class="px-4 py-2 bg-green-700 hover:bg-green-600 rounded-lg text-xs">Export EXCEL</button>
+                                <button onclick="document.getElementById('master-import-file').click()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs">Import CSV</button>
+                                <input type="file" id="master-import-file" class="hidden" accept=".csv">
+                            </div>
                         </div>
                         <div class="overflow-y-auto max-h-[400px] custom-scrollbar">
                             <table class="w-full text-left">
@@ -316,6 +330,7 @@
                             <button onclick="addCategory()" class="w-full btn-gradient py-3 rounded-xl font-bold">Simpan Kategori</button>
                         </div>
                     </div>
+
                     <div class="lg:col-span-2 glass p-6 rounded-2xl">
                         <h4 class="font-bold mb-6">Database Kategori</h4>
                         <div class="overflow-y-auto max-h-[400px] custom-scrollbar">
@@ -340,9 +355,9 @@
                         <div class="flex items-center gap-6">
                             <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center font-bold text-2xl">DK</div>
                             <div>
-                                <h1 class="text-2xl font-extrabold tracking-widest text-blue-400 uppercase">RSU DADI KELUARGA PURWOKERTO</h1>
-                                <p class="text-xs opacity-70 italic">Jl. Sultan Agung No: 8A - Teluk Purwokerto Selatan</p>
-                                <p class="text-xs opacity-70">Telp: (0281) 6844500 | Email: rsudadi.keluarga@gmail.com</p>
+                                <h1 class="text-2xl font-extrabold tracking-widest text-blue-400 uppercase">RSU DADI KELUARGA PURWOKERT0</h1>
+                                <p class="text-xs opacity-70 italic">Jl. Sultan Agung No:8A - Teluk Purwokerto Selatan</p>
+                                <p class="text-xs opacity-70">Telp: (021) 555-LOGISTIC | email: logistics@rs-center.com</p>
                             </div>
                         </div>
                         <div class="text-right">
@@ -355,14 +370,17 @@
                         <select id="report-month" class="px-4 py-2 rounded-xl text-sm">
                             <option value="0">Januari</option><option value="1">Februari</option><option value="2">Maret</option>
                             <option value="3">April</option><option value="4">Mei</option><option value="5">Juni</option>
-                            <option value="6" selected>Juli</option><option value="7">Agustus</option><option value="8">September</option>
+                            <option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option>
                             <option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
                         </select>
                         <select id="report-year" class="px-4 py-2 rounded-xl text-sm">
                             <option>2024</option><option selected>2025</option><option>2026</option>
                         </select>
                         <button onclick="generateReport()" class="bg-blue-600 px-6 py-2 rounded-xl font-bold text-sm">Filter Laporan</button>
-                        <button onclick="exportToPDF()" class="bg-red-600 px-6 py-2 rounded-xl font-bold flex items-center gap-2 text-sm">Cetak PDF</button>
+                        <button onclick="exportToPDF()" class="bg-red-600 px-6 py-2 rounded-xl font-bold flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 16l-6-6h12l-6 6z"></path></svg>
+                            Cetak PDF
+                        </button>
                     </div>
 
                     <div id="report-content" class="text-slate-200 min-h-[400px]">
@@ -385,6 +403,7 @@
                     </div>
                 </div>
             </div>
+
         </section>
     </main>
 </div>
@@ -411,21 +430,28 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, updateDoc, deleteDoc, collection, onSnapshot, addDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, updateDoc, deleteDoc, collection, onSnapshot, addDoc, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // --- CONFIG & INIT ---
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'logistic-pro-rsdk';
-    const firebaseConfig = JSON.parse(__firebase_config || '{}');
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'logistic-pro-smart-v1';
+    const firebaseConfig = {
+      apiKey: "AIzaSyDEXHSwJq7l-B9UgmYzqgDqKCNUS0ho-j0",
+      authDomain: "rekapbelanja.firebaseapp.com",
+      projectId: "rekapbelanja",
+      storageBucket: "rekapbelanja.firebasestorage.app",
+      messagingSenderId: "867729593347",
+      appId: "1:867729593347:web:1db201e3cc649490cdaa36"
+    };
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    window.purchases = [];
     window.masterItems = [];
+    window.purchases = [];
     window.categories = [];
-    let charts = { main: null, filtered: null };
+    let currentEditId = null;
+    let mainCategoryChart = null;
+    let filteredCategoryChart = null;
 
-    // --- AUTHENTICATION ---
     const initAuth = async () => {
         try {
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -435,268 +461,205 @@
             }
         } catch (err) {
             console.error("Auth Failure:", err);
-            showToast("Koneksi cloud bermasalah", "error");
+            showToast("Gagal menyambung ke Cloud", "error");
         }
     };
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            document.getElementById('user-id-display').innerText = `ID: ${user.uid}`;
+            document.getElementById('user-id-display').innerText = `UID: ${user.uid}`;
             document.getElementById('cloud-status-text').innerText = "Connected";
-            document.getElementById('cloud-status-text').classList.replace("text-yellow-500", "text-emerald-400");
-            document.getElementById('connection-dot').classList.replace("bg-yellow-500", "bg-emerald-500");
-            startListeners();
+            document.getElementById('cloud-status-text').className = "font-bold text-emerald-400";
+            document.getElementById('connection-dot').className = "w-2 h-2 rounded-full bg-emerald-500";
+            loadListeners();
         }
     });
 
-    // --- LISTENERS ---
-    const startListeners = () => {
-        // Categories
-        onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'categories'), (snap) => {
+    const loadListeners = () => {
+        onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'master_categories'), (snap) => {
             window.categories = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            updateCategoryDropdowns();
+            renderCategoryDropdowns();
             renderCategoryTable();
-        }, (err) => console.error("Categories Error:", err));
+            renderFilterCategoryDropdown();
+        }, (err) => console.error("Category Sync Error:", err));
 
-        // Master Items
         onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'), (snap) => {
             window.masterItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderMasterTable();
-        }, (err) => console.error("Master Items Error:", err));
+        }, (err) => console.error("Master Sync Error:", err));
 
-        // Purchases
         onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'purchases'), (snap) => {
-            window.purchases = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            renderDashboard();
+            window.purchases = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                .sort((a, b) => new Date(b.date) - new Date(a.date));
+            renderCharts();
             renderDatabase();
             renderTrends();
-            document.getElementById('stat-last-sync').innerText = new Date().toLocaleTimeString('id-ID');
-        }, (err) => console.error("Purchases Error:", err));
+        }, (err) => console.error("Purchase Sync Error:", err));
     };
 
-    // --- UI LOGIC ---
     window.switchTab = (tabId) => {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
         document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('sidebar-active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('sidebar-active'));
         document.getElementById(`btn-${tabId}`).classList.add('sidebar-active');
-        const titles = { dashboard: 'Dashboard Analisis', input: 'Input Data Belanja', database: 'Rekap Transaksi', trends: 'Analisis Tren Harga', master: 'Kelola Master Barang', 'master-cat': 'Kelola Kategori', reports: 'Laporan Mutasi' };
+        
+        const titles = {
+            dashboard: 'Dashboard Analisis',
+            input: 'Input Transaksi Belanja',
+            database: 'Rekap Database Cloud',
+            trends: 'Visualisasi Tren Harga',
+            master: 'Manajemen Master Barang',
+            'master-cat': 'Manajemen Kategori',
+            reports: 'Laporan Mutasi & Cetak'
+        };
         document.getElementById('current-page-title').innerText = titles[tabId];
+        if (tabId === 'input') { document.getElementById('input-rows').innerHTML = ""; addInputRow(); }
     };
 
-    const updateCategoryDropdowns = () => {
+    const renderCategoryDropdowns = () => {
         const dropdowns = document.querySelectorAll('.category-dropdown');
-        dropdowns.forEach(dd => {
-            const currentVal = dd.value;
-            dd.innerHTML = `<option value="">${dd.id.includes('filter') ? 'Semua Kategori' : '-- Pilih Kategori --'}</option>` +
-                window.categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-            dd.value = currentVal;
+        dropdowns.forEach(d => {
+            const currentVal = d.value;
+            d.innerHTML = '<option value="">-- Pilih Kategori --</option>';
+            window.categories.sort((a,b) => a.name.localeCompare(b.name)).forEach(c => {
+                d.innerHTML += `<option value="${c.name}">${c.name}</option>`;
+            });
+            d.value = currentVal;
         });
     };
 
-    // --- INPUT LOGIC ---
+    const renderFilterCategoryDropdown = () => {
+        const d = document.getElementById('db-filter-cat');
+        const currentVal = d.value;
+        d.innerHTML = '<option value="">Semua Kategori</option>';
+        window.categories.sort((a,b) => a.name.localeCompare(b.name)).forEach(c => {
+            d.innerHTML += `<option value="${c.name}">${c.name}</option>`;
+        });
+        d.value = currentVal;
+    };
+
     window.addInputRow = () => {
         const cat = document.getElementById('input-main-category').value;
-        if(!cat) { showToast("Pilih kategori terlebih dahulu", "error"); return; }
+        if (!cat) return;
         
-        const filteredItems = window.masterItems.filter(i => i.category === cat);
+        // Urutkan master items sesuai abjad a-z untuk pemilihan
+        const filteredMaster = window.masterItems
+            .filter(i => i.category === cat)
+            .sort((a, b) => a.name.localeCompare(b.name));
+
+        const tbody = document.getElementById('input-rows');
         const rowId = Date.now();
-        const html = `
-            <tr id="row-${rowId}" class="group hover:bg-white/5 transition-colors">
-                <td class="p-3">
-                    <select class="w-full bg-transparent border-none outline-none text-blue-400 font-medium" onchange="updateRowTotal(${rowId})">
-                        <option value="">-- Pilih Barang --</option>
-                        ${filteredItems.map(i => `<option value="${i.name}">${i.name}</option>`).join('')}
-                    </select>
-                </td>
-                <td class="p-3"><input type="text" placeholder="Satuan" class="w-full bg-transparent border-none outline-none opacity-70"></td>
-                <td class="p-3"><input type="number" value="1" min="1" class="w-full bg-transparent border-none outline-none" oninput="updateRowTotal(${rowId})"></td>
-                <td class="p-3"><input type="number" placeholder="0" class="w-full bg-transparent border-none outline-none font-mono" oninput="updateRowTotal(${rowId})"></td>
-                <td class="p-3 text-right font-bold text-emerald-400">Rp 0</td>
-                <td class="p-3 text-center">
-                    <button onclick="document.getElementById('row-${rowId}').remove(); calculateGrandTotal();" class="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">×</button>
-                </td>
-            </tr>
+        const tr = document.createElement('tr');
+        tr.id = `row-${rowId}`;
+        tr.innerHTML = `
+            <td class="p-2 border-b border-slate-800">
+                <select class="w-full p-2 rounded bg-slate-800 border border-slate-700 outline-none row-item-name">
+                    <option value="">-- Pilih Barang --</option>
+                    ${filteredMaster.map(i => `<option value="${i.name}">${i.name}</option>`).join('')}
+                </select>
+            </td>
+            <td class="p-2 border-b border-slate-800"><input type="text" placeholder="Satuan" class="w-full p-2 rounded row-unit"></td>
+            <td class="p-2 border-b border-slate-800"><input type="number" value="1" min="1" oninput="calcRow(${rowId})" class="w-full p-2 rounded row-qty"></td>
+            <td class="p-2 border-b border-slate-800"><input type="number" placeholder="Harga" oninput="calcRow(${rowId})" class="w-full p-2 rounded row-price"></td>
+            <td class="p-2 border-b border-slate-800 font-bold text-blue-400 row-total">Rp 0</td>
+            <td class="p-2 border-b border-slate-800 text-center"><button onclick="removeRow(${rowId})" class="text-red-500 hover:text-red-400">&times;</button></td>
         `;
-        document.getElementById('input-rows').insertAdjacentHTML('beforeend', html);
+        tbody.appendChild(tr);
     };
 
-    window.updateRowTotal = (id) => {
+    window.calcRow = (id) => {
         const row = document.getElementById(`row-${id}`);
-        const qty = row.querySelectorAll('input')[1].value;
-        const price = row.querySelectorAll('input')[2].value;
-        const total = (qty || 0) * (price || 0);
-        row.querySelector('td:nth-child(5)').innerText = `Rp ${total.toLocaleString('id-ID')}`;
-        calculateGrandTotal();
+        const qty = parseFloat(row.querySelector('.row-qty').value) || 0;
+        const price = parseFloat(row.querySelector('.row-price').value) || 0;
+        row.querySelector('.row-total').innerText = formatIDR(qty * price);
+        calcGrandTotal();
     };
 
-    const calculateGrandTotal = () => {
-        let grand = 0;
-        document.querySelectorAll('#input-rows tr').forEach(row => {
-            const qty = row.querySelectorAll('input')[1].value;
-            const price = row.querySelectorAll('input')[2].value;
-            grand += (qty * price) || 0;
+    const calcGrandTotal = () => {
+        let total = 0;
+        document.querySelectorAll('.row-total').forEach(el => {
+            total += parseInt(el.innerText.replace(/[^0-9]/g, '')) || 0;
         });
-        document.getElementById('input-grand-total').innerText = `Rp ${grand.toLocaleString('id-ID')}`;
+        document.getElementById('input-grand-total').innerText = formatIDR(total);
+    };
+
+    window.removeRow = (id) => {
+        document.getElementById(`row-${id}`).remove();
+        calcGrandTotal();
     };
 
     window.savePurchase = async () => {
+        const cat = document.getElementById('input-main-category').value;
         const vendor = document.getElementById('input-vendor').value;
         const date = document.getElementById('input-date').value;
-        const cat = document.getElementById('input-main-category').value;
         
-        if(!vendor || !date || !cat) return showToast("Vendor, Tanggal, dan Kategori wajib diisi!", "error");
+        if (!cat || !vendor || !date) return showToast("Lengkapi data header!", "error");
         
         const rows = document.querySelectorAll('#input-rows tr');
-        if(rows.length === 0) return showToast("Minimal satu baris barang!", "error");
+        if (rows.length === 0) return showToast("Tambahkan barang!", "error");
 
         try {
-            for(let row of rows) {
-                const name = row.querySelector('select').value;
-                const unit = row.querySelectorAll('input')[0].value;
-                const qty = parseFloat(row.querySelectorAll('input')[1].value);
-                const price = parseFloat(row.querySelectorAll('input')[2].value);
-
-                if(!name || isNaN(price)) continue;
+            for (let row of rows) {
+                const name = row.querySelector('.row-item-name').value;
+                const unit = row.querySelector('.row-unit').value;
+                const qty = parseFloat(row.querySelector('.row-qty').value) || 0;
+                const price = parseFloat(row.querySelector('.row-price').value) || 0;
+                
+                if (!name || !unit || qty <= 0 || price <= 0) continue;
 
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'purchases'), {
-                    itemName: name,
                     category: cat,
                     vendor: vendor,
                     date: date,
+                    itemName: name,
                     unit: unit,
                     qty: qty,
                     price: price,
                     total: qty * price,
-                    timestamp: new Date().toISOString()
+                    createdAt: new Date().toISOString()
                 });
             }
-            showToast("Data Berhasil Disimpan ke Cloud!");
-            document.getElementById('input-rows').innerHTML = '';
-            calculateGrandTotal();
+            showToast("Transaksi berhasil disimpan ke Cloud!");
+            switchTab('dashboard');
         } catch (err) {
+            console.error(err);
             showToast("Gagal menyimpan data", "error");
         }
     };
 
-    // --- DASHBOARD CHARTS ---
-    const renderDashboard = () => {
-        const now = new Date();
-        const thisMonth = now.getMonth();
-        const thisYear = now.getFullYear();
-
-        const monthlyData = window.purchases.filter(p => {
-            const d = new Date(p.date);
-            return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
-        });
-
-        const totalSpend = monthlyData.reduce((acc, curr) => acc + curr.total, 0);
-        document.getElementById('stat-total-spend').innerText = `Rp ${totalSpend.toLocaleString('id-ID')}`;
-        document.getElementById('stat-total-items').innerText = window.purchases.length;
-        document.getElementById('stat-category-count').innerText = `Dari ${window.categories.length} Kategori`;
-
-        renderCharts();
-    };
-
-    const renderCharts = () => {
-        const year = parseInt(document.getElementById('dash-main-filter-year').value);
-        const selMonth = parseInt(document.getElementById('dash-filter-month').value);
-        const selYear = parseInt(document.getElementById('dash-filter-year').value);
-
-        // Main Trend Chart (Monthly Spend for Year)
-        const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-        const monthlyTotals = new Array(12).fill(0);
-        
-        window.purchases.forEach(p => {
-            const d = new Date(p.date);
-            if(d.getFullYear() === year) monthlyTotals[d.getMonth()] += p.total;
-        });
-
-        if(charts.main) charts.main.destroy();
-        charts.main = new Chart(document.getElementById('categoryChart'), {
-            type: 'line',
-            data: {
-                labels: months,
-                datasets: [{
-                    label: `Total Belanja ${year}`,
-                    data: monthlyTotals,
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } } } }
-        });
-
-        // Pie Chart & Table Summary
-        const filtered = window.purchases.filter(p => {
-            const d = new Date(p.date);
-            return d.getMonth() === selMonth && d.getFullYear() === selYear;
-        });
-
-        const catData = {};
-        filtered.forEach(p => {
-            catData[p.category] = (catData[p.category] || 0) + p.total;
-        });
-
-        const sortedCats = Object.entries(catData).sort((a,b) => b[1] - a[1]);
-        const labels = sortedCats.map(c => c[0]);
-        const data = sortedCats.map(c => c[1]);
-        const total = data.reduce((a,b) => a + b, 0);
-
-        if(charts.filtered) charts.filtered.destroy();
-        charts.filtered = new Chart(document.getElementById('filteredCategoryChart'), {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4']
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#94a3b8', boxWidth: 10 } } } }
-        });
-
-        const tbody = document.getElementById('cat-summary-table-body');
-        tbody.innerHTML = sortedCats.map(([name, val]) => `
-            <tr>
-                <td class="py-2">${name}</td>
-                <td class="py-2 text-right">Rp ${val.toLocaleString('id-ID')}</td>
-                <td class="py-2 text-right font-bold text-blue-400">${((val/total)*100).toFixed(1)}%</td>
-            </tr>
-        `).join('');
-    };
-
-    // --- DATABASE ---
     const renderDatabase = () => {
-        const query = document.getElementById('db-search').value.toLowerCase();
-        const cat = document.getElementById('db-filter-cat').value;
-
-        const filtered = window.purchases.filter(p => {
-            const matchQuery = p.itemName.toLowerCase().includes(query) || p.vendor.toLowerCase().includes(query);
-            const matchCat = cat ? p.category === cat : true;
-            return matchQuery && matchCat;
-        }).sort((a,b) => new Date(b.date) - new Date(a.date));
-
         const tbody = document.getElementById('db-table-body');
-        tbody.innerHTML = filtered.map(p => `
-            <tr class="hover:bg-white/5 transition-colors">
+        const search = document.getElementById('db-search').value.toLowerCase();
+        const catFilter = document.getElementById('db-filter-cat').value;
+        
+        tbody.innerHTML = "";
+        window.purchases.filter(p => {
+            const matchSearch = p.itemName.toLowerCase().includes(search) || p.vendor.toLowerCase().includes(search);
+            const matchCat = catFilter === "" || p.category === catFilter;
+            return matchSearch && matchCat;
+        }).forEach(p => {
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-slate-800/30 transition-colors";
+            tr.innerHTML = `
                 <td class="p-4">${p.date}</td>
-                <td class="p-4 text-xs opacity-60">${p.category}</td>
+                <td class="p-4"><span class="px-2 py-1 bg-blue-500/10 text-blue-400 rounded text-[10px] font-bold border border-blue-500/20">${p.category}</span></td>
                 <td class="p-4 font-medium">${p.itemName}</td>
-                <td class="p-4 text-xs opacity-60">${p.vendor}</td>
+                <td class="p-4 opacity-70">${p.vendor}</td>
                 <td class="p-4">${p.qty} ${p.unit}</td>
-                <td class="p-4 text-right font-bold text-emerald-400">Rp ${p.total.toLocaleString('id-ID')}</td>
+                <td class="p-4 font-bold text-emerald-400">${formatIDR(p.total)}</td>
                 <td class="p-4 text-center">
-                    <button onclick="deletePurchase('${p.id}')" class="text-red-400 hover:text-red-300">Hapus</button>
+                    <div class="flex justify-center gap-3 no-print">
+                        <button onclick="openEditModal('${p.id}')" class="text-blue-400 hover:text-blue-300">Edit</button>
+                        <button onclick="deletePurchase('${p.id}')" class="text-red-500 hover:text-red-400">Hapus</button>
+                    </div>
                 </td>
-            </tr>
-        `).join('');
+            `;
+            tbody.appendChild(tr);
+        });
     };
 
     window.deletePurchase = async (id) => {
-        if(!confirm("Yakin hapus transaksi ini?")) return;
+        if (!confirm("Hapus transaksi ini dari Cloud?")) return;
         try {
             await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'purchases', id));
             showToast("Data dihapus");
@@ -705,213 +668,478 @@
         }
     };
 
-    // --- MASTER BARANG & KATEGORI ---
-    window.addCategory = async () => {
-        const name = document.getElementById('master-cat-add-name').value;
-        if(!name) return;
-        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'categories'), { name: name });
-        document.getElementById('master-cat-add-name').value = '';
-        showToast("Kategori Ditambahkan");
+    window.openEditModal = (id) => {
+        currentEditId = id;
+        const p = window.purchases.find(x => x.id === id);
+        const content = document.getElementById('edit-form-content');
+        content.innerHTML = `
+            <div>
+                <label class="block text-xs opacity-50 mb-1">Nama Barang</label>
+                <input type="text" id="edit-name" value="${p.itemName}" class="w-full p-3 rounded-xl">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs opacity-50 mb-1">Qty</label>
+                    <input type="number" id="edit-qty" value="${p.qty}" class="w-full p-3 rounded-xl">
+                </div>
+                <div>
+                    <label class="block text-xs opacity-50 mb-1">Satuan</label>
+                    <input type="text" id="edit-unit" value="${p.unit}" class="w-full p-3 rounded-xl">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs opacity-50 mb-1">Harga Satuan</label>
+                <input type="number" id="edit-price" value="${p.price}" class="w-full p-3 rounded-xl">
+            </div>
+            <div>
+                <label class="block text-xs opacity-50 mb-1">Vendor</label>
+                <input type="text" id="edit-vendor" value="${p.vendor}" class="w-full p-3 rounded-xl">
+            </div>
+        `;
+        document.getElementById('edit-modal').classList.remove('hidden');
+        document.getElementById('btn-save-edit').onclick = saveEdit;
     };
 
-    const renderCategoryTable = () => {
-        const tbody = document.getElementById('master-cat-table-body');
-        tbody.innerHTML = window.categories.map(c => `
-            <tr class="border-b border-slate-800">
-                <td class="p-3">${c.name}</td>
-                <td class="p-3 text-right">
-                    <button onclick="deleteCategory('${c.id}')" class="text-red-500">Hapus</button>
-                </td>
-            </tr>
-        `).join('');
-    };
+    window.closeEditModal = () => document.getElementById('edit-modal').classList.add('hidden');
 
-    window.deleteCategory = async (id) => {
-        if(!confirm("Hapus kategori?")) return;
-        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'categories', id));
+    const saveEdit = async () => {
+        const qty = parseFloat(document.getElementById('edit-qty').value);
+        const price = parseFloat(document.getElementById('edit-price').value);
+        try {
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'purchases', currentEditId), {
+                itemName: document.getElementById('edit-name').value,
+                qty: qty,
+                unit: document.getElementById('edit-unit').value,
+                price: price,
+                total: qty * price,
+                vendor: document.getElementById('edit-vendor').value
+            });
+            showToast("Update berhasil!");
+            closeEditModal();
+        } catch (err) {
+            showToast("Gagal update", "error");
+        }
     };
 
     window.addMasterItem = async () => {
         const cat = document.getElementById('master-add-cat').value;
-        const name = document.getElementById('master-add-name').value;
-        if(!cat || !name) return showToast("Lengkapi data!", "error");
-        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'), { category: cat, name: name });
-        document.getElementById('master-add-name').value = '';
-        showToast("Barang Master Ditambahkan");
+        const name = document.getElementById('master-add-name').value.trim();
+        if (!cat || !name) return showToast("Data tidak lengkap", "error");
+        
+        try {
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'), {
+                category: cat,
+                name: name
+            });
+            document.getElementById('master-add-name').value = "";
+            showToast("Master barang disimpan");
+        } catch (err) {
+            showToast("Gagal simpan", "error");
+        }
     };
 
     const renderMasterTable = () => {
         const tbody = document.getElementById('master-table-body');
-        tbody.innerHTML = window.masterItems.map(i => `
-            <tr class="border-b border-slate-800">
-                <td class="p-3 text-xs opacity-60">${i.category}</td>
-                <td class="p-3 font-medium">${i.name}</td>
+        tbody.innerHTML = "";
+        window.masterItems.sort((a,b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name)).forEach(item => {
+            const tr = document.createElement('tr');
+            tr.className = "border-b border-slate-800 hover:bg-slate-800/30";
+            tr.innerHTML = `
+                <td class="p-3"><span class="text-[10px] bg-slate-700 px-2 py-0.5 rounded opacity-70">${item.category}</span></td>
+                <td class="p-3">${item.name}</td>
                 <td class="p-3 text-right">
-                    <button onclick="deleteMasterItem('${i.id}')" class="text-red-500">Hapus</button>
+                    <button onclick="deleteMaster('${item.id}')" class="text-red-500 text-xs">Hapus</button>
                 </td>
-            </tr>
-        `).join('');
+            `;
+            tbody.appendChild(tr);
+        });
     };
 
-    window.deleteMasterItem = async (id) => {
-        if(!confirm("Hapus item master?")) return;
-        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'master_items', id));
-    };
-
-    // --- TRENDS ---
-    const renderTrends = () => {
-        const cat = document.getElementById('trend-cat').value;
-        if(!cat) {
-            document.getElementById('trend-cards').innerHTML = '<div class="col-span-full py-20 text-center opacity-30">Pilih kategori untuk melihat tren harga</div>';
-            return;
+    window.deleteMaster = async (id) => {
+        if (!confirm("Hapus master barang ini?")) return;
+        try {
+            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'master_items', id));
+        } catch (err) {
+            showToast("Gagal hapus", "error");
         }
+    };
 
-        const itemsInCat = window.purchases.filter(p => p.category === cat);
-        const itemGroups = {};
-        itemsInCat.forEach(p => {
-            if(!itemGroups[p.itemName]) itemGroups[p.itemName] = [];
-            itemGroups[p.itemName].push(p);
+    window.addCategory = async () => {
+        const name = document.getElementById('master-cat-add-name').value.trim();
+        if (!name) return showToast("Nama kategori kosong", "error");
+        try {
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'master_categories'), { name: name });
+            document.getElementById('master-cat-add-name').value = "";
+            showToast("Kategori baru disimpan");
+        } catch (err) { showToast("Gagal", "error"); }
+    };
+
+    const renderCategoryTable = () => {
+        const tbody = document.getElementById('master-cat-table-body');
+        tbody.innerHTML = "";
+        window.categories.sort((a,b) => a.name.localeCompare(b.name)).forEach(cat => {
+            const tr = document.createElement('tr');
+            tr.className = "border-b border-slate-800 hover:bg-slate-800/30";
+            tr.innerHTML = `
+                <td class="p-3 font-bold text-blue-400">${cat.name}</td>
+                <td class="p-3 text-right">
+                    <button onclick="deleteCategory('${cat.id}')" class="text-red-500 text-xs">Hapus</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    };
+
+    window.deleteCategory = async (id) => {
+        if (!confirm("Hapus kategori ini? Semua master barang terkait tidak akan terhapus namun kategori master tersebut akan kosong.")) return;
+        try {
+            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'master_categories', id));
+        } catch (err) { showToast("Gagal", "error"); }
+    };
+
+    const renderCharts = () => {
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+
+        const dashMainYear = parseInt(document.getElementById('dash-main-filter-year').value);
+        const dashFilterMonth = parseInt(document.getElementById('dash-filter-month').value);
+        const dashFilterYear = parseInt(document.getElementById('dash-filter-year').value);
+
+        // Stats
+        const thisMonthPurchases = window.purchases.filter(p => {
+            const d = new Date(p.date);
+            return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+        });
+        const lastMonthPurchases = window.purchases.filter(p => {
+            const d = new Date(p.date);
+            const prevM = currentMonth === 0 ? 11 : currentMonth - 1;
+            const prevY = currentMonth === 0 ? currentYear - 1 : currentYear;
+            return d.getMonth() === prevM && d.getFullYear() === prevY;
         });
 
-        const container = document.getElementById('trend-cards');
-        container.innerHTML = Object.entries(itemGroups).map(([name, txs]) => {
-            const sorted = txs.sort((a,b) => new Date(b.date) - new Date(a.date));
-            const latest = sorted[0];
-            const prev = sorted.find(s => s.price !== latest.price) || latest;
-            const diff = latest.price - prev.price;
-            const pct = prev.price ? (diff / prev.price * 100).toFixed(1) : 0;
+        const totalSpend = thisMonthPurchases.reduce((a, b) => a + b.total, 0);
+        const prevSpend = lastMonthPurchases.reduce((a, b) => a + b.total, 0);
+        const diff = prevSpend === 0 ? 0 : ((totalSpend - prevSpend) / prevSpend) * 100;
 
-            return `
-                <div class="glass p-5 rounded-2xl relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-100 transition-opacity">
-                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+        document.getElementById('stat-total-spend').innerText = formatIDR(totalSpend);
+        document.getElementById('stat-spend-compare').innerText = `${diff >= 0 ? '↑' : '↓'} ${Math.abs(diff).toFixed(1)}% vs bulan lalu`;
+        document.getElementById('stat-total-items').innerText = window.purchases.length;
+        document.getElementById('stat-category-count').innerText = `Dari ${window.categories.length} Kategori`;
+
+        // Top Category
+        const catCounts = {};
+        window.purchases.forEach(p => catCounts[p.category] = (catCounts[p.category] || 0) + 1);
+        const topCat = Object.entries(catCounts).sort((a,b) => b[1] - a[1])[0]?.[0] || "-";
+        document.getElementById('stat-top-cat').innerText = topCat;
+
+        // Chart 1: Trend Line (by Category)
+        const categories = window.categories.map(c => c.name);
+        const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+        const datasets = categories.map((cat, idx) => {
+            const data = Array(12).fill(0);
+            window.purchases.filter(p => p.category === cat && new Date(p.date).getFullYear() === dashMainYear).forEach(p => {
+                data[new Date(p.date).getMonth()] += p.total;
+            });
+            return {
+                label: cat,
+                data: data,
+                borderColor: `hsl(${idx * 45}, 70%, 50%)`,
+                backgroundColor: 'transparent',
+                tension: 0.4
+            };
+        });
+
+        if (mainCategoryChart) mainCategoryChart.destroy();
+        const ctx1 = document.getElementById('categoryChart').getContext('2d');
+        mainCategoryChart = new Chart(ctx1, {
+            type: 'line',
+            data: { labels: months, datasets: datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: true, position: 'bottom', labels: { color: '#94a3b8', boxWidth: 10, font: { size: 10 } } } },
+                scales: {
+                    y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', font: { size: 10 }, callback: v => formatIDRShort(v) } },
+                    x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }
+                }
+            }
+        });
+
+        // Chart 2: Donut (Filtered)
+        const filteredPurchases = window.purchases.filter(p => {
+            const d = new Date(p.date);
+            return d.getMonth() === dashFilterMonth && d.getFullYear() === dashFilterYear;
+        });
+        const summaryData = {};
+        filteredPurchases.forEach(p => summaryData[p.category] = (summaryData[p.category] || 0) + p.total);
+        
+        const labels = Object.keys(summaryData);
+        const values = Object.values(summaryData);
+        const colors = labels.map((_, i) => `hsl(${i * 60}, 70%, 50%)`);
+
+        if (filteredCategoryChart) filteredCategoryChart.destroy();
+        const ctx2 = document.getElementById('filteredCategoryChart').getContext('2d');
+        filteredCategoryChart = new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{ data: values, backgroundColor: colors, borderWidth: 0 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Table Summary
+        const tableBody = document.getElementById('cat-summary-table-body');
+        tableBody.innerHTML = "";
+        const totalSum = values.reduce((a, b) => a + b, 0);
+        labels.forEach((label, i) => {
+            const val = values[i];
+            const pct = totalSum === 0 ? 0 : ((val / totalSum) * 100).toFixed(1);
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="py-3 flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full" style="background:${colors[i]}"></div>
+                    ${label}
+                </td>
+                <td class="py-3 text-right">${formatIDR(val)}</td>
+                <td class="py-3 text-right opacity-50">${pct}%</td>
+            `;
+            tableBody.appendChild(tr);
+        });
+    };
+
+    window.renderTrends = () => {
+        const cat = document.getElementById('trend-cat').value;
+        const container = document.getElementById('trend-cards');
+        container.innerHTML = "";
+        if (!cat) return;
+
+        const items = {};
+        window.purchases.filter(p => p.category === cat).forEach(p => {
+            if (!items[p.itemName]) items[p.itemName] = [];
+            items[p.itemName].push(p);
+        });
+
+        Object.entries(items).forEach(([name, history]) => {
+            history.sort((a,b) => new Date(b.date) - new Date(a.date));
+            const latest = history[0];
+            const previous = history.find(h => h.price !== latest.price);
+            
+            const card = document.createElement('div');
+            card.className = "glass p-5 rounded-2xl border-l-4 border-blue-500";
+            card.innerHTML = `
+                <p class="text-xs opacity-50 uppercase font-bold">${cat}</p>
+                <h5 class="font-bold text-lg mb-4 truncate">${name}</h5>
+                <div class="flex justify-between items-end">
+                    <div>
+                        <p class="text-[10px] opacity-50">Harga Terakhir</p>
+                        <p class="text-xl font-bold text-emerald-400">${formatIDR(latest.price)}</p>
+                        <p class="text-[10px] opacity-30 italic">${latest.vendor} - ${latest.date}</p>
                     </div>
-                    <p class="text-xs text-slate-400 uppercase tracking-tighter">${cat}</p>
-                    <h5 class="text-lg font-bold mt-1 truncate">${name}</h5>
-                    <div class="mt-4 flex justify-between items-end">
-                        <div>
-                            <p class="text-[10px] opacity-50">Harga Terakhir</p>
-                            <p class="text-xl font-mono font-bold text-blue-400">Rp ${latest.price.toLocaleString('id-ID')}</p>
-                        </div>
+                    ${previous ? `
                         <div class="text-right">
-                            <span class="px-2 py-1 rounded text-[10px] font-bold ${diff > 0 ? 'bg-red-500/20 text-red-400' : diff < 0 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-500/20 text-slate-400'}">
-                                ${diff > 0 ? '↑' : diff < 0 ? '↓' : ''} ${Math.abs(pct)}%
+                            <p class="text-[10px] opacity-50">Harga Sebelumnya</p>
+                            <p class="text-sm line-through opacity-40">${formatIDR(previous.price)}</p>
+                            <span class="text-[10px] font-bold ${latest.price > previous.price ? 'text-red-400' : 'text-emerald-400'}">
+                                ${latest.price > previous.price ? '↑ Naik' : '↓ Turun'} ${Math.abs(((latest.price - previous.price)/previous.price)*100).toFixed(1)}%
                             </span>
                         </div>
-                    </div>
-                    <p class="text-[10px] opacity-40 mt-3 italic">Supplier: ${latest.vendor}</p>
+                    ` : '<span class="text-[10px] opacity-30 italic">Belum ada history</span>'}
                 </div>
             `;
-        }).join('');
+            container.appendChild(card);
+        });
     };
 
-    // --- REPORTS ---
     window.generateReport = () => {
-        const month = parseInt(document.getElementById('report-month').value);
-        const year = parseInt(document.getElementById('report-year').value);
+        const m = parseInt(document.getElementById('report-month').value);
+        const y = parseInt(document.getElementById('report-year').value);
+        const container = document.getElementById('report-content');
+        const timestamp = document.getElementById('report-timestamp');
         
-        const filtered = window.purchases.filter(p => {
+        timestamp.innerText = `Dicetak: ${new Date().toLocaleString('id-ID')}`;
+        
+        const data = window.purchases.filter(p => {
             const d = new Date(p.date);
-            return d.getMonth() === month && d.getFullYear() === year;
+            return d.getMonth() === m && d.getFullYear() === y;
         });
 
-        if(filtered.length === 0) {
-            document.getElementById('report-content').innerHTML = '<div class="text-center py-20 opacity-30">Tidak ada data untuk periode ini</div>';
+        if (data.length === 0) {
+            container.innerHTML = `<div class="text-center py-20 opacity-30">Tidak ada data transaksi pada periode ini</div>`;
             return;
         }
 
-        const catSummary = {};
-        filtered.forEach(p => {
-            if(!catSummary[p.category]) catSummary[p.category] = { items: {}, total: 0 };
-            catSummary[p.category].total += p.total;
-            if(!catSummary[p.category].items[p.itemName]) catSummary[p.category].items[p.itemName] = { qty: 0, total: 0, unit: p.unit };
-            catSummary[p.category].items[p.itemName].qty += p.qty;
-            catSummary[p.category].items[p.itemName].total += p.total;
-        });
+        let html = `
+            <table class="w-full text-xs border-collapse">
+                <thead>
+                    <tr class="bg-blue-600 text-white font-bold text-left">
+                        <th class="p-3 border border-slate-700">Tgl</th>
+                        <th class="p-3 border border-slate-700">Kategori</th>
+                        <th class="p-3 border border-slate-700">Barang</th>
+                        <th class="p-3 border border-slate-700">Supplier</th>
+                        <th class="p-3 border border-slate-700 text-right">Qty</th>
+                        <th class="p-3 border border-slate-700 text-right">Harga</th>
+                        <th class="p-3 border border-slate-700 text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
 
-        let html = '<div class="space-y-8">';
         let grandTotal = 0;
-
-        Object.entries(catSummary).forEach(([catName, data]) => {
-            grandTotal += data.total;
+        data.forEach(p => {
+            grandTotal += p.total;
             html += `
-                <div class="report-section">
-                    <h3 class="bg-blue-600/10 text-blue-400 p-2 font-bold border-l-4 border-blue-600 mb-2 uppercase text-sm">${catName}</h3>
-                    <table class="w-full text-xs text-left mb-6">
-                        <thead>
-                            <tr class="border-b border-slate-700 text-slate-500">
-                                <th class="py-2">Nama Barang</th>
-                                <th class="py-2">Volume</th>
-                                <th class="py-2 text-right">Nilai Mutasi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-800/50">
-                            ${Object.entries(data.items).map(([itemName, i]) => `
-                                <tr>
-                                    <td class="py-2">${itemName}</td>
-                                    <td class="py-2">${i.qty} ${i.unit}</td>
-                                    <td class="py-2 text-right">Rp ${i.total.toLocaleString('id-ID')}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                        <tfoot>
-                            <tr class="font-bold text-blue-300">
-                                <td colspan="2" class="py-2">SUBTOTAL ${catName}</td>
-                                <td class="py-2 text-right">Rp ${data.total.toLocaleString('id-ID')}</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
+                <tr class="border-b border-slate-700">
+                    <td class="p-3 border border-slate-700">${p.date}</td>
+                    <td class="p-3 border border-slate-700">${p.category}</td>
+                    <td class="p-3 border border-slate-700 font-bold">${p.itemName}</td>
+                    <td class="p-3 border border-slate-700 italic opacity-70">${p.vendor}</td>
+                    <td class="p-3 border border-slate-700 text-right">${p.qty} ${p.unit}</td>
+                    <td class="p-3 border border-slate-700 text-right">${formatIDRShort(p.price)}</td>
+                    <td class="p-3 border border-slate-700 text-right font-bold">${formatIDRShort(p.total)}</td>
+                </tr>
             `;
         });
 
         html += `
-            <div class="border-t-2 border-slate-600 pt-4 flex justify-between items-center">
-                <h2 class="text-xl font-bold">TOTAL BELANJA PERIODE</h2>
-                <h2 class="text-2xl font-bold text-emerald-400">Rp ${grandTotal.toLocaleString('id-ID')}</h2>
-            </div>
-        </div>`;
-
-        document.getElementById('report-content').innerHTML = html;
-        document.getElementById('report-timestamp').innerText = `Dicetak: ${new Date().toLocaleString('id-ID')} WIB`;
+                </tbody>
+                <tfoot>
+                    <tr class="bg-slate-800 font-bold text-emerald-400">
+                        <td colspan="6" class="p-3 text-right">GRAND TOTAL PENGELUARAN</td>
+                        <td class="p-3 text-right">${formatIDR(grandTotal)}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        `;
+        container.innerHTML = html;
     };
 
     window.exportToPDF = () => {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'pt', 'a4');
-        const element = document.getElementById('report-container');
+        const doc = new jsPDF('l', 'pt', 'a4');
+        const content = document.getElementById('report-container');
         
-        const options = {
-            callback: (doc) => {
+        doc.html(content, {
+            callback: function (doc) {
                 doc.save(`Laporan_Logistik_${new Date().getTime()}.pdf`);
             },
-            margin: [40, 40, 40, 40],
+            margin: [20, 20, 20, 20],
             autoPaging: 'text',
-            x: 0,
-            y: 0,
-            width: 515,
+            x: 10,
+            y: 10,
+            width: 800,
             windowWidth: 1000
-        };
-
-        // Note: For complex CSS, use html2canvas or simpler table extraction
-        // Simplified approach for reliability:
-        window.print();
+        });
     };
 
-    // --- UTILS ---
+    window.exportInputTemplate = () => {
+        const headers = ["Kategori", "Vendor", "Tanggal (YYYY-MM-DD)", "Nama Barang", "Satuan", "Qty", "Harga Satuan"];
+        const data = [headers, ["ATK", "Gramedia", "2025-01-01", "Kertas A4", "Rim", "10", "55000"]];
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Template_Logistik");
+        XLSX.writeFile(wb, "Template_Import_Logistik.xlsx");
+    };
+
+    window.exportMasterExcel = () => {
+        const data = window.masterItems.map(i => ({ Kategori: i.category, 'Nama Barang': i.name }));
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Master_Barang");
+        XLSX.writeFile(wb, "Master_Barang_Logistik.xlsx");
+    };
+
+    const formatIDR = (v) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(v);
+    const formatIDRShort = (v) => {
+        if (v >= 1000000) return "Rp " + (v/1000000).toFixed(1) + "jt";
+        if (v >= 1000) return "Rp " + (v/1000).toFixed(0) + "rb";
+        return "Rp " + v;
+    };
+
     const showToast = (msg, type = "success") => {
-        const toast = document.getElementById('toast');
-        toast.innerText = msg;
-        toast.className = `fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full text-white font-bold shadow-2xl transition-all duration-300 z-[100] ${type === "error" ? "bg-red-600" : "bg-blue-600"}`;
-        toast.style.opacity = "1";
-        setTimeout(() => { toast.style.opacity = "0"; }, 3000);
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.className = `fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full text-white font-bold shadow-2xl transition-all duration-300 z-[100] ${type === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`;
+        t.style.opacity = "1";
+        setTimeout(() => t.style.opacity = "0", 3000);
     };
 
-    setInterval(() => {
-        document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('id-ID') + " WIB";
-    }, 1000);
+    // CSV Import Handler for Master
+    document.getElementById('master-import-file').onchange = async (e) => {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            const csv = event.target.result;
+            const lines = csv.split('\n').map(l => l.split(','));
+            let successCount = 0;
+            
+            try {
+                for(let i = 1; i < lines.length; i++) {
+                    const [cat, name] = lines[i];
+                    if (cat && name) {
+                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'), {
+                            category: cat.trim(),
+                            name: name.trim()
+                        });
+                        successCount++;
+                    }
+                }
+                showToast(`${successCount} Master barang berhasil diimpor!`);
+            } catch (err) {
+                showToast("Gagal impor CSV", "error");
+            }
+        };
+        reader.readAsText(e.target.files[0]);
+    };
+
+    // CSV Import Handler for Purchase
+    document.getElementById('purchase-import-file').onchange = async (e) => {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            const csv = event.target.result;
+            const lines = csv.split('\n').map(l => l.split(','));
+            let successCount = 0;
+            try {
+                for(let i = 1; i < lines.length; i++) {
+                    const [cat, vendor, date, name, unit, qty, price] = lines[i];
+                    if (cat && vendor && date && name) {
+                        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'purchases'), {
+                            category: cat.trim(),
+                            vendor: vendor.trim(),
+                            date: date.trim(),
+                            itemName: name.trim(),
+                            unit: unit.trim(),
+                            qty: parseFloat(qty),
+                            price: parseFloat(price),
+                            total: parseFloat(qty) * parseFloat(price),
+                            createdAt: new Date().toISOString()
+                        });
+                        successCount++;
+                    }
+                }
+                showToast(`${successCount} Transaksi berhasil diimpor!`);
+            } catch (err) {
+                showToast("Gagal impor transaksi CSV", "error");
+            }
+        };
+        reader.readAsText(e.target.files[0]);
+    };
+
+    setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('id-ID') + " WIB"; }, 1000);
 
     initAuth();
+    document.getElementById('dash-main-filter-year').onchange = renderCharts;
+    document.getElementById('dash-filter-month').onchange = renderCharts;
+    document.getElementById('dash-filter-year').onchange = renderCharts;
+    document.getElementById('input-main-category').onchange = () => { document.getElementById('input-rows').innerHTML = ""; addInputRow(); };
+    document.getElementById('db-search').oninput = renderDatabase;
+    document.getElementById('db-filter-cat').onchange = renderDatabase;
+    document.getElementById('trend-cat').onchange = renderTrends;
 </script>
 </body>
 </html>
