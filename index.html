@@ -635,24 +635,19 @@
 
     // Purchase Entry Logic
     window.addInputRow = () => {
-    const tbody = document.getElementById('input-rows');
-    const cat = document.getElementById('input-main-category').value;
-
-    const itemsInCat = window.masterItems
-        .filter(m => m.category === cat)
-        .sort((a, b) => a.name.localeCompare(b.name));
-
-    const tr = document.createElement('tr');
-    tr.className = "border-b border-slate-800";
-    tr.innerHTML = `
-        <td class="p-3">
-            <select class="item-name w-full p-2 rounded outline-none bg-slate-800 border-none">
-                <option value="">-- Pilih Barang --</option>
-                ${itemsInCat.map(i => `<option value="${i.name}">${i.name}</option>`).join('')}
-            </select>
-        </td>
-    `;
-}
+        const tbody = document.getElementById('input-rows');
+        const cat = document.getElementById('input-main-category').value;
+        const itemsInCat = window.masterItems.filter(m => m.category === cat);
+        
+        const tr = document.createElement('tr');
+        tr.className = "border-b border-slate-800";
+        tr.innerHTML = `
+            <td class="p-3">
+                <select class="item-name w-full p-2 rounded outline-none bg-slate-800 border-none">
+                    <option value="">-- Pilih Barang --</option>
+                    ${itemsInCat.map(i => `<option value="${i.name}">${i.name}</option>`).join('')}
+                </select>
+            </td>
             <td class="p-3"><input type="text" class="item-unit w-full p-2 rounded outline-none" placeholder="Box/Pcs"></td>
             <td class="p-3"><input type="number" class="item-qty w-full p-2 rounded outline-none" value="1" oninput="calcRow(this)"></td>
             <td class="p-3"><input type="number" class="item-price w-full p-2 rounded outline-none" placeholder="0" oninput="calcRow(this)"></td>
