@@ -438,7 +438,14 @@
     import { getFirestore, doc, setDoc, updateDoc, deleteDoc, collection, onSnapshot, addDoc, getDocs, writeBatch, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'logistic-pro-smart-v1';
-    const firebaseConfig = JSON.parse(__firebase_config);
+    const firebaseConfig = {
+  apiKey: "AIzaSyDEXHSwJq7l-B9UgmYzqgDqKCNUS0ho-j0",
+  authDomain: "rekapbelanja.firebaseapp.com",
+  projectId: "rekapbelanja",
+  storageBucket: "rekapbelanja.firebasestorage.app",
+  messagingSenderId: "867729593347",
+  appId: "1:867729593347:web:1db201e3cc649490cdaa36"
+};
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
