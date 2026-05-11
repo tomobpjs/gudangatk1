@@ -19,8 +19,6 @@
         marquee { background: #1e293b; padding: 5px 0; font-weight: 500; border-bottom: 1px solid #334155; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        .list-scrollbar::-webkit-scrollbar { width: 4px; }
-        .list-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
         input, select { background: #1e293b !important; border: 1px solid #334155 !important; color: white !important; }
         .btn-gradient { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); transition: all 0.3s; }
         .btn-gradient:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
@@ -141,7 +139,6 @@
                             <canvas id="categoryChart"></canvas>
                         </div>
                     </div>
-                    <!-- Bagian yang diperbaiki: Persentase Belanja Kategori -->
                     <div class="glass p-6 rounded-2xl flex flex-col h-[500px] overflow-hidden">
                         <div class="flex justify-between items-center mb-4">
                             <h4 class="font-bold">Persentase Belanja Kategori</h4>
@@ -157,13 +154,11 @@
                                 </select>
                             </div>
                         </div>
-                        
-                        <!-- Layout Side-by-Side -->
                         <div class="flex flex-col md:flex-row items-center gap-4 flex-1 overflow-hidden">
                             <div class="w-full md:w-1/2 h-[220px] md:h-full relative flex items-center justify-center">
                                 <canvas id="filteredCategoryChart"></canvas>
                             </div>
-                            <div class="w-full md:w-1/2 h-full overflow-y-auto list-scrollbar pr-2">
+                            <div class="w-full md:w-1/2 h-full overflow-y-auto pr-2">
                                 <table class="w-full text-left text-[11px]">
                                     <thead class="text-slate-400 uppercase sticky top-0 bg-slate-900">
                                         <tr>
@@ -186,14 +181,9 @@
                     <div class="flex flex-wrap gap-4 items-end mb-8 border-b border-slate-700 pb-6">
                         <div class="flex-1 min-w-[200px]">
                             <label class="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-bold">Pilih Kategori</label>
-                            <select id="input-main-category" class="w-full p-3 rounded-xl focus:ring-2 ring-blue-500 outline-none category-dropdown">
+                            <select id="input-main-category" class="w-full p-3 rounded-xl focus:ring-2 ring-blue-500 outline-none">
                                 <option value="">-- Pilih Kategori --</option>
                             </select>
-                        </div>
-                        <div class="flex gap-2 mb-1">
-                            <button onclick="exportInputTemplate()" class="px-4 py-3 bg-green-700 hover:bg-green-600 rounded-xl text-xs font-bold border border-green-600">Template EXCEL</button>
-                            <button onclick="document.getElementById('purchase-import-file').click()" class="px-4 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-bold shadow-lg">Import CSV</button>
-                            <input type="file" id="purchase-import-file" class="hidden" accept=".csv">
                         </div>
                         <div class="flex-1 min-w-[200px]">
                             <label class="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-bold">Supplier / Vendor</label>
@@ -231,7 +221,7 @@
                                 <p class="text-xs opacity-50">Grand Total</p>
                                 <h3 id="input-grand-total" class="text-xl font-bold text-emerald-400">Rp 0</h3>
                             </div>
-                            <button onclick="savePurchase()" class="btn-gradient px-8 py-3 rounded-xl font-bold shadow-lg">Simpan ke Cloud</button>
+                            <button id="btn-save-purchase" class="btn-gradient px-8 py-3 rounded-xl font-bold shadow-lg">Simpan ke Cloud</button>
                         </div>
                     </div>
                 </div>
@@ -247,7 +237,6 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="glass rounded-2xl overflow-hidden overflow-x-auto">
                     <table class="w-full text-left min-w-[800px]">
                         <thead class="bg-slate-800/50 text-slate-400 text-xs uppercase">
@@ -270,7 +259,7 @@
             <div id="tab-trends" class="tab-content hidden space-y-6">
                 <div class="glass p-8 rounded-2xl">
                     <div class="flex gap-4 mb-8">
-                        <select id="trend-cat" class="px-4 py-2 rounded-xl w-64 category-dropdown">
+                        <select id="trend-cat" class="px-4 py-2 rounded-xl w-64">
                             <option value="">Pilih Kategori</option>
                         </select>
                         <p class="flex-1 text-slate-400 text-sm self-center">Menampilkan perbandingan harga terakhir barang di kategori terpilih.</p>
@@ -282,31 +271,23 @@
             <!-- Tab: Master -->
             <div id="tab-master" class="tab-content hidden space-y-6">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="glass p-6 rounded-2xl">
+                    <div class="glass p-6 rounded-2xl h-fit">
                         <h4 class="font-bold mb-6 border-b border-slate-700 pb-4">Tambah Master Barang</h4>
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-xs mb-1 opacity-50">Kategori</label>
-                                <select id="master-add-cat" class="w-full p-3 rounded-xl category-dropdown"></select>
+                                <select id="master-add-cat" class="w-full p-3 rounded-xl"></select>
                             </div>
                             <div>
                                 <label class="block text-xs mb-1 opacity-50">Nama Barang</label>
                                 <input type="text" id="master-add-name" class="w-full p-3 rounded-xl" placeholder="Contoh: Kertas A4">
                             </div>
-                            <button onclick="addMasterItem()" class="w-full btn-gradient py-3 rounded-xl font-bold">Simpan Master</button>
+                            <button id="btn-save-master" class="w-full btn-gradient py-3 rounded-xl font-bold">Simpan Master</button>
                         </div>
                     </div>
-
                     <div class="lg:col-span-2 glass p-6 rounded-2xl">
-                        <div class="flex justify-between items-center mb-6">
-                            <h4 class="font-bold">Database Master Barang</h4>
-                            <div class="flex gap-2">
-                                <button onclick="exportMasterExcel()" class="px-4 py-2 bg-green-700 hover:bg-green-600 rounded-lg text-xs">Export EXCEL</button>
-                                <button onclick="document.getElementById('master-import-file').click()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs">Import CSV</button>
-                                <input type="file" id="master-import-file" class="hidden" accept=".csv">
-                            </div>
-                        </div>
-                        <div class="overflow-y-auto max-h-[400px] custom-scrollbar">
+                        <h4 class="font-bold mb-6">Database Master Barang</h4>
+                        <div class="overflow-y-auto max-h-[500px] custom-scrollbar">
                             <table class="w-full text-left">
                                 <thead class="sticky top-0 bg-slate-800 text-xs uppercase text-slate-400">
                                     <tr>
@@ -325,20 +306,19 @@
             <!-- Tab: Master Kategori -->
             <div id="tab-master-cat" class="tab-content hidden space-y-6">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="glass p-6 rounded-2xl">
+                    <div class="glass p-6 rounded-2xl h-fit">
                         <h4 class="font-bold mb-6 border-b border-slate-700 pb-4">Tambah Kategori</h4>
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-xs mb-1 opacity-50">Nama Kategori</label>
-                                <input type="text" id="master-cat-add-name" class="w-full p-3 rounded-xl" placeholder="Contoh: ATK, Medis, dll">
+                                <input type="text" id="master-cat-add-name" class="w-full p-3 rounded-xl" placeholder="Contoh: ATK">
                             </div>
-                            <button onclick="addCategory()" class="w-full btn-gradient py-3 rounded-xl font-bold">Simpan Kategori</button>
+                            <button id="btn-save-category" class="w-full btn-gradient py-3 rounded-xl font-bold">Simpan Kategori</button>
                         </div>
                     </div>
-
                     <div class="lg:col-span-2 glass p-6 rounded-2xl">
                         <h4 class="font-bold mb-6">Database Kategori</h4>
-                        <div class="overflow-y-auto max-h-[400px] custom-scrollbar">
+                        <div class="overflow-y-auto max-h-[500px] custom-scrollbar">
                             <table class="w-full text-left">
                                 <thead class="sticky top-0 bg-slate-800 text-xs uppercase text-slate-400">
                                     <tr>
@@ -355,57 +335,26 @@
 
             <!-- Tab: Reports -->
             <div id="tab-reports" class="tab-content hidden space-y-6">
-                <div class="glass p-10 rounded-2xl max-w-5xl mx-auto shadow-2xl" id="report-container">
+                <div class="glass p-10 rounded-2xl max-w-5xl mx-auto" id="report-container">
                     <div class="border-b-4 border-double border-slate-600 pb-6 mb-8 flex items-center justify-between">
                         <div class="flex items-center gap-6">
                             <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center font-bold text-2xl">DK</div>
                             <div>
                                 <h1 class="text-2xl font-extrabold tracking-widest text-blue-400 uppercase">RSU DADI KELUARGA PURWOKERTO</h1>
                                 <p class="text-xs opacity-70 italic">Jl. Sultan Agung No:8A - Teluk Purwokerto Selatan</p>
-                                <p class="text-xs opacity-70">Telp: (0281) 6844566 | email: rsdadikeluarga@gmail.com</p>
                             </div>
                         </div>
                         <div class="text-right">
-                            <h2 class="text-lg font-bold underline decoration-blue-500">LAPORAN MUTASI BARANG</h2>
-                            <p class="text-xs opacity-50 mt-1" id="report-timestamp">Dicetak: -</p>
+                            <h2 class="text-lg font-bold underline">LAPORAN MUTASI BARANG</h2>
+                            <p class="text-xs opacity-50" id="report-timestamp">Dicetak: -</p>
                         </div>
                     </div>
-
-                    <div class="flex flex-wrap gap-4 mb-8 no-print items-center">
-                        <select id="report-month" class="px-4 py-2 rounded-xl text-sm">
-                            <option value="0">Januari</option><option value="1">Februari</option><option value="2">Maret</option>
-                            <option value="3">April</option><option value="4">Mei</option><option value="5">Juni</option>
-                            <option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option>
-                            <option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
-                        </select>
-                        <select id="report-year" class="px-4 py-2 rounded-xl text-sm">
-                            <option>2024</option><option selected>2025</option><option>2026</option>
-                        </select>
-                        <button onclick="generateReport()" class="bg-blue-600 px-6 py-2 rounded-xl font-bold text-sm">Filter Laporan</button>
-                        <button onclick="exportToPDF()" class="bg-red-600 px-6 py-2 rounded-xl font-bold flex items-center gap-2 text-sm">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 16l-6-6h12l-6 6z"></path></svg>
-                            Cetak PDF
-                        </button>
+                    <div class="flex gap-4 mb-8 no-print">
+                        <select id="report-month" class="px-4 py-2 rounded-xl text-sm"></select>
+                        <select id="report-year" class="px-4 py-2 rounded-xl text-sm"></select>
+                        <button id="btn-generate-report" class="bg-blue-600 px-6 py-2 rounded-xl font-bold text-sm">Filter</button>
                     </div>
-
-                    <div id="report-content" class="text-slate-200 min-h-[400px]">
-                        <div class="text-center py-20 opacity-30">Pilih periode dan klik Filter Laporan untuk melihat mutasi barang.</div>
-                    </div>
-
-                    <div class="mt-12 flex justify-between items-end border-t border-slate-700 pt-8 opacity-70">
-                        <div class="text-center">
-                            <p class="text-xs mb-16">Mengetahui, Kepala Logistik</p>
-                            <p class="font-bold underline">( ______________________ )</p>
-                        </div>
-                        <div class="text-center text-[10px] opacity-40">
-                            Validitas Data Terverifikasi Cloud Database<br>
-                            Logistic Pro-Smart V2.1 Encryption Active
-                        </div>
-                        <div class="text-center">
-                            <p class="text-xs mb-16">Admin Penginput</p>
-                            <p class="font-bold underline">( ______________________ )</p>
-                        </div>
-                    </div>
+                    <div id="report-content" class="min-h-[400px]"></div>
                 </div>
             </div>
 
@@ -415,27 +364,22 @@
 
 <!-- Modal Edit -->
 <div id="edit-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="glass max-w-md w-full p-8 rounded-3xl shadow-2xl">
-        <h3 class="text-xl font-bold mb-6 flex justify-between">
-            Edit Transaksi
-            <button onclick="closeEditModal()" class="opacity-50 hover:opacity-100">&times;</button>
-        </h3>
+    <div class="glass max-w-md w-full p-8 rounded-3xl">
+        <h3 class="text-xl font-bold mb-6 flex justify-between">Edit Item <button onclick="closeEditModal()">&times;</button></h3>
         <div id="edit-form-content" class="space-y-4"></div>
         <div class="mt-8 flex gap-3 justify-end">
             <button onclick="closeEditModal()" class="px-6 py-2 rounded-xl bg-slate-700">Batal</button>
-            <button id="btn-save-edit" class="px-6 py-2 rounded-xl btn-gradient">Simpan</button>
+            <button id="btn-update-item" class="px-6 py-2 rounded-xl btn-gradient">Simpan</button>
         </div>
     </div>
 </div>
 
-<div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full bg-blue-600 text-white font-bold shadow-2xl transition-all duration-300 z-[100] opacity-0 pointer-events-none">
-    Notifikasi Berhasil!
-</div>
+<div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full bg-blue-600 text-white font-bold shadow-2xl opacity-0 pointer-events-none transition-opacity duration-300 z-[100]"></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, updateDoc, deleteDoc, collection, onSnapshot, addDoc, getDocs, writeBatch, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, updateDoc, deleteDoc, collection, onSnapshot, addDoc, query, where, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'logistic-pro-smart-v1';
     const firebaseConfig = {
@@ -450,13 +394,15 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    window.masterItems = [];
-    window.purchases = [];
-    window.categories = [];
-    let currentEditId = null;
-    let mainCategoryChart = null;
-    let filteredCategoryChart = null;
+    // App State
+    let user = null;
+    let masterItems = [];
+    let purchases = [];
+    let categories = [];
+    let catChart = null;
+    let pieChart = null;
 
+    // --- Firebase Initialization ---
     const initAuth = async () => {
         try {
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -465,678 +411,485 @@
                 await signInAnonymously(auth);
             }
         } catch (err) {
-            console.error("Auth Failure:", err);
             showToast("Gagal menyambung ke Cloud", "error");
         }
     };
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, (u) => {
+        user = u;
         if (user) {
             document.getElementById('user-id-display').innerText = `UID: ${user.uid}`;
             document.getElementById('cloud-status-text').innerText = "Connected";
             document.getElementById('cloud-status-text').className = "font-bold text-emerald-400";
             document.getElementById('connection-dot').className = "w-2 h-2 rounded-full bg-emerald-500";
-            loadListeners();
+            loadData();
         }
     });
 
-    const loadListeners = () => {
+    const loadData = () => {
+        if (!user) return;
+        
         // Categories
-        onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'master_categories'), (snap) => {
-            window.categories = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'categories'), (snap) => {
+            categories = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderCategoryDropdowns();
-            renderCategoryTable();
-            renderFilterCategoryDropdown();
-        }, (err) => console.error("Category Sync Error:", err));
+            renderCategoryTables();
+        }, (err) => console.error("Category Error", err));
 
         // Master Items
         onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'), (snap) => {
-            window.masterItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            masterItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderMasterTable();
-        }, (err) => console.error("Master Sync Error:", err));
+        }, (err) => console.error("Master Error", err));
 
         // Purchases
         onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'purchases'), (snap) => {
-            window.purchases = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-                .sort((a, b) => new Date(b.date) - new Date(a.date));
-            renderCharts();
+            purchases = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            updateDashboard();
             renderDatabase();
-            renderTrends();
-            updateStats();
-        }, (err) => console.error("Purchase Sync Error:", err));
+            renderCharts();
+        }, (err) => console.error("Purchase Error", err));
     };
 
-    // UI Navigation
+    // --- Core Logic ---
+    const showToast = (msg, type = "success") => {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.style.background = type === 'success' ? '#2563eb' : '#dc2626';
+        t.style.opacity = '1';
+        setTimeout(() => t.style.opacity = '0', 3000);
+    };
+
     window.switchTab = (tabId) => {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
         document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-        
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('sidebar-active'));
         document.getElementById(`btn-${tabId}`).classList.add('sidebar-active');
-        
         const titles = {
             dashboard: 'Dashboard Analisis',
-            input: 'Entry Data Pembelian',
+            input: 'Input Barang Masuk',
             database: 'Database Rekapitulasi',
-            trends: 'Visualisasi Tren Harga',
+            trends: 'Analisis Tren Harga',
             master: 'Master Database Barang',
-            'master-cat': 'Master Kategori Barang',
-            reports: 'Pencetakan Laporan Mutasi'
+            'master-cat': 'Master Kategori',
+            reports: 'Laporan Mutasi'
         };
         document.getElementById('current-page-title').innerText = titles[tabId];
-
-        if (tabId === 'input' && document.getElementById('input-rows').children.length === 0) {
-            addInputRow();
-        }
     };
 
-    // --- LOGIC FUNCTIONS ---
-
-    window.showToast = (msg, type = "success") => {
-        const toast = document.getElementById('toast');
-        toast.innerText = msg;
-        toast.className = `fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full text-white font-bold shadow-2xl transition-all duration-300 z-[100] ${type === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`;
-        toast.style.opacity = '1';
-        setTimeout(() => toast.style.opacity = '0', 3000);
-    };
-
-    window.formatIDR = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
-
-    const updateStats = () => {
-        const now = new Date();
-        const thisMonth = now.getMonth();
-        const thisYear = now.getFullYear();
-
-        const monthlyData = window.purchases.filter(p => {
-            const d = new Date(p.date);
-            return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
-        });
-
-        const lastMonthData = window.purchases.filter(p => {
-            const d = new Date(p.date);
-            return d.getMonth() === (thisMonth === 0 ? 11 : thisMonth - 1) && d.getFullYear() === (thisMonth === 0 ? thisYear - 1 : thisYear);
-        });
-
-        const totalThis = monthlyData.reduce((acc, curr) => acc + curr.total, 0);
-        const totalLast = lastMonthData.reduce((acc, curr) => acc + curr.total, 0);
-        
-        let diff = 0;
-        if (totalLast > 0) diff = ((totalThis - totalLast) / totalLast) * 100;
-
-        document.getElementById('stat-total-spend').innerText = formatIDR(totalThis);
-        document.getElementById('stat-spend-compare').innerText = `${diff >= 0 ? '↑' : '↓'} ${Math.abs(diff).toFixed(1)}% vs bulan lalu`;
-        document.getElementById('stat-total-items').innerText = window.purchases.length;
-        document.getElementById('stat-category-count').innerText = `Dari ${window.categories.length} Kategori`;
-
-        const catCounts = {};
-        window.purchases.forEach(p => catCounts[p.category] = (catCounts[p.category] || 0) + 1);
-        const topCat = Object.entries(catCounts).sort((a,b) => b[1] - a[1])[0];
-        document.getElementById('stat-top-cat').innerText = topCat ? topCat[0] : '-';
-        document.getElementById('stat-last-sync').innerText = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-    };
-
-    // Master Category Logic
-    window.renderCategoryDropdowns = () => {
-        const selects = document.querySelectorAll('.category-dropdown');
-        selects.forEach(s => {
-            const val = s.value;
-            s.innerHTML = '<option value="">-- Pilih Kategori --</option>' + 
-                window.categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-            s.value = val;
-        });
-    };
-
-    window.addCategory = async () => {
-        const name = document.getElementById('master-cat-add-name').value;
-        if (!name) return showToast("Nama kategori wajib diisi", "error");
-        try {
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'master_categories'), { name });
-            document.getElementById('master-cat-add-name').value = "";
-            showToast("Kategori berhasil ditambahkan");
-        } catch (e) { showToast("Gagal simpan kategori", "error"); }
-    };
-
-    window.renderCategoryTable = () => {
-        const tbody = document.getElementById('master-cat-table-body');
-        tbody.innerHTML = window.categories.map(c => `
-            <tr class="border-b border-slate-800">
-                <td class="p-3">${c.name}</td>
-                <td class="p-3 text-right">
-                    <button onclick="deleteDocById('master_categories', '${c.id}')" class="text-red-400 hover:text-red-300">Hapus</button>
-                </td>
-            </tr>
-        `).join('');
-    };
-
-    // Master Items Logic
-    window.addMasterItem = async () => {
-        const cat = document.getElementById('master-add-cat').value;
-        const name = document.getElementById('master-add-name').value;
-        if (!cat || !name) return showToast("Isi semua field", "error");
-        try {
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'), { category: cat, name });
-            document.getElementById('master-add-name').value = "";
-            showToast("Item berhasil ditambahkan ke Master");
-        } catch (e) { showToast("Gagal simpan master item", "error"); }
-    };
-
-    window.renderMasterTable = () => {
-        const tbody = document.getElementById('master-table-body');
-        tbody.innerHTML = window.masterItems.map(m => `
-            <tr class="border-b border-slate-800">
-                <td class="p-3 opacity-60 text-xs">${m.category}</td>
-                <td class="p-3">${m.name}</td>
-                <td class="p-3 text-right">
-                    <button onclick="deleteDocById('master_items', '${m.id}')" class="text-red-400 hover:text-red-300">Hapus</button>
-                </td>
-            </tr>
-        `).join('');
-    };
-
-    // Purchase Entry Logic
-    window.addInputRow = () => {
-        const tbody = document.getElementById('input-rows');
-        const cat = document.getElementById('input-main-category').value;
-        const itemsInCat = window.masterItems.filter(m => m.category === cat);
-        
-        const tr = document.createElement('tr');
-        tr.className = "border-b border-slate-800";
-        tr.innerHTML = `
-            <td class="p-3">
-                <select class="item-name w-full p-2 rounded outline-none bg-slate-800 border-none">
-                    <option value="">-- Pilih Barang --</option>
-                    ${itemsInCat.map(i => `<option value="${i.name}">${i.name}</option>`).join('')}
-                </select>
-            </td>
-            <td class="p-3"><input type="text" class="item-unit w-full p-2 rounded outline-none" placeholder="Box/Pcs"></td>
-            <td class="p-3"><input type="number" class="item-qty w-full p-2 rounded outline-none" value="1" oninput="calcRow(this)"></td>
-            <td class="p-3"><input type="number" class="item-price w-full p-2 rounded outline-none" placeholder="0" oninput="calcRow(this)"></td>
-            <td class="p-3"><input type="text" class="item-total w-full p-2 rounded outline-none opacity-50" readonly value="Rp 0"></td>
-            <td class="p-3 text-center"><button onclick="this.closest('tr').remove(); updateGrandTotal();" class="text-red-500 text-xl">&times;</button></td>
-        `;
-        tbody.appendChild(tr);
-    };
-
-    window.calcRow = (input) => {
-        const tr = input.closest('tr');
-        const qty = parseFloat(tr.querySelector('.item-qty').value) || 0;
-        const price = parseFloat(tr.querySelector('.item-price').value) || 0;
-        tr.querySelector('.item-total').value = formatIDR(qty * price);
-        updateGrandTotal();
-    };
-
-    window.updateGrandTotal = () => {
-        let grand = 0;
-        document.querySelectorAll('#input-rows tr').forEach(tr => {
-            const qty = parseFloat(tr.querySelector('.item-qty').value) || 0;
-            const price = parseFloat(tr.querySelector('.item-price').value) || 0;
-            grand += (qty * price);
-        });
-        document.getElementById('input-grand-total').innerText = formatIDR(grand);
-    };
-
-    window.savePurchase = async () => {
-        const cat = document.getElementById('input-main-category').value;
-        const vendor = document.getElementById('input-vendor').value;
-        const date = document.getElementById('input-date').value;
-
-        if (!cat || !vendor || !date) return showToast("Kategori, Vendor, dan Tanggal wajib diisi", "error");
-
-        const batch = writeBatch(db);
-        const rows = document.querySelectorAll('#input-rows tr');
-        let count = 0;
-
-        rows.forEach(tr => {
-            const name = tr.querySelector('.item-name').value;
-            const unit = tr.querySelector('.item-unit').value;
-            const qty = parseFloat(tr.querySelector('.item-qty').value) || 0;
-            const price = parseFloat(tr.querySelector('.item-price').value) || 0;
-
-            if (name && qty > 0 && price > 0) {
-                const newDocRef = doc(collection(db, 'artifacts', appId, 'public', 'data', 'purchases'));
-                batch.set(newDocRef, {
-                    category: cat,
-                    vendor,
-                    date,
-                    itemName: name,
-                    unit,
-                    qty,
-                    price,
-                    total: qty * price,
-                    createdAt: new Date().toISOString()
-                });
-                count++;
-            }
-        });
-
-        if (count === 0) return showToast("Tidak ada data barang valid untuk disimpan", "error");
-
-        try {
-            await batch.commit();
-            showToast(`${count} Item berhasil disimpan ke Cloud`);
-            document.getElementById('input-rows').innerHTML = "";
-            addInputRow();
-            updateGrandTotal();
-        } catch (e) { showToast("Gagal menyimpan ke database", "error"); }
-    };
-
-    // Database Logic
-    window.renderDatabase = () => {
-        const search = document.getElementById('db-search').value.toLowerCase();
-        const catFilter = document.getElementById('db-filter-cat').value;
-        const tbody = document.getElementById('db-table-body');
-
-        const filtered = window.purchases.filter(p => {
-            const matchesSearch = p.itemName.toLowerCase().includes(search) || p.vendor.toLowerCase().includes(search);
-            const matchesCat = !catFilter || p.category === catFilter;
-            return matchesSearch && matchesCat;
-        });
-
-        tbody.innerHTML = filtered.map(p => `
-            <tr>
-                <td class="p-4 text-xs opacity-60">${p.date}</td>
-                <td class="p-4"><span class="bg-blue-600/20 text-blue-400 px-2 py-1 rounded text-[10px] font-bold">${p.category}</span></td>
-                <td class="p-4 font-medium">${p.itemName} <span class="text-[10px] opacity-40 ml-1">/ ${p.unit}</span></td>
-                <td class="p-4 text-xs">${p.vendor}</td>
-                <td class="p-4 text-xs">${p.qty}</td>
-                <td class="p-4 font-bold text-emerald-400">${formatIDR(p.total)}</td>
-                <td class="p-4 text-center">
-                    <button onclick="openEditModal('${p.id}')" class="text-blue-400 hover:underline mr-3">Edit</button>
-                    <button onclick="deleteDocById('purchases', '${p.id}')" class="text-red-400 hover:underline">Hapus</button>
-                </td>
-            </tr>
-        `).join('');
-    };
-
-    window.renderFilterCategoryDropdown = () => {
-        const dbFilter = document.getElementById('db-filter-cat');
-        dbFilter.innerHTML = '<option value="">Semua Kategori</option>' + 
-            window.categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-    };
-
-    window.deleteDocById = async (collectionName, id) => {
-        if (!confirm("Hapus data ini secara permanen dari Cloud?")) return;
-        try {
-            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', collectionName, id));
-            showToast("Data dihapus");
-        } catch (e) { showToast("Gagal hapus data", "error"); }
-    };
-
-    // Trend Analysis
-    window.renderTrends = () => {
-        const cat = document.getElementById('trend-cat').value;
-        const container = document.getElementById('trend-cards');
-        if (!cat) {
-            container.innerHTML = '<div class="col-span-full py-20 text-center opacity-30">Pilih kategori untuk melihat perbandingan harga.</div>';
-            return;
-        }
-
-        const items = window.purchases.filter(p => p.category === cat);
-        const map = {};
-        items.forEach(p => {
-            if (!map[p.itemName]) map[p.itemName] = [];
-            map[p.itemName].push(p);
-        });
-
-        container.innerHTML = Object.keys(map).map(name => {
-            const records = map[name].sort((a,b) => new Date(b.date) - new Date(a.date));
-            const latest = records[0];
-            const prev = records[1];
-            let trendHtml = '';
-            
-            if (prev) {
-                const diff = latest.price - prev.price;
-                const pct = ((diff / prev.price) * 100).toFixed(1);
-                trendHtml = diff >= 0 
-                    ? `<span class="text-red-400 text-[10px]">↑ ${pct}% dari sebelumnya</span>`
-                    : `<span class="text-emerald-400 text-[10px]">↓ ${Math.abs(pct)}% dari sebelumnya</span>`;
-            }
-
-            return `
-                <div class="glass p-5 rounded-2xl border-l-4 border-blue-500">
-                    <p class="text-[10px] opacity-40 uppercase tracking-widest">${latest.unit}</p>
-                    <h5 class="font-bold text-lg mb-2">${latest.itemName}</h5>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-xl font-black text-white">${formatIDR(latest.price)}</p>
-                            ${trendHtml}
-                        </div>
-                        <p class="text-[9px] opacity-30 text-right">Vendor Terakhir:<br>${latest.vendor}</p>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    };
-
-    // Charts
-    window.renderCharts = () => {
-        const mainYear = parseInt(document.getElementById('dash-main-filter-year').value);
-        const filterMonth = parseInt(document.getElementById('dash-filter-month').value);
-        const filterYear = parseInt(document.getElementById('dash-filter-year').value);
-
-        // 1. Line Chart: Trends per Category (Main Year)
-        const labels = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
-        const datasets = window.categories.map((cat, idx) => {
-            const data = Array(12).fill(0);
-            window.purchases.filter(p => p.category === cat.name && new Date(p.date).getFullYear() === mainYear).forEach(p => {
-                data[new Date(p.date).getMonth()] += p.total;
+    const renderCategoryDropdowns = () => {
+        const selectors = ['input-main-category', 'master-add-cat', 'db-filter-cat', 'trend-cat'];
+        selectors.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const currentVal = el.value;
+            el.innerHTML = (id === 'input-main-category' || id === 'master-add-cat') 
+                ? '<option value="">-- Pilih --</option>' 
+                : '<option value="">Semua Kategori</option>';
+            categories.sort((a,b) => a.name.localeCompare(b.name)).forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.name;
+                opt.innerText = c.name;
+                el.appendChild(opt);
             });
-            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
-            return {
-                label: cat.name,
-                data: data,
-                borderColor: colors[idx % colors.length],
-                tension: 0.4,
-                borderWidth: 2
-            };
+            el.value = currentVal;
         });
-
-        if (mainCategoryChart) mainCategoryChart.destroy();
-        mainCategoryChart = new Chart(document.getElementById('categoryChart'), {
-            type: 'line',
-            data: { labels, datasets },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 10, font: { size: 10 } } } },
-                scales: { 
-                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 9 }, callback: v => v >= 1000000 ? (v/1000000) + 'jt' : v } },
-                    x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } }
-                }
-            }
-        });
-
-        // 2. Pie Chart: Filtered Contribution
-        const filteredPurchases = window.purchases.filter(p => {
-            const d = new Date(p.date);
-            return d.getMonth() === filterMonth && d.getFullYear() === filterYear;
-        });
-
-        const catTotals = {};
-        let grandTotal = 0;
-        filteredPurchases.forEach(p => {
-            catTotals[p.category] = (catTotals[p.category] || 0) + p.total;
-            grandTotal += p.total;
-        });
-
-        const pieLabels = Object.keys(catTotals);
-        const pieData = Object.values(catTotals);
-
-        if (filteredCategoryChart) filteredCategoryChart.destroy();
-        filteredCategoryChart = new Chart(document.getElementById('filteredCategoryChart'), {
-            type: 'doughnut',
-            data: {
-                labels: pieLabels,
-                datasets: [{
-                    data: pieData,
-                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '70%',
-                plugins: { legend: { display: false } }
-            }
-        });
-
-        // Update Summary Table
-        const summaryBody = document.getElementById('cat-summary-table-body');
-        summaryBody.innerHTML = pieLabels.map((name, i) => {
-            const total = pieData[i];
-            const pct = ((total / grandTotal) * 100).toFixed(1);
-            return `
-                <tr>
-                    <td class="py-2 flex items-center gap-2 truncate max-w-[80px]">
-                        <div class="w-2 h-2 rounded-full flex-shrink-0" style="background: ${['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'][i % 7]}"></div>
-                        <span class="truncate">${name}</span>
-                    </td>
-                    <td class="py-2 text-right">${formatIDR(total)}</td>
-                    <td class="py-2 text-right opacity-60">${pct}%</td>
-                </tr>
-            `;
-        }).join('') || '<tr><td colspan="3" class="py-10 text-center opacity-30">Tidak ada data</td></tr>';
     };
 
-    // Report Generation
-    window.generateReport = () => {
-        const month = parseInt(document.getElementById('report-month').value);
-        const year = parseInt(document.getElementById('report-year').value);
-        const content = document.getElementById('report-content');
+    // --- Dashboard logic ---
+    const updateDashboard = () => {
+        const now = new Date();
+        const month = now.getMonth();
+        const year = now.getFullYear();
         
-        const data = window.purchases.filter(p => {
+        const thisMonthPurchases = purchases.filter(p => {
             const d = new Date(p.date);
             return d.getMonth() === month && d.getFullYear() === year;
         });
 
-        if (data.length === 0) {
-            content.innerHTML = '<div class="text-center py-20 opacity-30">Tidak ada data transaksi untuk periode ini.</div>';
+        const totalSpend = thisMonthPurchases.reduce((acc, p) => acc + (p.total || 0), 0);
+        document.getElementById('stat-total-spend').innerText = `Rp ${totalSpend.toLocaleString('id-ID')}`;
+        document.getElementById('stat-total-items').innerText = purchases.length;
+        document.getElementById('stat-category-count').innerText = `Dari ${categories.length} Kategori`;
+
+        // Calculate top category
+        const catMap = {};
+        thisMonthPurchases.forEach(p => catMap[p.category] = (catMap[p.category] || 0) + p.total);
+        const topCat = Object.entries(catMap).sort((a,b) => b[1] - a[1])[0];
+        document.getElementById('stat-top-cat').innerText = topCat ? topCat[0] : '-';
+    };
+
+    const renderCharts = () => {
+        const ctxBar = document.getElementById('categoryChart').getContext('2d');
+        const ctxPie = document.getElementById('filteredCategoryChart').getContext('2d');
+        const yearFilter = parseInt(document.getElementById('dash-main-filter-year').value);
+        const pieMonth = parseInt(document.getElementById('dash-filter-month').value);
+        const pieYear = parseInt(document.getElementById('dash-filter-year').value);
+
+        // Bar Chart (Yearly Trend)
+        const labels = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+        const yearlyData = Array(12).fill(0);
+        purchases.filter(p => new Date(p.date).getFullYear() === yearFilter).forEach(p => {
+            yearlyData[new Date(p.date).getMonth()] += p.total;
+        });
+
+        if (catChart) catChart.destroy();
+        catChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Pengeluaran',
+                    data: yearlyData,
+                    backgroundColor: '#3b82f6',
+                    borderRadius: 8
+                }]
+            },
+            options: { maintainAspectRatio: false, scales: { y: { grid: { color: '#1e293b' } } } }
+        });
+
+        // Pie Chart
+        const pieFiltered = purchases.filter(p => {
+            const d = new Date(p.date);
+            return d.getMonth() === pieMonth && d.getFullYear() === pieYear;
+        });
+        const pieMap = {};
+        pieFiltered.forEach(p => pieMap[p.category] = (pieMap[p.category] || 0) + p.total);
+        const pieLabels = Object.keys(pieMap);
+        const pieValues = Object.values(pieMap);
+
+        if (pieChart) pieChart.destroy();
+        pieChart = new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: pieLabels,
+                datasets: [{
+                    data: pieValues,
+                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
+                    borderWidth: 0
+                }]
+            },
+            options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        // Summary Table
+        const total = pieValues.reduce((a,b) => a+b, 0);
+        const tbody = document.getElementById('cat-summary-table-body');
+        tbody.innerHTML = '';
+        Object.entries(pieMap).sort((a,b) => b[1] - a[1]).forEach(([cat, val]) => {
+            const row = `<tr>
+                <td class="py-2">${cat}</td>
+                <td class="py-2 text-right">Rp ${val.toLocaleString()}</td>
+                <td class="py-2 text-right">${((val/total)*100).toFixed(1)}%</td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+    };
+
+    // --- Data Management ---
+    window.addInputRow = () => {
+        const cat = document.getElementById('input-main-category').value;
+        if (!cat) return showToast("Pilih kategori dahulu", "error");
+        
+        const rowId = Date.now();
+        const itemsInCat = masterItems.filter(i => i.category === cat);
+        
+        const tr = document.createElement('tr');
+        tr.id = `row-${rowId}`;
+        tr.className = "group";
+        tr.innerHTML = `
+            <td class="p-2">
+                <select class="w-full p-2 rounded bg-slate-800 border-none outline-none item-select">
+                    <option value="">-- Pilih Barang --</option>
+                    ${itemsInCat.map(i => `<option value="${i.name}">${i.name}</option>`).join('')}
+                </select>
+            </td>
+            <td class="p-2"><input type="text" class="w-full p-2 rounded item-unit" placeholder="Pcs"></td>
+            <td class="p-2"><input type="number" class="w-full p-2 rounded item-qty" value="1"></td>
+            <td class="p-2"><input type="number" class="w-full p-2 rounded item-price" placeholder="0"></td>
+            <td class="p-2 font-bold text-emerald-400 text-right item-total">Rp 0</td>
+            <td class="p-2 text-center">
+                <button onclick="document.getElementById('row-${rowId}').remove(); calcInputTotal();" class="text-red-500 opacity-0 group-hover:opacity-100">&times;</button>
+            </td>
+        `;
+        document.getElementById('input-rows').appendChild(tr);
+
+        tr.querySelectorAll('input').forEach(i => i.addEventListener('input', calcInputTotal));
+    };
+
+    const calcInputTotal = () => {
+        let grand = 0;
+        document.querySelectorAll('#input-rows tr').forEach(row => {
+            const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+            const price = parseFloat(row.querySelector('.item-price').value) || 0;
+            const total = qty * price;
+            row.querySelector('.item-total').innerText = `Rp ${total.toLocaleString()}`;
+            grand += total;
+        });
+        document.getElementById('input-grand-total').innerText = `Rp ${grand.toLocaleString()}`;
+    };
+
+    document.getElementById('btn-save-purchase').onclick = async () => {
+        const vendor = document.getElementById('input-vendor').value;
+        const date = document.getElementById('input-date').value;
+        const category = document.getElementById('input-main-category').value;
+        
+        if (!vendor || !date || !category) return showToast("Lengkapi header data", "error");
+
+        const rows = document.querySelectorAll('#input-rows tr');
+        if (rows.length === 0) return showToast("Tambah minimal 1 barang", "error");
+
+        const btn = document.getElementById('btn-save-purchase');
+        btn.disabled = true;
+        btn.innerText = "Saving...";
+
+        try {
+            const batch = writeBatch(db);
+            rows.forEach(row => {
+                const name = row.querySelector('.item-select').value;
+                const unit = row.querySelector('.item-unit').value;
+                const qty = parseFloat(row.querySelector('.item-qty').value);
+                const price = parseFloat(row.querySelector('.item-price').value);
+                
+                if (name && qty && price) {
+                    const docRef = doc(collection(db, 'artifacts', appId, 'public', 'data', 'purchases'));
+                    batch.set(docRef, {
+                        category, vendor, date, itemName: name, unit, qty, price, total: qty * price,
+                        createdAt: new Date().toISOString()
+                    });
+                }
+            });
+            await batch.commit();
+            showToast("Transaksi berhasil disimpan");
+            document.getElementById('input-rows').innerHTML = "";
+            document.getElementById('input-vendor').value = "";
+            calcInputTotal();
+        } catch (e) {
+            showToast("Gagal menyimpan data", "error");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Simpan ke Cloud";
+        }
+    };
+
+    // Master Cat Management
+    document.getElementById('btn-save-category').onclick = async () => {
+        const name = document.getElementById('master-cat-add-name').value.trim();
+        if (!name) return;
+        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'categories'), { name });
+        document.getElementById('master-cat-add-name').value = "";
+        showToast("Kategori disimpan");
+    };
+
+    const renderCategoryTables = () => {
+        const tbody = document.getElementById('master-cat-table-body');
+        tbody.innerHTML = categories.map(c => `
+            <tr class="border-b border-slate-800">
+                <td class="p-3">${c.name}</td>
+                <td class="p-3 text-right">
+                    <button onclick="window.deleteCat('${c.id}')" class="text-red-400 text-xs">Hapus</button>
+                </td>
+            </tr>
+        `).join('');
+    };
+
+    window.deleteCat = async (id) => {
+        if (confirm("Hapus kategori ini?")) {
+            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'categories', id));
+        }
+    };
+
+    // Master Items Management
+    document.getElementById('btn-save-master').onclick = async () => {
+        const cat = document.getElementById('master-add-cat').value;
+        const name = document.getElementById('master-add-name').value.trim();
+        if (!cat || !name) return showToast("Lengkapi data master", "error");
+        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'), { category: cat, name });
+        document.getElementById('master-add-name').value = "";
+        showToast("Master barang disimpan");
+    };
+
+    const renderMasterTable = () => {
+        const tbody = document.getElementById('master-table-body');
+        tbody.innerHTML = masterItems.sort((a,b) => a.category.localeCompare(b.category)).map(i => `
+            <tr class="border-b border-slate-800">
+                <td class="p-3 text-xs opacity-60">${i.category}</td>
+                <td class="p-3 font-medium">${i.name}</td>
+                <td class="p-3 text-right">
+                    <button onclick="window.deleteMaster('${i.id}')" class="text-red-400 text-xs">Hapus</button>
+                </td>
+            </tr>
+        `).join('');
+    };
+
+    window.deleteMaster = async (id) => {
+        if (confirm("Hapus item master ini?")) {
+            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'master_items', id));
+        }
+    };
+
+    // Database Display
+    const renderDatabase = () => {
+        const search = document.getElementById('db-search').value.toLowerCase();
+        const cat = document.getElementById('db-filter-cat').value;
+        const tbody = document.getElementById('db-table-body');
+        
+        const filtered = purchases.filter(p => {
+            const matchSearch = p.itemName.toLowerCase().includes(search) || p.vendor.toLowerCase().includes(search);
+            const matchCat = !cat || p.category === cat;
+            return matchSearch && matchCat;
+        }).sort((a,b) => new Date(b.date) - new Date(a.date));
+
+        tbody.innerHTML = filtered.map(p => `
+            <tr class="hover:bg-white/5 transition-colors">
+                <td class="p-4 font-mono text-xs">${p.date}</td>
+                <td class="p-4"><span class="px-2 py-1 bg-slate-700 rounded text-[10px]">${p.category}</span></td>
+                <td class="p-4 font-bold">${p.itemName}</td>
+                <td class="p-4 opacity-70">${p.vendor}</td>
+                <td class="p-4">${p.qty} ${p.unit}</td>
+                <td class="p-4 text-emerald-400 font-bold">Rp ${p.total.toLocaleString()}</td>
+                <td class="p-4 text-center">
+                    <button onclick="window.deletePurchase('${p.id}')" class="text-red-400 hover:text-red-300">Hapus</button>
+                </td>
+            </tr>
+        `).join('');
+    };
+
+    window.deletePurchase = async (id) => {
+        if (confirm("Hapus transaksi ini?")) {
+            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'purchases', id));
+            showToast("Transaksi dihapus");
+        }
+    };
+
+    // Reports Logic
+    const initReportFilters = () => {
+        const mEl = document.getElementById('report-month');
+        const yEl = document.getElementById('report-year');
+        const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        mEl.innerHTML = months.map((m, i) => `<option value="${i}">${m}</option>`).join('');
+        yEl.innerHTML = [2024, 2025, 2026].map(y => `<option value="${y}" ${y === 2025 ? 'selected' : ''}>${y}</option>`).join('');
+    };
+
+    document.getElementById('btn-generate-report').onclick = () => {
+        const month = parseInt(document.getElementById('report-month').value);
+        const year = parseInt(document.getElementById('report-year').value);
+        const filtered = purchases.filter(p => {
+            const d = new Date(p.date);
+            return d.getMonth() === month && d.getFullYear() === year;
+        });
+
+        const container = document.getElementById('report-content');
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="text-center py-10 opacity-50">Tidak ada data untuk periode ini.</div>';
             return;
         }
 
-        const grouped = {};
-        data.forEach(p => {
-            if (!grouped[p.category]) grouped[p.category] = [];
-            grouped[p.category].push(p);
+        let html = `<table class="w-full text-left border-collapse mt-4">
+            <thead>
+                <tr class="border-b-2 border-slate-700 text-xs uppercase opacity-60">
+                    <th class="p-2">Tgl</th>
+                    <th class="p-2">Barang</th>
+                    <th class="p-2">Kategori</th>
+                    <th class="p-2">Vendor</th>
+                    <th class="p-2 text-right">Qty</th>
+                    <th class="p-2 text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody>`;
+        
+        let total = 0;
+        filtered.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(p => {
+            total += p.total;
+            html += `<tr class="border-b border-slate-800 text-sm">
+                <td class="p-2 font-mono text-[10px]">${p.date}</td>
+                <td class="p-2 font-bold">${p.itemName}</td>
+                <td class="p-2 text-[10px]">${p.category}</td>
+                <td class="p-2 italic opacity-60">${p.vendor}</td>
+                <td class="p-2 text-right">${p.qty} ${p.unit}</td>
+                <td class="p-2 text-right">Rp ${p.total.toLocaleString()}</td>
+            </tr>`;
         });
 
-        let html = '';
-        let grandTotal = 0;
+        html += `</tbody>
+            <tfoot>
+                <tr class="bg-blue-600/10 font-bold">
+                    <td colspan="5" class="p-2 text-right uppercase tracking-wider">Grand Total Mutasi</td>
+                    <td class="p-2 text-right text-blue-400">Rp ${total.toLocaleString()}</td>
+                </tr>
+            </tfoot>
+        </table>`;
+        
+        container.innerHTML = html;
+        document.getElementById('report-timestamp').innerText = `Dicetak: ${new Date().toLocaleString('id-ID')} WIB`;
+    };
 
-        for (const [cat, items] of Object.entries(grouped)) {
-            const subtotal = items.reduce((a, b) => a + b.total, 0);
-            grandTotal += subtotal;
-            html += `
-                <div class="mb-8">
-                    <h3 class="bg-slate-800 p-2 text-sm font-bold border-l-4 border-blue-500 mb-2 uppercase">${cat}</h3>
-                    <table class="w-full text-xs border-collapse">
-                        <thead>
-                            <tr class="text-slate-400 border-b border-slate-700">
-                                <th class="text-left py-2">Tgl</th>
-                                <th class="text-left py-2">Nama Barang</th>
-                                <th class="text-left py-2">Vendor</th>
-                                <th class="text-center py-2">Qty</th>
-                                <th class="text-right py-2">Satuan</th>
-                                <th class="text-right py-2">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${items.map(i => `
-                                <tr class="border-b border-slate-800/50">
-                                    <td class="py-2 opacity-60">${i.date.split('-').reverse().join('/')}</td>
-                                    <td class="py-2 font-medium">${i.itemName}</td>
-                                    <td class="py-2 text-[10px] opacity-60">${i.vendor}</td>
-                                    <td class="py-2 text-center">${i.qty} ${i.unit}</td>
-                                    <td class="py-2 text-right">${formatIDR(i.price)}</td>
-                                    <td class="py-2 text-right font-bold text-emerald-400">${formatIDR(i.total)}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="5" class="py-2 text-right font-bold opacity-60 italic">Subtotal ${cat}:</td>
-                                <td class="py-2 text-right font-black text-emerald-500 border-t border-slate-600">${formatIDR(subtotal)}</td>
-                            </tr>
-                        </tfoot>
-                    </table>
+    // Trends Logic
+    const renderTrends = () => {
+        const cat = document.getElementById('trend-cat').value;
+        const container = document.getElementById('trend-cards');
+        container.innerHTML = "";
+        if (!cat) return;
+
+        const filtered = purchases.filter(p => p.category === cat);
+        const itemTrends = {};
+        
+        filtered.forEach(p => {
+            if (!itemTrends[p.itemName]) itemTrends[p.itemName] = [];
+            itemTrends[p.itemName].push(p);
+        });
+
+        Object.entries(itemTrends).forEach(([name, history]) => {
+            history.sort((a,b) => new Date(b.date) - new Date(a.date));
+            const last = history[0];
+            const prev = history[1];
+            
+            let diffHtml = "";
+            if (prev) {
+                const diff = last.price - prev.price;
+                const perc = ((diff/prev.price)*100).toFixed(1);
+                const color = diff > 0 ? 'text-red-400' : (diff < 0 ? 'text-emerald-400' : 'text-slate-400');
+                const sign = diff > 0 ? '↑' : (diff < 0 ? '↓' : '→');
+                diffHtml = `<span class="${color} text-xs font-bold">${sign} ${perc}%</span>`;
+            }
+
+            const card = document.createElement('div');
+            card.className = "glass p-5 rounded-2xl border-l-4 border-blue-500";
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <h5 class="font-bold text-sm leading-tight">${name}</h5>
+                    ${diffHtml}
+                </div>
+                <div class="flex items-end gap-2">
+                    <span class="text-xl font-bold">Rp ${last.price.toLocaleString()}</span>
+                    <span class="text-[10px] opacity-40 mb-1">per ${last.unit || 'satuan'}</span>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between text-[10px] opacity-50">
+                    <span>Terakhir: ${last.date}</span>
+                    <span class="truncate max-w-[100px]">${last.vendor}</span>
                 </div>
             `;
-        }
-
-        html += `
-            <div class="mt-10 bg-blue-600/10 p-6 rounded-xl border border-blue-500/30 flex justify-between items-center">
-                <span class="text-xl font-black uppercase tracking-widest">Grand Total Pengeluaran:</span>
-                <span class="text-3xl font-black text-emerald-400">${formatIDR(grandTotal)}</span>
-            </div>
-        `;
-
-        content.innerHTML = html;
-        document.getElementById('report-timestamp').innerText = `Dicetak: ${new Date().toLocaleString('id-ID')}`;
-    };
-
-    window.exportToPDF = () => {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'pt', 'a4');
-        const element = document.getElementById('report-container');
-        
-        const buttons = element.querySelectorAll('.no-print');
-        buttons.forEach(b => b.style.display = 'none');
-
-        doc.setTextColor(40);
-        doc.setFontSize(18);
-        doc.text("RSU DADI KELUARGA PURWOKERTO", 40, 50);
-        doc.setFontSize(10);
-        doc.text("LAPORAN MUTASI BARANG", 40, 70);
-        doc.text(document.getElementById('report-timestamp').innerText, 40, 85);
-
-        const tableData = [];
-        window.purchases.forEach(p => {
-            tableData.push([p.date, p.category, p.itemName, p.vendor, `${p.qty} ${p.unit}`, formatIDR(p.price), formatIDR(p.total)]);
+            container.innerHTML += card.outerHTML;
         });
-
-        doc.autoTable({
-            startY: 110,
-            head: [['Tanggal', 'Kategori', 'Barang', 'Vendor', 'Qty', 'Satuan', 'Total']],
-            body: tableData,
-            theme: 'striped',
-            headStyles: { fillColor: [59, 130, 246] }
-        });
-
-        doc.save(`Laporan_Logistik_${new Date().getTime()}.pdf`);
-        buttons.forEach(b => b.style.display = 'flex');
     };
 
-    window.exportInputTemplate = () => {
-        const data = [
-            ["Tanggal (YYYY-MM-DD)", "Nama Barang", "Satuan", "Qty", "Harga Satuan"],
-            ["2025-01-01", "Kertas A4", "Rim", "10", "55000"],
-            ["2025-01-01", "Pulpen Pilot", "Pack", "2", "24000"]
-        ];
-        const ws = XLSX.utils.aoa_to_sheet(data);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Template_Import");
-        XLSX.writeFile(wb, "Template_Logistik_RSDK.xlsx");
-    };
+    // Initialize UI
+    setInterval(() => {
+        document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('id-ID') + " WIB";
+    }, 1000);
 
-    // Modal Edit Logic
-    window.openEditModal = (id) => {
-        const p = window.purchases.find(x => x.id === id);
-        if (!p) return;
-        currentEditId = id;
-        const form = document.getElementById('edit-form-content');
-        form.innerHTML = `
-            <div>
-                <label class="block text-xs mb-1 opacity-50">Nama Barang</label>
-                <input type="text" id="edit-name" value="${p.itemName}" class="w-full p-3 rounded-xl">
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs mb-1 opacity-50">Qty</label>
-                    <input type="number" id="edit-qty" value="${p.qty}" class="w-full p-3 rounded-xl">
-                </div>
-                <div>
-                    <label class="block text-xs mb-1 opacity-50">Harga Satuan</label>
-                    <input type="number" id="edit-price" value="${p.price}" class="w-full p-3 rounded-xl">
-                </div>
-            </div>
-            <div>
-                <label class="block text-xs mb-1 opacity-50">Vendor</label>
-                <input type="text" id="edit-vendor" value="${p.vendor}" class="w-full p-3 rounded-xl">
-            </div>
-        `;
-        document.getElementById('edit-modal').classList.remove('hidden');
-    };
-
-    window.closeEditModal = () => document.getElementById('edit-modal').classList.add('hidden');
-
-    document.getElementById('btn-save-edit').onclick = async () => {
-        const itemName = document.getElementById('edit-name').value;
-        const qty = parseFloat(document.getElementById('edit-qty').value);
-        const price = parseFloat(document.getElementById('edit-price').value);
-        const vendor = document.getElementById('edit-vendor').value;
-
-        try {
-            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'purchases', currentEditId), {
-                itemName, qty, price, vendor, total: qty * price
-            });
-            showToast("Transaksi diperbarui");
-            closeEditModal();
-        } catch (e) { showToast("Gagal update", "error"); }
-    };
-
-    // CSV Imports
-    document.getElementById('master-import-file').onchange = (e) => {
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-            try {
-                const lines = event.target.result.split('\n');
-                const batch = writeBatch(db);
-                lines.forEach(line => {
-                    const [cat, name] = line.split(',');
-                    if (cat && name) {
-                        const ref = doc(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'));
-                        batch.set(ref, { category: cat.trim(), name: name.trim() });
-                    }
-                });
-                await batch.commit();
-                showToast("Master Barang diimpor");
-            } catch (err) { showToast("Gagal impor CSV", "error"); }
-        };
-        reader.readAsText(e.target.files[0]);
-    };
-
-    document.getElementById('purchase-import-file').onchange = (e) => {
-        const reader = new FileReader();
-        const cat = document.getElementById('input-main-category').value;
-        const vendor = document.getElementById('input-vendor').value;
-        if (!cat || !vendor) return showToast("Pilih Kategori & Vendor dulu", "error");
-
-        reader.onload = async (event) => {
-            try {
-                const lines = event.target.result.split('\n');
-                const batch = writeBatch(db);
-                lines.forEach((line, i) => {
-                    if (i === 0) return; // Skip header
-                    const [date, name, unit, qty, price] = line.split(',');
-                    if (date && name && qty) {
-                        const ref = doc(collection(db, 'artifacts', appId, 'public', 'data', 'purchases'));
-                        batch.set(ref, {
-                            category: cat,
-                            vendor: vendor,
-                            date: date.trim(),
-                            itemName: name.trim(),
-                            unit: unit.trim(),
-                            qty: parseFloat(qty),
-                            price: parseFloat(price),
-                            total: parseFloat(qty) * parseFloat(price),
-                            createdAt: new Date().toISOString()
-                        });
-                    }
-                });
-                await batch.commit();
-                showToast("Data transaksi diimpor");
-            } catch (err) { showToast("Gagal impor transaksi CSV", "error"); }
-        };
-        reader.readAsText(e.target.files[0]);
-    };
-
-    // Init Logic
-    setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('id-ID') + " WIB"; }, 1000);
     initAuth();
+    initReportFilters();
 
-    // Event Bindings
+    // Event Bindings for Search/Filters
     document.getElementById('dash-main-filter-year').onchange = renderCharts;
     document.getElementById('dash-filter-month').onchange = renderCharts;
     document.getElementById('dash-filter-year').onchange = renderCharts;
-    document.getElementById('input-main-category').onchange = () => { 
-        document.getElementById('input-rows').innerHTML = ""; 
-        addInputRow(); 
-    };
     document.getElementById('db-search').oninput = renderDatabase;
     document.getElementById('db-filter-cat').onchange = renderDatabase;
     document.getElementById('trend-cat').onchange = renderTrends;
 
+    window.closeEditModal = () => document.getElementById('edit-modal').classList.add('hidden');
 </script>
 </body>
 </html>
