@@ -1215,7 +1215,9 @@ body');
         const cat = document.getElementById('input-main-
 
 category').value;
-        const itemsInCat = window.masterItems.filter(m => m.category 
+        const itemsInCat = window.masterItems
+    .filter(m => m.category === cat)
+    .sort((a, b) => a.name.localeCompare(b.name)); 
 
 === cat);
         
