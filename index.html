@@ -100,10 +100,11 @@
             </div>
         </header>
 
-        <section id="main-scroll" class="flex-1 overflow-hidden p-8 custom-scrollbar">
+        <section id="main-scroll" class="flex-1 overflow-y-auto p-8 custom-scrollbar">
             
             <!-- Tab: Dashboard -->
             <div id="tab-dashboard" class="tab-content space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div class="glass p-6 rounded-2xl">
                         <p class="text-slate-400 text-sm">Total Belanja (Bulan Ini)</p>
                         <h3 id="stat-total-spend" class="text-2xl font-bold mt-2 text-emerald-400">Rp 0</h3>
@@ -127,7 +128,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                   <div class="glass p-6 rounded-2xl flex flex-col h-[calc(100vh-220px)]">
+                    <div class="glass p-6 rounded-2xl flex flex-col h-[600px]">
                         <h4 class="font-bold mb-4 flex justify-between items-center">
                             Tren Pengeluaran per Kategori
                             <select id="dash-main-filter-year" class="bg-slate-800 text-[10px] p-1 rounded border border-slate-700 outline-none">
@@ -138,7 +139,7 @@
                             <canvas id="categoryChart"></canvas>
                         </div>
                     </div>
-                    <div class="glass p-6 rounded-2xl flex flex-col h-[calc(100vh-220px)] overflow-hidden">
+                    <div class="glass p-6 rounded-2xl flex flex-col h-[600px] overflow-hidden">
                         <div class="flex justify-between items-center mb-4">
                             <h4 class="font-bold">Persentase Belanja Kategori</h4>
                             <div class="flex gap-2">
