@@ -15,9 +15,7 @@
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
         .sidebar-item:hover { background: rgba(59, 130, 246, 0.2); }
         .sidebar-active { background: #3b82f6; color: white; }
-        .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 8rem; 
-
-opacity: 0.03; pointer-events: none; white-space: nowrap; font-weight: 800; z-index: 0; }
+        .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 8rem; opacity: 0.03; pointer-events: none; white-space: nowrap; font-weight: 800; z-index: 0; }
         marquee { background: #1e293b; padding: 5px 0; font-weight: 500; border-bottom: 1px solid #334155; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
@@ -47,68 +45,32 @@ opacity: 0.03; pointer-events: none; white-space: nowrap; font-weight: 800; z-in
         </div>
 
         <nav class="flex-1 px-4 space-y-2 overflow-y-auto custom-scrollbar">
-            <button onclick="switchTab('dashboard')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-
-
-xl transition-all sidebar-active" id="btn-dashboard">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 
-
-10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 
-
-0h6"></path></svg>
+            <button onclick="switchTab('dashboard')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all sidebar-active" id="btn-dashboard">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                 Dashboard
             </button>
-            <button onclick="switchTab('input')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl 
-
-transition-all" id="btn-input">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-
-
-8H4"></path></svg>
+            <button onclick="switchTab('input')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all" id="btn-input">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"></path></svg>
                 Input Barang
             </button>
-            <button onclick="switchTab('database')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl 
-
-transition-all" id="btn-database">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 7v10c0 2.21 3.582 4 8 
-
-4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-
-
-4"></path></svg>
+            <button onclick="switchTab('database')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all" id="btn-database">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
                 Database Recap
             </button>
-            <button onclick="switchTab('trends')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl 
-
-transition-all" id="btn-trends">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4
-
--4-6 6"></path></svg>
+            <button onclick="switchTab('trends')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all" id="btn-trends">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                 Tren Harga
             </button>
-            <button onclick="switchTab('master')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl 
-
-transition-all" id="btn-master">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 
-
-2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+            <button onclick="switchTab('master')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all" id="btn-master">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                 Master Barang
             </button>
-            <button onclick="switchTab('master-cat')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 
-
-rounded-xl transition-all" id="btn-master-cat">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" 
-
-stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 
-
-0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            <button onclick="switchTab('master-cat')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all" id="btn-master-cat">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                 Master Kategori
             </button>
-            <button onclick="switchTab('reports')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl 
-
-transition-all" id="btn-reports">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 17h2a2 2 0 002-2v-4a2 
-
-2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 012-2H5a2 2 0 012 2v4a2 2 0 002 2m8-12V5a2 2 0 00-2-
-
-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            <button onclick="switchTab('reports')" class="nav-btn sidebar-item w-full flex items-center gap-3 p-3 rounded-xl transition-all" id="btn-reports">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 012-2H5a2 2 0 012 2v4a2 2 0 002 2m8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                 Laporan & Mutasi
             </button>
         </nav>
@@ -129,17 +91,13 @@ transition-all" id="btn-reports">
     <main class="flex-1 flex flex-col relative z-10 overflow-hidden">
         <header class="no-print">
             <marquee behavior="scroll" direction="left">
-                ⚠️ Pengumuman: Selamat Datang Di Portal Inventory Bag. Rumah Tangga • Developed by: Tomos Jr 2026 • Pantau 
-
-tren harga untuk optimasi pembelian bulan depan.
+                ⚠️ Pengumuman: Selamat Datang Di Portal Inventory Bag. Rumah Tangga • Developed by: Tomos Jr 2026 • Pantau tren harga untuk optimasi pembelian bulan depan.
             </marquee>
             <div class="p-4 glass flex justify-between items-center px-8">
                 <h2 id="current-page-title" class="text-xl font-semibold">Dashboard Analisis</h2>
                 <div class="flex gap-4 items-center">
                     <span id="live-clock" class="text-sm font-mono opacity-70"></span>
-                    <button class="bg-blue-600/20 text-blue-400 px-4 py-1.5 rounded-full text-xs font-bold border border-
-
-blue-600/30">ONLINE</button>
+                    <button class="bg-blue-600/20 text-blue-400 px-4 py-1.5 rounded-full text-xs font-bold border border-blue-600/30">ONLINE</button>
                 </div>
             </div>
         </header>
@@ -175,9 +133,7 @@ blue-600/30">ONLINE</button>
                     <div class="glass p-6 rounded-2xl flex flex-col h-[500px]">
                         <h4 class="font-bold mb-4 flex justify-between items-center">
                             Tren Pengeluaran per Kategori
-                            <select id="dash-main-filter-year" class="bg-slate-800 text-[10px] p-1 rounded border border-
-
-slate-700 outline-none">
+                            <select id="dash-main-filter-year" class="bg-slate-800 text-[10px] p-1 rounded border border-slate-700 outline-none">
                                 <option>2024</option><option selected>2025</option><option>2026</option>
                             </select>
                         </h4>
@@ -190,25 +146,13 @@ slate-700 outline-none">
                         <div class="flex justify-between items-center mb-4">
                             <h4 class="font-bold">Persentase Belanja Kategori</h4>
                             <div class="flex gap-2">
-                                <select id="dash-filter-month" class="bg-slate-800 text-[10px] p-1 rounded border border-
-
-slate-700 outline-none">
-                                    <option value="0">Jan</option><option value="1">Feb</option><option 
-
-value="2">Mar</option>
-                                    <option value="3">Apr</option><option value="4">Mei</option><option 
-
-value="5">Jun</option>
-                                    <option value="6">Jul</option><option value="7">Agu</option><option 
-
-value="8">Sep</option>
-                                    <option value="9">Okt</option><option value="10">Nov</option><option 
-
-value="11">Des</option>
+                                <select id="dash-filter-month" class="bg-slate-800 text-[10px] p-1 rounded border border-slate-700 outline-none">
+                                    <option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option>
+                                    <option value="3">Apr</option><option value="4">Mei</option><option value="5">Jun</option>
+                                    <option value="6">Jul</option><option value="7">Agu</option><option value="8">Sep</option>
+                                    <option value="9">Okt</option><option value="10">Nov</option><option value="11">Des</option>
                                 </select>
-                                <select id="dash-filter-year" class="bg-slate-800 text-[10px] p-1 rounded border border-
-
-slate-700 outline-none">
+                                <select id="dash-filter-year" class="bg-slate-800 text-[10px] p-1 rounded border border-slate-700 outline-none">
                                     <option>2024</option><option selected>2025</option><option>2026</option>
                                 </select>
                             </div>
@@ -241,36 +185,22 @@ slate-700 outline-none">
                 <div class="glass p-6 rounded-2xl">
                     <div class="flex flex-wrap gap-4 items-end mb-8 border-b border-slate-700 pb-6">
                         <div class="flex-1 min-w-[200px]">
-                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-bold">Pilih 
-
-Kategori</label>
-                            <select id="input-main-category" class="w-full p-3 rounded-xl focus:ring-2 ring-blue-500 
-
-outline-none category-dropdown">
+                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-bold">Pilih Kategori</label>
+                            <select id="input-main-category" class="w-full p-3 rounded-xl focus:ring-2 ring-blue-500 outline-none category-dropdown">
                                 <option value="">-- Pilih Kategori --</option>
                             </select>
                         </div>
                         <div class="flex gap-2 mb-1">
-                            <button onclick="exportInputTemplate()" class="px-4 py-3 bg-green-700 hover:bg-green-600 
-
-rounded-xl text-xs font-bold border border-green-600">Template EXCEL</button>
-                            <button onclick="document.getElementById('purchase-import-file').click()" class="px-4 py-3 bg-
-
-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-bold shadow-lg">Import CSV</button>
+                            <button onclick="exportInputTemplate()" class="px-4 py-3 bg-green-700 hover:bg-green-600 rounded-xl text-xs font-bold border border-green-600">Template EXCEL</button>
+                            <button onclick="document.getElementById('purchase-import-file').click()" class="px-4 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-xs font-bold shadow-lg">Import CSV</button>
                             <input type="file" id="purchase-import-file" class="hidden" accept=".csv">
                         </div>
                         <div class="flex-1 min-w-[200px]">
-                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-bold">Supplier / 
-
-Vendor</label>
-                            <input type="text" id="input-vendor" placeholder="Nama Supplier" class="w-full p-3 rounded-xl 
-
-outline-none">
+                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-bold">Supplier / Vendor</label>
+                            <input type="text" id="input-vendor" placeholder="Nama Supplier" class="w-full p-3 rounded-xl outline-none">
                         </div>
                         <div class="flex-1 min-w-[200px]">
-                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-bold">Tanggal 
-
-Pembelian</label>
+                            <label class="block text-xs uppercase tracking-wider text-slate-400 mb-2 font-bold">Tanggal Pembelian</label>
                             <input type="date" id="input-date" class="w-full p-3 rounded-xl outline-none">
                         </div>
                     </div>
@@ -292,12 +222,8 @@ Pembelian</label>
                     </div>
                     
                     <div class="mt-6 flex justify-between items-center">
-                        <button onclick="addInputRow()" class="flex items-center gap-2 text-blue-400 hover:text-blue-300 
-
-font-medium px-4 py-2 rounded-lg border border-blue-400/30">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-
-
-8H4"></path></svg>
+                        <button onclick="addInputRow()" class="flex items-center gap-2 text-blue-400 hover:text-blue-300 font-medium px-4 py-2 rounded-lg border border-blue-400/30">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"></path></svg>
                             Tambah Baris
                         </button>
                         <div class="flex items-center gap-4">
@@ -305,9 +231,7 @@ font-medium px-4 py-2 rounded-lg border border-blue-400/30">
                                 <p class="text-xs opacity-50">Grand Total</p>
                                 <h3 id="input-grand-total" class="text-xl font-bold text-emerald-400">Rp 0</h3>
                             </div>
-                            <button onclick="savePurchase()" class="btn-gradient px-8 py-3 rounded-xl font-bold shadow-
-
-lg">Simpan ke Cloud</button>
+                            <button onclick="savePurchase()" class="btn-gradient px-8 py-3 rounded-xl font-bold shadow-lg">Simpan ke Cloud</button>
                         </div>
                     </div>
                 </div>
@@ -317,9 +241,7 @@ lg">Simpan ke Cloud</button>
             <div id="tab-database" class="tab-content hidden space-y-6">
                 <div class="flex justify-between items-center no-print">
                     <div class="flex gap-4">
-                        <input type="text" id="db-search" placeholder="Cari barang atau vendor..." class="px-4 py-2 rounded-
-
-xl w-64 text-sm">
+                        <input type="text" id="db-search" placeholder="Cari barang atau vendor..." class="px-4 py-2 rounded-xl w-64 text-sm">
                         <select id="db-filter-cat" class="px-4 py-2 rounded-xl text-sm">
                             <option value="">Semua Kategori</option>
                         </select>
@@ -351,9 +273,7 @@ xl w-64 text-sm">
                         <select id="trend-cat" class="px-4 py-2 rounded-xl w-64 category-dropdown">
                             <option value="">Pilih Kategori</option>
                         </select>
-                        <p class="flex-1 text-slate-400 text-sm self-center">Menampilkan perbandingan harga terakhir barang 
-
-di kategori terpilih.</p>
+                        <p class="flex-1 text-slate-400 text-sm self-center">Menampilkan perbandingan harga terakhir barang di kategori terpilih.</p>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="trend-cards"></div>
                 </div>
@@ -371,13 +291,9 @@ di kategori terpilih.</p>
                             </div>
                             <div>
                                 <label class="block text-xs mb-1 opacity-50">Nama Barang</label>
-                                <input type="text" id="master-add-name" class="w-full p-3 rounded-xl" placeholder="Contoh: 
-
-Kertas A4">
+                                <input type="text" id="master-add-name" class="w-full p-3 rounded-xl" placeholder="Contoh: Kertas A4">
                             </div>
-                            <button onclick="addMasterItem()" class="w-full btn-gradient py-3 rounded-xl font-bold">Simpan 
-
-Master</button>
+                            <button onclick="addMasterItem()" class="w-full btn-gradient py-3 rounded-xl font-bold">Simpan Master</button>
                         </div>
                     </div>
 
@@ -385,12 +301,8 @@ Master</button>
                         <div class="flex justify-between items-center mb-6">
                             <h4 class="font-bold">Database Master Barang</h4>
                             <div class="flex gap-2">
-                                <button onclick="exportMasterExcel()" class="px-4 py-2 bg-green-700 hover:bg-green-600 
-
-rounded-lg text-xs">Export EXCEL</button>
-                                <button onclick="document.getElementById('master-import-file').click()" class="px-4 py-2 bg-
-
-emerald-600 hover:bg-emerald-500 rounded-lg text-xs">Import CSV</button>
+                                <button onclick="exportMasterExcel()" class="px-4 py-2 bg-green-700 hover:bg-green-600 rounded-lg text-xs">Export EXCEL</button>
+                                <button onclick="document.getElementById('master-import-file').click()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs">Import CSV</button>
                                 <input type="file" id="master-import-file" class="hidden" accept=".csv">
                             </div>
                         </div>
@@ -418,13 +330,9 @@ emerald-600 hover:bg-emerald-500 rounded-lg text-xs">Import CSV</button>
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-xs mb-1 opacity-50">Nama Kategori</label>
-                                <input type="text" id="master-cat-add-name" class="w-full p-3 rounded-xl" 
-
-placeholder="Contoh: ATK, Medis, dll">
+                                <input type="text" id="master-cat-add-name" class="w-full p-3 rounded-xl" placeholder="Contoh: ATK, Medis, dll">
                             </div>
-                            <button onclick="addCategory()" class="w-full btn-gradient py-3 rounded-xl font-bold">Simpan 
-
-Kategori</button>
+                            <button onclick="addCategory()" class="w-full btn-gradient py-3 rounded-xl font-bold">Simpan Kategori</button>
                         </div>
                     </div>
 
@@ -450,13 +358,9 @@ Kategori</button>
                 <div class="glass p-10 rounded-2xl max-w-5xl mx-auto shadow-2xl" id="report-container">
                     <div class="border-b-4 border-double border-slate-600 pb-6 mb-8 flex items-center justify-between">
                         <div class="flex items-center gap-6">
-                            <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center font-bold text-
-
-2xl">DK</div>
+                            <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center font-bold text-2xl">DK</div>
                             <div>
-                                <h1 class="text-2xl font-extrabold tracking-widest text-blue-400 uppercase">RSU DADI KELUARGA 
-
-PURWOKERTO</h1>
+                                <h1 class="text-2xl font-extrabold tracking-widest text-blue-400 uppercase">RSU DADI KELUARGA PURWOKERTO</h1>
                                 <p class="text-xs opacity-70 italic">Jl. Sultan Agung No:8A - Teluk Purwokerto Selatan</p>
                                 <p class="text-xs opacity-70">Telp: (0281) 6844566 | email: rsdadikeluarga@gmail.com</p>
                             </div>
@@ -469,37 +373,23 @@ PURWOKERTO</h1>
 
                     <div class="flex flex-wrap gap-4 mb-8 no-print items-center">
                         <select id="report-month" class="px-4 py-2 rounded-xl text-sm">
-                            <option value="0">Januari</option><option value="1">Februari</option><option 
-
-value="2">Maret</option>
+                            <option value="0">Januari</option><option value="1">Februari</option><option value="2">Maret</option>
                             <option value="3">April</option><option value="4">Mei</option><option value="5">Juni</option>
-                            <option value="6">Juli</option><option value="7">Agustus</option><option 
-
-value="8">September</option>
-                            <option value="9">Oktober</option><option value="10">November</option><option 
-
-value="11">Desember</option>
+                            <option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option>
+                            <option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
                         </select>
                         <select id="report-year" class="px-4 py-2 rounded-xl text-sm">
                             <option>2024</option><option selected>2025</option><option>2026</option>
                         </select>
-                        <button onclick="generateReport()" class="bg-blue-600 px-6 py-2 rounded-xl font-bold text-sm">Filter 
-
-Laporan</button>
-                        <button onclick="exportToPDF()" class="bg-red-600 px-6 py-2 rounded-xl font-bold flex items-center 
-
-gap-2 text-sm">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 16l-6-6h12l-6 
-
-6z"></path></svg>
+                        <button onclick="generateReport()" class="bg-blue-600 px-6 py-2 rounded-xl font-bold text-sm">Filter Laporan</button>
+                        <button onclick="exportToPDF()" class="bg-red-600 px-6 py-2 rounded-xl font-bold flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 16l-6-6h12l-6 6z"></path></svg>
                             Cetak PDF
                         </button>
                     </div>
 
                     <div id="report-content" class="text-slate-200 min-h-[400px]">
-                        <div class="text-center py-20 opacity-30">Pilih periode dan klik Filter Laporan untuk melihat mutasi 
-
-barang.</div>
+                        <div class="text-center py-20 opacity-30">Pilih periode dan klik Filter Laporan untuk melihat mutasi barang.</div>
                     </div>
 
                     <div class="mt-12 flex justify-between items-end border-t border-slate-700 pt-8 opacity-70">
@@ -538,20 +428,14 @@ barang.</div>
     </div>
 </div>
 
-<div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full bg-blue-600 text-white font-bold 
-
-shadow-2xl transition-all duration-300 z-[100] opacity-0 pointer-events-none">
+<div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full bg-blue-600 text-white font-bold shadow-2xl transition-all duration-300 z-[100] opacity-0 pointer-events-none">
     Notifikasi Berhasil!
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 
-
-"https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, updateDoc, deleteDoc, collection, onSnapshot, addDoc, getDocs, writeBatch, query, 
-
-where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, updateDoc, deleteDoc, collection, onSnapshot, addDoc, getDocs, writeBatch, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'logistic-pro-smart-v1';
     const firebaseConfig = {
@@ -651,16 +535,12 @@ where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     window.showToast = (msg, type = "success") => {
         const toast = document.getElementById('toast');
         toast.innerText = msg;
-        toast.className = `fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full text-white font-bold shadow-2xl 
-
-transition-all duration-300 z-[100] ${type === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`;
+        toast.className = `fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full text-white font-bold shadow-2xl transition-all duration-300 z-[100] ${type === 'success' ? 'bg-emerald-600' : 'bg-red-600'}`;
         toast.style.opacity = '1';
         setTimeout(() => toast.style.opacity = '0', 3000);
     };
 
-    window.formatIDR = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 
-
-}).format(num);
+    window.formatIDR = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
 
     const updateStats = () => {
         const now = new Date();
@@ -674,9 +554,7 @@ transition-all duration-300 z-[100] ${type === 'success' ? 'bg-emerald-600' : 'b
 
         const lastMonthData = window.purchases.filter(p => {
             const d = new Date(p.date);
-            return d.getMonth() === (thisMonth === 0 ? 11 : thisMonth - 1) && d.getFullYear() === (thisMonth === 0 ? thisYear 
-
-- 1 : thisYear);
+            return d.getMonth() === (thisMonth === 0 ? 11 : thisMonth - 1) && d.getFullYear() === (thisMonth === 0 ? thisYear - 1 : thisYear);
         });
 
         const totalThis = monthlyData.reduce((acc, curr) => acc + curr.total, 0);
@@ -686,9 +564,7 @@ transition-all duration-300 z-[100] ${type === 'success' ? 'bg-emerald-600' : 'b
         if (totalLast > 0) diff = ((totalThis - totalLast) / totalLast) * 100;
 
         document.getElementById('stat-total-spend').innerText = formatIDR(totalThis);
-        document.getElementById('stat-spend-compare').innerText = `${diff >= 0 ? '↑' : '↓'} ${Math.abs(diff).toFixed(1)}% vs 
-
-bulan lalu`;
+        document.getElementById('stat-spend-compare').innerText = `${diff >= 0 ? '↑' : '↓'} ${Math.abs(diff).toFixed(1)}% vs bulan lalu`;
         document.getElementById('stat-total-items').innerText = window.purchases.length;
         document.getElementById('stat-category-count').innerText = `Dari ${window.categories.length} Kategori`;
 
@@ -696,9 +572,7 @@ bulan lalu`;
         window.purchases.forEach(p => catCounts[p.category] = (catCounts[p.category] || 0) + 1);
         const topCat = Object.entries(catCounts).sort((a,b) => b[1] - a[1])[0];
         document.getElementById('stat-top-cat').innerText = topCat ? topCat[0] : '-';
-        document.getElementById('stat-last-sync').innerText = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', 
-
-minute: '2-digit' });
+        document.getElementById('stat-last-sync').innerText = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
     };
 
     // Master Category Logic
@@ -728,9 +602,7 @@ minute: '2-digit' });
             <tr class="border-b border-slate-800">
                 <td class="p-3">${c.name}</td>
                 <td class="p-3 text-right">
-                    <button onclick="deleteDocById('master_categories', '${c.id}')" class="text-red-400 hover:text-red-
-
-300">Hapus</button>
+                    <button onclick="deleteDocById('master_categories', '${c.id}')" class="text-red-400 hover:text-red-300">Hapus</button>
                 </td>
             </tr>
         `).join('');
@@ -755,9 +627,7 @@ minute: '2-digit' });
                 <td class="p-3 opacity-60 text-xs">${m.category}</td>
                 <td class="p-3">${m.name}</td>
                 <td class="p-3 text-right">
-                    <button onclick="deleteDocById('master_items', '${m.id}')" class="text-red-400 hover:text-red-
-
-300">Hapus</button>
+                    <button onclick="deleteDocById('master_items', '${m.id}')" class="text-red-400 hover:text-red-300">Hapus</button>
                 </td>
             </tr>
         `).join('');
@@ -779,18 +649,10 @@ minute: '2-digit' });
                 </select>
             </td>
             <td class="p-3"><input type="text" class="item-unit w-full p-2 rounded outline-none" placeholder="Box/Pcs"></td>
-            <td class="p-3"><input type="number" class="item-qty w-full p-2 rounded outline-none" value="1" oninput="calcRow
-
-(this)"></td>
-            <td class="p-3"><input type="number" class="item-price w-full p-2 rounded outline-none" placeholder="0" 
-
-oninput="calcRow(this)"></td>
-            <td class="p-3"><input type="text" class="item-total w-full p-2 rounded outline-none opacity-50" readonly 
-
-value="Rp 0"></td>
-            <td class="p-3 text-center"><button onclick="this.closest('tr').remove(); updateGrandTotal();" class="text-red-
-
-500 text-xl">&times;</button></td>
+            <td class="p-3"><input type="number" class="item-qty w-full p-2 rounded outline-none" value="1" oninput="calcRow(this)"></td>
+            <td class="p-3"><input type="number" class="item-price w-full p-2 rounded outline-none" placeholder="0" oninput="calcRow(this)"></td>
+            <td class="p-3"><input type="text" class="item-total w-full p-2 rounded outline-none opacity-50" readonly value="Rp 0"></td>
+            <td class="p-3 text-center"><button onclick="this.closest('tr').remove(); updateGrandTotal();" class="text-red-500 text-xl">&times;</button></td>
         `;
         tbody.appendChild(tr);
     };
@@ -873,18 +735,14 @@ value="Rp 0"></td>
         tbody.innerHTML = filtered.map(p => `
             <tr>
                 <td class="p-4 text-xs opacity-60">${p.date}</td>
-                <td class="p-4"><span class="bg-blue-600/20 text-blue-400 px-2 py-1 rounded text-[10px] font-bold">
-
-${p.category}</span></td>
+                <td class="p-4"><span class="bg-blue-600/20 text-blue-400 px-2 py-1 rounded text-[10px] font-bold">${p.category}</span></td>
                 <td class="p-4 font-medium">${p.itemName} <span class="text-[10px] opacity-40 ml-1">/ ${p.unit}</span></td>
                 <td class="p-4 text-xs">${p.vendor}</td>
                 <td class="p-4 text-xs">${p.qty}</td>
                 <td class="p-4 font-bold text-emerald-400">${formatIDR(p.total)}</td>
                 <td class="p-4 text-center">
                     <button onclick="openEditModal('${p.id}')" class="text-blue-400 hover:underline mr-3">Edit</button>
-                    <button onclick="deleteDocById('purchases', '${p.id}')" class="text-red-400 
-
-hover:underline">Hapus</button>
+                    <button onclick="deleteDocById('purchases', '${p.id}')" class="text-red-400 hover:underline">Hapus</button>
                 </td>
             </tr>
         `).join('');
@@ -909,9 +767,7 @@ hover:underline">Hapus</button>
         const cat = document.getElementById('trend-cat').value;
         const container = document.getElementById('trend-cards');
         if (!cat) {
-            container.innerHTML = '<div class="col-span-full py-20 text-center opacity-30">Pilih kategori untuk melihat 
-
-perbandingan harga.</div>';
+            container.innerHTML = '<div class="col-span-full py-20 text-center opacity-30">Pilih kategori untuk melihat perbandingan harga.</div>';
             return;
         }
 
@@ -962,9 +818,7 @@ perbandingan harga.</div>';
         const labels = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
         const datasets = window.categories.map((cat, idx) => {
             const data = Array(12).fill(0);
-            window.purchases.filter(p => p.category === cat.name && new Date(p.date).getFullYear() === mainYear).forEach(p => 
-
-{
+            window.purchases.filter(p => p.category === cat.name && new Date(p.date).getFullYear() === mainYear).forEach(p => {
                 data[new Date(p.date).getMonth()] += p.total;
             });
             const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
@@ -986,9 +840,7 @@ perbandingan harga.</div>';
                 maintainAspectRatio: false,
                 plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 10, font: { size: 10 } } } },
                 scales: { 
-                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 9 }, callback: v 
-
-=> v >= 1000000 ? (v/1000000) + 'jt' : v } },
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: { size: 9 }, callback: v => v >= 1000000 ? (v/1000000) + 'jt' : v } },
                     x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } }
                 }
             }
@@ -1037,9 +889,7 @@ perbandingan harga.</div>';
             return `
                 <tr>
                     <td class="py-2 flex items-center gap-2 truncate max-w-[80px]">
-                        <div class="w-2 h-2 rounded-full flex-shrink-0" style="background: ${['#3b82f6', '#10b981', 
-
-'#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'][i % 7]}"></div>
+                        <div class="w-2 h-2 rounded-full flex-shrink-0" style="background: ${['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'][i % 7]}"></div>
                         <span class="truncate">${name}</span>
                     </td>
                     <td class="py-2 text-right">${formatIDR(total)}</td>
@@ -1061,9 +911,7 @@ perbandingan harga.</div>';
         });
 
         if (data.length === 0) {
-            content.innerHTML = '<div class="text-center py-20 opacity-30">Tidak ada data transaksi untuk periode 
-
-ini.</div>';
+            content.innerHTML = '<div class="text-center py-20 opacity-30">Tidak ada data transaksi untuk periode ini.</div>';
             return;
         }
 
@@ -1108,9 +956,7 @@ ini.</div>';
                         <tfoot>
                             <tr>
                                 <td colspan="5" class="py-2 text-right font-bold opacity-60 italic">Subtotal ${cat}:</td>
-                                <td class="py-2 text-right font-black text-emerald-500 border-t border-slate-600">
-
-${formatIDR(subtotal)}</td>
+                                <td class="py-2 text-right font-black text-emerald-500 border-t border-slate-600">${formatIDR(subtotal)}</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -1146,9 +992,7 @@ ${formatIDR(subtotal)}</td>
 
         const tableData = [];
         window.purchases.forEach(p => {
-            tableData.push([p.date, p.category, p.itemName, p.vendor, `${p.qty} ${p.unit}`, formatIDR(p.price), formatIDR
-
-(p.total)]);
+            tableData.push([p.date, p.category, p.itemName, p.vendor, `${p.qty} ${p.unit}`, formatIDR(p.price), formatIDR(p.total)]);
         });
 
         doc.autoTable({
@@ -1278,9 +1122,7 @@ ${formatIDR(subtotal)}</td>
     };
 
     // Init Logic
-    setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('id-ID') + " WIB"; }, 
-
-1000);
+    setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('id-ID') + " WIB"; }, 1000);
     initAuth();
 
     // Event Bindings
