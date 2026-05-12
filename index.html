@@ -289,7 +289,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs mb-1 opacity-50">Nama Barang</label>
-                                <input type="text" id="master-add-name" class="w-full p-3 rounded-xl" placeholder="Contoh: Kertas A4">
+                                <input type="text" id="master-add-name" class="w-full p-3 rounded-xl uppercase" placeholder="Contoh: Kertas A4">
                             </div>
                             <button onclick="addMasterItem()" class="w-full btn-gradient py-3 rounded-xl font-bold">Simpan Master</button>
                         </div>
@@ -328,7 +328,7 @@
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-xs mb-1 opacity-50">Nama Kategori</label>
-                                <input type="text" id="master-cat-add-name" class="w-full p-3 rounded-xl" placeholder="Contoh: ATK, Medis, dll">
+                                <input type="text" id="master-cat-add-name" class="w-full p-3 rounded-xl uppercase" placeholder="Contoh: ATK, Medis, dll">
                             </div>
                             <button onclick="addCategory()" class="w-full btn-gradient py-3 rounded-xl font-bold">Simpan Kategori</button>
                         </div>
@@ -489,17 +489,21 @@
     });
 
     const loadListeners = () => {
-        // Categories Listener
+        // Categories Listener - URUT A-Z
         onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'master_categories'), (snap) => {
-            window.categories = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            window.categories = snap.docs
+                .map(d => ({ id: d.id, ...d.data() }))
+                .sort((a, b) => a.name.localeCompare(b.name));
             renderCategoryDropdowns();
             renderCategoryTable();
             renderFilterCategoryDropdown();
         }, (err) => console.error("Category Sync Error:", err));
 
-        // Master Items Listener
+        // Master Items Listener - URUT A-Z
         onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'), (snap) => {
-            window.masterItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            window.masterItems = snap.docs
+                .map(d => ({ id: d.id, ...d.data() }))
+                .sort((a, b) => a.name.localeCompare(b.name));
             renderMasterTable();
         }, (err) => console.error("Master Sync Error:", err));
 
@@ -528,9 +532,8 @@
 
     // Master Category Logic
     window.addCategory = async () => {
-        const name = document.getElementById('master-cat-add-name').value.trim();
+        const name = document.getElementById('master-cat-add-name').value.trim().toUpperCase();
         if (!name) return showToast("Nama kategori wajib diisi", "error");
-        if (!auth.currentUser) return;
         try {
             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'master_categories'), { name, createdAt: new Date().toISOString() });
             document.getElementById('master-cat-add-name').value = "";
@@ -542,14 +545,16 @@
         const dropdowns = document.querySelectorAll('.category-dropdown');
         dropdowns.forEach(el => {
             const currentVal = el.value;
+            // Sudah terurut dari listener
             el.innerHTML = '<option value="">-- Pilih Kategori --</option>' + 
-                window.categories.sort((a, b) => a.name.localeCompare(b.name)).map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+                window.categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
             el.value = currentVal;
         });
     };
 
     const renderCategoryTable = () => {
         const tbody = document.getElementById('master-cat-table-body');
+        // Sudah terurut dari listener
         tbody.innerHTML = window.categories.map(c => `
             <tr class="border-b border-slate-800">
                 <td class="p-3">${c.name}</td>
@@ -569,7 +574,7 @@
     // Master Items Logic
     window.addMasterItem = async () => {
         const cat = document.getElementById('master-add-cat').value;
-        const name = document.getElementById('master-add-name').value.trim();
+        const name = document.getElementById('master-add-name').value.trim().toUpperCase();
         if (!cat || !name) return showToast("Semua field wajib diisi", "error");
         try {
             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'), { category: cat, name, createdAt: new Date().toISOString() });
@@ -580,7 +585,13 @@
 
     const renderMasterTable = () => {
         const tbody = document.getElementById('master-table-body');
-        tbody.innerHTML = window.masterItems.sort((a, b) => a.category.localeCompare(b.category)).map(m => `
+        // Urutkan berdasarkan Kategori dulu, lalu Nama
+        const sorted = [...window.masterItems].sort((a, b) => {
+            if (a.category !== b.category) return a.category.localeCompare(b.category);
+            return a.name.localeCompare(b.name);
+        });
+
+        tbody.innerHTML = sorted.map(m => `
             <tr class="border-b border-slate-800">
                 <td class="p-3 opacity-60 text-xs">${m.category}</td>
                 <td class="p-3">${m.name}</td>
@@ -604,17 +615,18 @@
     window.addInputRow = () => {
         const category = document.getElementById('input-main-category').value;
         if (!category) return;
+        // MasterItems sudah terurut A-Z dari listener
         const items = window.masterItems.filter(m => m.category === category);
         const tr = document.createElement('tr');
         tr.className = "border-b border-slate-800 transition-all";
         tr.innerHTML = `
             <td class="p-3">
-                <select class="w-full p-2 rounded bg-slate-800 border-none row-item-name">
-                    <option value="">-- Pilih Barang --</option>
+                <select class="w-full p-2 rounded bg-slate-800 border-none row-item-name uppercase">
+                    <option value="">-- Pilih Barang (A-Z) --</option>
                     ${items.map(i => `<option value="${i.name}">${i.name}</option>`).join('')}
                 </select>
             </td>
-            <td class="p-3"><input type="text" class="w-full p-2 rounded row-unit" placeholder="Pcs/Box"></td>
+            <td class="p-3"><input type="text" class="w-full p-2 rounded row-unit uppercase" placeholder="Pcs/Box"></td>
             <td class="p-3"><input type="number" step="any" class="w-full p-2 rounded row-qty" oninput="calculateTotal(this)"></td>
             <td class="p-3"><input type="number" class="w-full p-2 rounded row-price" oninput="calculateTotal(this)"></td>
             <td class="p-3 text-emerald-400 font-bold row-total">Rp 0</td>
@@ -644,7 +656,7 @@
 
     window.savePurchase = async () => {
         const category = document.getElementById('input-main-category').value;
-        const vendor = document.getElementById('input-vendor').value.trim();
+        const vendor = document.getElementById('input-vendor').value.trim().toUpperCase();
         const date = document.getElementById('input-date').value;
         if (!category || !vendor || !date) return showToast("Kategori, Vendor, dan Tanggal wajib diisi", "error");
 
@@ -655,7 +667,7 @@
             const batch = writeBatch(db);
             rows.forEach(row => {
                 const itemName = row.querySelector('.row-item-name').value;
-                const unit = row.querySelector('.row-unit').value.trim();
+                const unit = row.querySelector('.row-unit').value.trim().toUpperCase();
                 const qty = parseFloat(row.querySelector('.row-qty').value);
                 const price = parseFloat(row.querySelector('.row-price').value);
                 if (itemName && qty > 0 && price >= 0) {
@@ -685,14 +697,18 @@
             const matchSearch = p.itemName.toLowerCase().includes(search) || p.vendor.toLowerCase().includes(search);
             const matchCat = catFilter ? p.category === catFilter : true;
             return matchSearch && matchCat;
-        }).sort((a, b) => new Date(b.date) - new Date(a.date));
+        }).sort((a, b) => {
+            // URUTKAN: Tanggal Terbaru, jika sama urut Nama A-Z
+            if (b.date !== a.date) return new Date(b.date) - new Date(a.date);
+            return a.itemName.localeCompare(b.itemName);
+        });
 
         tbody.innerHTML = filtered.map(p => `
             <tr>
                 <td class="p-4">${p.date}</td>
                 <td class="p-4 opacity-60 text-xs">${p.category}</td>
-                <td class="p-4 font-medium">${p.itemName}</td>
-                <td class="p-4 opacity-80">${p.vendor}</td>
+                <td class="p-4 font-medium uppercase">${p.itemName}</td>
+                <td class="p-4 opacity-80 uppercase">${p.vendor}</td>
                 <td class="p-4">${p.qty} ${p.unit || ''}</td>
                 <td class="p-4 text-emerald-400 font-bold">${formatIDR(p.total)}</td>
                 <td class="p-4 text-center flex gap-2 justify-center">
@@ -835,7 +851,7 @@
             return;
         }
 
-        const itemsInCat = [...new Set(window.purchases.filter(p => p.category === cat).map(p => p.itemName))];
+        const itemsInCat = [...new Set(window.purchases.filter(p => p.category === cat).map(p => p.itemName))].sort();
         
         container.innerHTML = itemsInCat.map(name => {
             const history = window.purchases.filter(p => p.itemName === name).sort((a,b) => new Date(b.date) - new Date(a.date));
@@ -854,7 +870,7 @@
 
             return `
                 <div class="glass p-4 rounded-2xl">
-                    <h5 class="font-bold text-sm truncate mb-2">${name}</h5>
+                    <h5 class="font-bold text-sm truncate mb-2 uppercase">${name}</h5>
                     <div class="flex justify-between items-end">
                         <div>
                             <p class="text-[10px] opacity-50 uppercase">Harga Terakhir</p>
@@ -862,7 +878,7 @@
                         </div>
                         <div class="text-right">
                             ${trendHtml}
-                            <p class="text-[9px] opacity-40">${last.vendor} - ${last.date}</p>
+                            <p class="text-[9px] opacity-40 uppercase">${last.vendor} - ${last.date}</p>
                         </div>
                     </div>
                 </div>
@@ -875,13 +891,13 @@
         const p = window.purchases.find(x => x.id === id);
         currentEditId = id;
         document.getElementById('edit-form-content').innerHTML = `
-            <div><label class="text-xs opacity-50">Nama Barang</label><input id="edit-name" class="w-full p-2 rounded" value="${p.itemName}"></div>
+            <div><label class="text-xs opacity-50">Nama Barang</label><input id="edit-name" class="w-full p-2 rounded uppercase" value="${p.itemName}"></div>
             <div class="grid grid-cols-2 gap-3">
                 <div><label class="text-xs opacity-50">Qty</label><input id="edit-qty" type="number" step="any" class="w-full p-2 rounded" value="${p.qty}"></div>
-                <div><label class="text-xs opacity-50">Satuan</label><input id="edit-unit" class="w-full p-2 rounded" value="${p.unit || ''}"></div>
+                <div><label class="text-xs opacity-50">Satuan</label><input id="edit-unit" class="w-full p-2 rounded uppercase" value="${p.unit || ''}"></div>
             </div>
             <div><label class="text-xs opacity-50">Harga Satuan</label><input id="edit-price" type="number" class="w-full p-2 rounded" value="${p.price}"></div>
-            <div><label class="text-xs opacity-50">Supplier</label><input id="edit-vendor" class="w-full p-2 rounded" value="${p.vendor}"></div>
+            <div><label class="text-xs opacity-50">Supplier</label><input id="edit-vendor" class="w-full p-2 rounded uppercase" value="${p.vendor}"></div>
             <div><label class="text-xs opacity-50">Tanggal</label><input id="edit-date" type="date" class="w-full p-2 rounded" value="${p.date}"></div>
         `;
         document.getElementById('edit-modal').classList.remove('hidden');
@@ -893,11 +909,11 @@
         const qty = parseFloat(document.getElementById('edit-qty').value);
         const price = parseFloat(document.getElementById('edit-price').value);
         const data = {
-            itemName: document.getElementById('edit-name').value,
+            itemName: document.getElementById('edit-name').value.toUpperCase(),
             qty, price,
-            unit: document.getElementById('edit-unit').value,
+            unit: document.getElementById('edit-unit').value.toUpperCase(),
             total: qty * price,
-            vendor: document.getElementById('edit-vendor').value,
+            vendor: document.getElementById('edit-vendor').value.toUpperCase(),
             date: document.getElementById('edit-date').value
         };
         try {
@@ -914,7 +930,11 @@
         const data = window.purchases.filter(p => {
             const d = new Date(p.date);
             return d.getMonth() === month && d.getFullYear() === year;
-        }).sort((a,b) => a.category.localeCompare(b.category));
+        }).sort((a,b) => {
+            // Urut Kategori, lalu Nama Barang
+            if (a.category !== b.category) return a.category.localeCompare(b.category);
+            return a.itemName.localeCompare(b.itemName);
+        });
 
         document.getElementById('report-timestamp').innerText = `Dicetak: ${new Date().toLocaleString('id-ID')}`;
 
@@ -937,7 +957,7 @@
             grandTotal += catTotal;
             html += `
                 <div class="mb-8">
-                    <h3 class="text-lg font-bold text-blue-400 mb-2 border-b border-blue-500/20 pb-1">${cat}</h3>
+                    <h3 class="text-lg font-bold text-blue-400 mb-2 border-b border-blue-500/20 pb-1 uppercase">${cat}</h3>
                     <table class="w-full text-xs text-left">
                         <thead class="opacity-50">
                             <tr>
@@ -953,8 +973,8 @@
                             ${items.map(i => `
                                 <tr class="border-b border-white/5">
                                     <td class="py-2">${i.date.split('-').reverse().slice(0,2).join('/')}</td>
-                                    <td class="py-2 font-medium">${i.itemName}</td>
-                                    <td class="py-2 opacity-60">${i.vendor}</td>
+                                    <td class="py-2 font-medium uppercase">${i.itemName}</td>
+                                    <td class="py-2 opacity-60 uppercase">${i.vendor}</td>
                                     <td class="py-2 text-right">${formatIDR(i.price)}</td>
                                     <td class="py-2 text-right">${i.qty} ${i.unit || ''}</td>
                                     <td class="py-2 text-right font-bold">${formatIDR(i.total)}</td>
@@ -982,17 +1002,7 @@
         document.getElementById('report-content').innerHTML = html;
     };
 
-    window.exportToPDF = () => {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
-        const report = document.getElementById('report-container');
-        
-        // Simulating clean look for PDF
-        const content = document.getElementById('report-content');
-        if (content.innerText.includes("Tidak ada data")) return showToast("Data kosong", "error");
-
-        window.print(); // Browser print is better for HTML complex layouts
-    };
+    window.exportToPDF = () => { window.print(); };
 
     // Excel Export Master
     window.exportMasterExcel = () => {
@@ -1025,63 +1035,6 @@
     document.getElementById('db-search').oninput = renderDatabase;
     document.getElementById('db-filter-cat').onchange = renderDatabase;
     document.getElementById('trend-cat').onchange = renderTrends;
-
-    // CSV Import Logic (Master Items)
-    document.getElementById('master-import-file').onchange = (e) => {
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-            const csv = event.target.result;
-            const lines = csv.split('\n');
-            try {
-                const batch = writeBatch(db);
-                lines.slice(1).forEach(line => {
-                    const [cat, name] = line.split(',');
-                    if (cat && name) {
-                        const newDoc = doc(collection(db, 'artifacts', appId, 'public', 'data', 'master_items'));
-                        batch.set(newDoc, { category: cat.trim(), name: name.trim(), createdAt: new Date().toISOString() });
-                    }
-                });
-                await batch.commit();
-                showToast("Data master diimpor");
-            } catch (err) { showToast("Gagal impor CSV", "error"); }
-        };
-        reader.readAsText(e.target.files[0]);
-    };
-
-    // CSV Import Logic (Purchases)
-    document.getElementById('purchase-import-file').onchange = (e) => {
-        const reader = new FileReader();
-        const category = document.getElementById('input-main-category').value;
-        if(!category) return showToast("Pilih kategori dulu sebelum impor", "error");
-
-        reader.onload = async (event) => {
-            const csv = event.target.result;
-            const lines = csv.split('\n');
-            try {
-                const batch = writeBatch(db);
-                lines.slice(1).forEach(line => {
-                    const [date, vendor, name, unit, qty, price] = line.split(',');
-                    if (date && vendor && name && qty && price) {
-                        const newDoc = doc(collection(db, 'artifacts', appId, 'public', 'data', 'purchases'));
-                        batch.set(newDoc, {
-                            category: category,
-                            date: date.trim(),
-                            vendor: vendor.trim(),
-                            itemName: name.trim(),
-                            unit: unit.trim(),
-                            qty: parseFloat(qty),
-                            price: parseFloat(price),
-                            total: parseFloat(qty) * parseFloat(price),
-                            createdAt: new Date().toISOString()
-                        });
-                    }
-                });
-                await batch.commit();
-                showToast("Data belanja diimpor");
-            } catch (err) { showToast("Gagal impor belanja", "error"); }
-        };
-        reader.readAsText(e.target.files[0]);
-    };
 
 </script>
 </body>
