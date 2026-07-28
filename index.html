@@ -10,7 +10,4418 @@
    <title>Sistem Manajemen Inventaris & BAST (Cloud Firebase)</title>
 
   
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+ 
+
+   <title>Sistem Manajemen Inventaris & BAST (Cloud Firebase)</title>
+
+  
+
+  <!-- Tailwind CSS CDN -->
+    <script 
+
+src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: 
+
+Inter & Times New Roman -->
+    <link rel="preconnect" 
+
+href="https://fonts.googleapis.com">
+    <link rel="preconnect" 
+
+href="https://fonts.gstatic.com" crossorigin>
+    <link 
+
+href="https://fonts.googleapis.com/css2?
+
+family=Inter:wght@300;400;500;600;700;800&family=Times+New
+
++Roman:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    
+
+<!-- FontAwesome Icons -->
+    <link rel="stylesheet" 
+
+href="https://cdnjs.cloudflare.com/ajax/libs/font-
+
+awesome/6.4.0/css/all.min.css">
+
+    <!-- SweetAlert2 CDN -->
+    <script 
+
+src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- 
+
+html2pdf.js CDN -->
+    <script 
+
+src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pd
+
+f.bundle.min.js"></script>
+
+    <!-- SheetJS (xlsx) for Export Excel -->
+ 
+
+   <script 
+
+src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"><
+
+/script>
+
+    <!-- Firebase App & Firestore SDK -->
+    <script 
+
+type="module">
+        import { initializeApp } from 
+
+"https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        
+
+import { getFirestore, collection, getDocs, addDoc, updateDoc, 
+
+deleteDoc, doc, setDoc } from 
+
+"https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+     
+
+   // TODO: Ganti dengan konfigurasi Firebase Anda sendiri
+        
+
+const firebaseConfig = {
+  apiKey: 
+
+"AIzaSyBiEWqdYX8zOjRwv4Mo1DRlFcSLsG8OhlQ",
+  authDomain: 
+
+"gudangatk.firebaseapp.com",
+  databaseURL: "https://gudangatk-
+
+default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: 
+
+"gudangatk",
+  storageBucket: "gudangatk.firebasestorage.app",
+  
+
+messagingSenderId: "274324790135",
+  appId: 
+
+"1:274324790135:web:8b67b0c39524d2cf2cdf72",
+  measurementId: "G-
+
+KCYZG0ZZGR"
+};
+
+        const app = initializeApp(firebaseConfig);
+        
+
+const db = getFirestore(app);
+
+        // Export ke scope global agar 
+
+bisa diakses fungsi lain
+        window.db = db;
+        
+
+window.firebaseCols = { collection, getDocs, addDoc, updateDoc, 
+
+deleteDoc, doc, setDoc };
+        
+        // Jalankan inisialisasi 
+
+aplikasi setelah Firebase siap
+        if (typeof window.initCloudApp 
+
+=== 'function') {
+            window.initCloudApp();
+        }
+    
+
+</script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+   
+
+             extend: {
+                    fontFamily: {
+                
+
+        sans: ['Inter', 'sans-serif'],
+                        serif: 
+
+['Times New Roman', 'serif'],
+                    }
+                }
+    
+
+        }
+        }
+    </script>
+    <style>
+        body { font-family: 
+
+'Inter', sans-serif; }
+        
+        /* PDF BAST Styles */
+        
+
+.bast-paper {
+            width: 210mm;
+            min-height: 297mm;
+   
+
+         padding: 15mm 20mm;
+            background: #ffffff;
+           
+
+ color: #000000;
+            box-sizing: border-box;
+            box-
+
+shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 
+
+0, 0, 0.1);
+        }
+        .bast-table th, .bast-table td {
+           
+
+ border: 1px solid #000000;
+            padding: 6px 8px;
+        }
+      
+
+  .bast-table th {
+            background-color: #f3f4f6;
+            
+
+font-weight: bold;
+        }
+
+        /* Custom Scrollbar */
+        ::-
+
+webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+      
+
+  }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        
+
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; 
+
+}
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+      
+
+  @media print {
+            body { background: white !important; }
+     
+
+       body * { visibility: hidden; }
+            #bast-preview-
+
+container, #bast-preview-container * { visibility: visible; }
+          
+
+  #bast-preview-container {
+                position: absolute;
+         
+
+       left: 0;
+                top: 0;
+                width: 100%;
+     
+
+           margin: 0;
+                padding: 0;
+            }
+          
+
+  .no-print { display: none !important; }
+            .bast-paper {
+     
+
+           box-shadow: none !important;
+                padding: 0 !
+
+important;
+                width: 100% !important;
+            }
+        
+
+}
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 
+
+antialiased min-h-screen flex flex-col md:flex-row">
+
+    <!-- MOBILE 
+
+NAVIGATION HEADER -->
+    <div class="md:hidden bg-slate-900 text-white 
+
+sticky top-0 z-50 border-b border-slate-800">
+        <div class="p-3 
+
+border-b border-slate-800/80 flex items-center justify-between">
+       
+
+     <div class="flex items-center space-x-2.5">
+                <div 
+
+class="bg-indigo-600 p-2 rounded-lg text-white">
+                    <i 
+
+class="fa-solid fa-boxes-stacked text-base"></i>
+                </div>
+ 
+
+               <div>
+                    <h1 class="font-bold text-sm 
+
+leading-tight" id="app-title-mobile">INVENTARIS PRO</h1>
+               
+
+     <p class="text-[10px] text-slate-400">Sistem Gudang & BAST 
+
+(Cloud)</p>
+                </div>
+            </div>
+            <div 
+
+class="flex items-center space-x-1">
+                <button 
+
+onclick="switchTab('pengaturan')" class="bg-slate-800 hover:bg-slate-
+
+700 text-slate-300 p-2 rounded-lg text-xs transition" 
+
+title="Pengaturan & Backup">
+                    <i class="fa-solid 
+
+fa-gear"></i>
+                </button>
+            </div>
+        </div>
+ 
+
+       
+        <!-- Tab Navigasi Horizontal Scrollable -->
+        <nav 
+
+class="flex overflow-x-auto p-2 gap-1.5 text-xs bg-slate-900/95 
+
+backdrop-blur">
+            <button onclick="switchTab('dashboard')" 
+
+id="nav-dashboard-mobile" class="nav-btn-mobile flex items-center 
+
+space-x-2 px-3 py-2 rounded-lg font-medium whitespace-nowrap bg-
+
+indigo-600 text-white">
+                <i class="fa-solid fa-chart-
+
+pie"></i>
+                <span>Dashboard</span>
+            </button>
+   
+
+         <button onclick="switchTab('barang-masuk')" id="nav-barang-
+
+masuk-mobile" class="nav-btn-mobile flex items-center space-x-2 px-3 
+
+py-2 rounded-lg font-medium whitespace-nowrap text-slate-400 
+
+hover:bg-slate-800 hover:text-white">
+                <i class="fa-
+
+solid fa-box-archive"></i>
+                <span>Barang Masuk</span>
+    
+
+        </button>
+            <button onclick="switchTab('barang-
+
+keluar')" id="nav-barang-keluar-mobile" class="nav-btn-mobile flex 
+
+items-center space-x-2 px-3 py-2 rounded-lg font-medium whitespace-
+
+nowrap text-slate-400 hover:bg-slate-800 hover:text-white">
+            
+
+    <i class="fa-solid fa-truck-ramp-box"></i>
+                
+
+<span>Distribusi (Out)</span>
+            </button>
+            <button 
+
+onclick="switchTab('bast-pdf')" id="nav-bast-pdf-mobile" class="nav-
+
+btn-mobile flex items-center space-x-2 px-3 py-2 rounded-lg font-
+
+medium whitespace-nowrap text-slate-400 hover:bg-slate-800 
+
+hover:text-white">
+                <i class="fa-solid fa-file-
+
+signature"></i>
+                <span>Cetak BAST</span>
+            
+
+</button>
+            <button onclick="switchTab('pengaturan')" 
+
+id="nav-pengaturan-mobile" class="nav-btn-mobile flex items-center 
+
+space-x-2 px-3 py-2 rounded-lg font-medium whitespace-nowrap text-
+
+slate-400 hover:bg-slate-800 hover:text-white">
+                <i 
+
+class="fa-solid fa-sliders"></i>
+                
+
+<span>Pengaturan</span>
+            </button>
+        </nav>
+    </div>
+
+   
+
+ <!-- SIDEBAR NAVIGATION (DESKTOP) -->
+    <aside id="sidebar" 
+
+class="hidden md:flex w-64 bg-slate-900 text-white flex-shrink-0 
+
+flex-col justify-between min-h-screen z-40 sticky top-0 border-r 
+
+border-slate-800">
+        <div>
+            <!-- Logo Header (Desktop) 
+
+-->
+            <div class="p-5 border-b border-slate-800 flex items-
+
+center space-x-3">
+                <div class="bg-indigo-600 p-2.5 
+
+rounded-xl text-white shadow-lg shadow-indigo-600/30">
+                 
+
+   <i class="fa-solid fa-boxes-stacked text-xl"></i>
+                
+
+</div>
+                <div>
+                    <h1 class="font-bold 
+
+text-base leading-tight tracking-wide" id="app-title-
+
+desktop">INVENTARIS PRO</h1>
+                    <p class="text-[11px] 
+
+text-slate-400">Copyright TOMO'S JR 2026</p>
+                </div>
+     
+
+       </div>
+
+            <!-- Profile Ringkas Instansi -->
+            
+
+<div class="px-4 py-3 bg-slate-800/50 border-b border-slate-800/80 
+
+flex items-center justify-between text-xs">
+                <span 
+
+class="text-slate-300 font-medium truncate pr-2" id="sidebar-
+
+instansi-name">Memuat Instansi...</span>
+                <span 
+
+class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 
+
+text-[10px] px-2 py-0.5 rounded-full font-semibold">Cloud</span>
+       
+
+     </div>
+
+            <!-- Navigation Links -->
+            <nav 
+
+class="p-4 space-y-1.5">
+                <button onclick="switchTab
+
+('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-
+
+center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-
+
+all bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
+          
+
+          <i class="fa-solid fa-chart-pie w-5"></i>
+                    
+
+<span>Dashboard & Stok</span>
+                </button>
+                
+
+<button onclick="switchTab('barang-masuk')" id="nav-barang-masuk" 
+
+class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl 
+
+text-sm font-medium transition-all text-slate-400 hover:bg-slate-800 
+
+hover:text-white">
+                    <i class="fa-solid fa-box-
+
+archive w-5"></i>
+                    <span>Penerimaan Barang</span>
+    
+
+            </button>
+                <button onclick="switchTab
+
+('barang-keluar')" id="nav-barang-keluar" class="nav-btn w-full flex 
+
+items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium 
+
+transition-all text-slate-400 hover:bg-slate-800 hover:text-white">
+    
+
+                <i class="fa-solid fa-truck-ramp-box w-5"></i>
+         
+
+           <span>Distribusi Barang</span>
+                </button>
+     
+
+           <button onclick="switchTab('bast-pdf')" id="nav-bast-pdf" 
+
+class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl 
+
+text-sm font-medium transition-all text-slate-400 hover:bg-slate-800 
+
+hover:text-white">
+                    <i class="fa-solid fa-file-
+
+signature w-5"></i>
+                    <span>Pembuatan BAST</span>
+     
+
+           </button>
+                <button onclick="switchTab
+
+('pengaturan')" id="nav-pengaturan" class="nav-btn w-full flex items-
+
+center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-
+
+all text-slate-400 hover:bg-slate-800 hover:text-white">
+               
+
+     <i class="fa-solid fa-sliders w-5"></i>
+                    
+
+<span>Pengaturan & Backup</span>
+                </button>
+            
+
+</nav>
+        </div>
+
+        <!-- Footer Info -->
+        <div 
+
+class="p-4 border-t border-slate-800 text-xs text-slate-400 flex 
+
+flex-col space-y-2">
+            <div class="flex items-center 
+
+justify-between">
+                <span class="flex items-center 
+
+space-x-2">
+                    <span class="w-2.5 h-2.5 rounded-full 
+
+bg-emerald-500 animate-pulse"></span>
+                    <span 
+
+class="font-medium text-slate-300">Firebase Firestore</span>
+           
+
+     </span>
+                <i class="fa-solid fa-cloud"></i>
+          
+
+  </div>
+            <p class="text-[10px] text-slate-500">Data 
+
+tersinkronisasi otomatis via Cloud.</p>
+        </div>
+    </aside>
+
+    
+
+<!-- KONTEN UTAMA -->
+    <main class="flex-1 p-4 md:p-8 overflow-y-
+
+auto w-full">
+        <div class="max-w-7xl mx-auto w-full space-y-6">
+
+  
+
+          <!-- TAB 1: DASHBOARD & MASTER STOK -->
+            <section 
+
+id="tab-dashboard" class="tab-content space-y-6 block">
+                
+
+<div class="flex flex-col sm:flex-row sm:items-center justify-between 
+
+gap-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+  
+
+                  <div>
+                        <h2 class="text-2xl 
+
+font-bold text-slate-900 tracking-tight">Ringkasan Inventaris 
+
+Gudang</h2>
+                        <p class="text-sm text-slate-500 
+
+mt-1">Pantau ketersediaan barang, aset, dan riwayat distribusi secara 
+
+riil dari cloud.</p>
+                    </div>
+                    <div 
+
+class="flex items-center space-x-2">
+                        <button 
+
+onclick="exportTableToExcel('table-master-export', 
+
+'Master_Stok_Inventaris')" class="bg-emerald-600 hover:bg-emerald-700 
+
+text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition 
+
+flex items-center space-x-2 shadow-sm">
+                            <i 
+
+class="fa-solid fa-file-excel text-sm"></i>
+                            
+
+<span>Ekspor Excel</span>
+                        </button>
+             
+
+       </div>
+                </div>
+
+                <!-- METRIK CARDS 
+
+-->
+                <div class="grid grid-cols-1 sm:grid-cols-2 
+
+lg:grid-cols-5 gap-4">
+                    <div class="bg-white p-5 
+
+rounded-2xl border border-slate-200/80 shadow-sm flex items-center 
+
+justify-between">
+                        <div>
+                         
+
+   <p class="text-[11px] font-bold uppercase text-slate-400 tracking-
+
+wider">Total Masuk</p>
+                            <h3 id="stat-total-
+
+masuk" class="text-2xl font-extrabold text-slate-800 mt-1">0</h3>
+      
+
+                  </div>
+                        <div class="bg-
+
+emerald-100 text-emerald-600 p-3 rounded-xl">
+                          
+
+  <i class="fa-solid fa-arrow-down text-xl"></i>
+                       
+
+ </div>
+                    </div>
+
+                    <div class="bg-
+
+white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex 
+
+items-center justify-between">
+                        <div>
+            
+
+                <p class="text-[11px] font-bold uppercase text-slate-
+
+400 tracking-wider">Total Keluar</p>
+                            <h3 
+
+id="stat-total-keluar" class="text-2xl font-extrabold text-slate-800 
+
+mt-1">0</h3>
+                        </div>
+                        <div 
+
+class="bg-rose-100 text-rose-600 p-3 rounded-xl">
+                      
+
+      <i class="fa-solid fa-arrow-up text-xl"></i>
+                     
+
+   </div>
+                    </div>
+
+                    <div 
+
+class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm 
+
+flex items-center justify-between">
+                        <div>
+       
+
+                     <p class="text-[11px] font-bold uppercase text-
+
+slate-400 tracking-wider">Jenis Barang</p>
+                            
+
+<h3 id="stat-master-barang" class="text-2xl font-extrabold text-
+
+slate-800 mt-1">0</h3>
+                        </div>
+                   
+
+     <div class="bg-indigo-100 text-indigo-600 p-3 rounded-xl">
+        
+
+                    <i class="fa-solid fa-cubes text-xl"></i>
+          
+
+              </div>
+                    </div>
+
+                    <div 
+
+class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm 
+
+flex items-center justify-between">
+                        <div>
+       
+
+                     <p class="text-[11px] font-bold uppercase text-
+
+slate-400 tracking-wider">Sisa Stok Total</p>
+                          
+
+  <h3 id="stat-sisa-stok" class="text-2xl font-extrabold text-slate-
+
+800 mt-1">0</h3>
+                        </div>
+                        
+
+<div class="bg-amber-100 text-amber-600 p-3 rounded-xl">
+               
+
+             <i class="fa-solid fa-layer-group text-xl"></i>
+           
+
+             </div>
+                    </div>
+
+                    <div 
+
+class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm 
+
+flex items-center justify-between">
+                        <div>
+       
+
+                     <p class="text-[11px] font-bold uppercase text-
+
+slate-400 tracking-wider">Est. Nilai Sisa</p>
+                          
+
+  <h3 id="stat-nilai-aset" class="text-base font-extrabold text-
+
+slate-800 mt-1">Rp 0</h3>
+                        </div>
+                
+
+        <div class="bg-blue-100 text-blue-600 p-3 rounded-xl">
+         
+
+                   <i class="fa-solid fa-sack-dollar text-xl"></i>
+     
+
+                   </div>
+                    </div>
+                
+
+</div>
+
+                <!-- RINGKASAN STOK MASTER TABLE -->
+             
+
+   <div class="bg-white rounded-2xl border border-slate-200/80 
+
+shadow-sm overflow-hidden">
+                    <div class="p-5 
+
+border-b border-slate-100 flex flex-col sm:flex-row gap-3 sm:items-
+
+center justify-between bg-slate-50/50">
+                        <div>
+   
+
+                         <h3 class="font-bold text-slate-800 text-base 
+
+flex items-center space-x-2">
+                                <i 
+
+class="fa-solid fa-table-list text-indigo-600"></i>
+                    
+
+            <span>Master Stok Barang Terkini</span>
+                    
+
+        </h3>
+                            <p class="text-xs text-
+
+slate-400 mt-0.5">Akumulasi real-time dari seluruh transaksi 
+
+gudang</p>
+                        </div>
+                        <div 
+
+class="flex flex-wrap items-center gap-2">
+                            
+
+<input type="text" id="search-master" oninput="renderMasterTable()" 
+
+placeholder="Cari Nama Barang, Merk..." class="px-3 py-2 border 
+
+border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 
+
+focus:outline-none w-full sm:w-52">
+                            <select 
+
+id="filter-stok-status" onchange="renderMasterTable()" class="px-3 
+
+py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 
+
+focus:ring-indigo-500 focus:outline-none bg-white">
+                    
+
+            <option value="all">Semua Status</option>
+                  
+
+              <option value="available">Tersedia (>0)</option>
+         
+
+                       <option value="low">Stok Menipis (≤3)</option>
+  
+
+                              <option value="empty">Habis (0)</option>
+ 
+
+                           </select>
+                        </div>
+     
+
+               </div>
+                    <div class="overflow-x-auto">
+ 
+
+                       <table id="table-master-export" class="w-full 
+
+text-left text-sm text-slate-600">
+                            <thead 
+
+class="bg-slate-100 text-[11px] uppercase font-bold text-slate-500 
+
+tracking-wider">
+                                <tr>
+                   
+
+                 <th class="p-4">Nama Barang</th>
+                      
+
+              <th class="p-4">Merk / Tipe</th>
+                         
+
+           <th class="p-4 text-center">Masuk</th>
+                      
+
+              <th class="p-4 text-center">Keluar</th>
+                  
+
+                  <th class="p-4 text-center">Sisa Stok</th>
+           
+
+                         <th class="p-4 text-right">Nilai Sisa 
+
+Stok</th>
+                                </tr>
+                         
+
+   </thead>
+                            <tbody id="table-master-body" 
+
+class="divide-y divide-slate-100">
+                                <!-- 
+
+Data Populated by JS -->
+                            </tbody>
+           
+
+             </table>
+                    </div>
+                </div>
+  
+
+          </section>
+
+            <!-- TAB 2: INPUT BARANG MASUK -->
+     
+
+       <section id="tab-barang-masuk" class="tab-content hidden 
+
+space-y-6">
+                <div class="bg-white p-6 rounded-2xl border 
+
+border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-
+
+between items-start sm:items-center gap-4">
+                    <div>
+   
+
+                     <h2 class="text-2xl font-bold text-slate-
+
+900">Penerimaan Barang Masuk</h2>
+                        <p 
+
+class="text-sm text-slate-500">Pencatatan pengadaan barang baru atau 
+
+penambahan stok gudang.</p>
+                    </div>
+                  
+
+  <button onclick="exportTableToExcel('table-masuk-export', 
+
+'Riwayat_Barang_Masuk')" class="bg-emerald-600 hover:bg-emerald-700 
+
+text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition 
+
+flex items-center space-x-2">
+                        <i class="fa-
+
+solid fa-file-excel"></i>
+                        <span>Ekspor 
+
+Excel</span>
+                    </button>
+                </div>
+
+        
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+           
+
+         <!-- FORM BARANG MASUK -->
+                    <div 
+
+class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-
+
+200/80 shadow-sm h-fit">
+                        <h3 class="font-bold 
+
+text-slate-800 mb-4 pb-3 border-b border-slate-100 flex items-center 
+
+justify-between">
+                            <span id="form-masuk-
+
+title" class="flex items-center space-x-2">
+                            
+
+    <i class="fa-solid fa-square-plus text-indigo-600"></i>
+            
+
+                    <span>Input Barang Masuk</span>
+                    
+
+        </span>
+                            <span id="masuk-mode-badge" 
+
+class="hidden text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 
+
+rounded-full font-bold uppercase">Mode Edit</span>
+                     
+
+   </h3>
+                        <form id="form-barang-masuk" 
+
+class="space-y-4" onsubmit="handleMasukSubmit(event)">
+                 
+
+           <input type="hidden" id="masuk-doc-id">
+                     
+
+       
+                            <div>
+                               
+
+ <label class="block text-xs font-semibold text-slate-600 uppercase 
+
+mb-1">Tanggal Terima *</label>
+                                <input 
+
+type="date" id="masuk-tanggal" required class="w-full px-3 py-2 border 
+
+border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 
+
+focus:outline-none">
+                            </div>
+
+                 
+
+           <div>
+                                <label class="block 
+
+text-xs font-semibold text-slate-600 uppercase mb-1">Nama Barang 
+
+*</label>
+                                <input type="text" 
+
+id="masuk-nama" placeholder="Contoh: Laptop Asus ExpertBook" required 
+
+class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm 
+
+focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                
+
+            </div>
+
+                            <div>
+                    
+
+            <label class="block text-xs font-semibold text-slate-600 
+
+uppercase mb-1">Merk / Tipe *</label>
+                                
+
+<input type="text" id="masuk-merk" placeholder="B1400CEAE / Core i5" 
+
+required class="w-full px-3 py-2 border border-slate-300 rounded-xl 
+
+text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        
+
+                    </div>
+
+                            <div class="grid 
+
+grid-cols-2 gap-3">
+                                <div>
+               
+
+                     <label class="block text-xs font-semibold text-
+
+slate-600 uppercase mb-1">Jumlah Masuk *</label>
+                       
+
+             <input type="number" id="masuk-jumlah" min="1" required 
+
+placeholder="0" class="w-full px-3 py-2 border border-slate-300 
+
+rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-
+
+none">
+                                </div>
+                           
+
+     <div>
+                                    <label class="block 
+
+text-xs font-semibold text-slate-600 uppercase mb-1">Harga Satuan 
+
+(Rp)</label>
+                                    <input type="number" 
+
+id="masuk-harga" min="0" placeholder="0" class="w-full px-3 py-2 
+
+border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-
+
+indigo-500 focus:outline-none">
+                                </div>
+  
+
+                          </div>
+
+                            <div>
+      
+
+                          <label class="block text-xs font-semibold 
+
+text-slate-600 uppercase mb-1">Vendor / Supplier</label>
+               
+
+                 <input type="text" id="masuk-vendor" placeholder="PT. 
+
+Vendor Jaya Utama" class="w-full px-3 py-2 border border-slate-300 
+
+rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-
+
+none">
+                            </div>
+
+                            
+
+<div>
+                                <label class="block text-xs 
+
+font-semibold text-slate-600 uppercase mb-1">Keterangan / 
+
+Catatan</label>
+                                <textarea id="masuk-
+
+keterangan" rows="2" placeholder="Nomor PO / Nota Pengadaan..." 
+
+class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm 
+
+focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+     
+
+                       </div>
+
+                            <div 
+
+class="flex gap-2 pt-2">
+                                <button 
+
+type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-
+
+white font-medium py-2.5 rounded-xl text-sm transition shadow-md 
+
+shadow-indigo-600/20 flex items-center justify-center space-x-2">
+      
+
+                              <i class="fa-solid fa-save"></i>
+         
+
+                           <span id="btn-masuk-submit-text">Simpan 
+
+Transaksi</span>
+                                </button>
+              
+
+                  <button type="button" onclick="resetFormMasuk()" 
+
+class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium px-4 
+
+py-2.5 rounded-xl text-sm transition">
+                                 
+
+   Batal
+                                </button>
+                      
+
+      </div>
+                        </form>
+                    </div>
+
+  
+
+                  <!-- RIWAYAT BARANG MASUK -->
+                    
+
+<div class="lg:col-span-7 bg-white rounded-2xl border border-slate-
+
+200/80 shadow-sm flex flex-col overflow-hidden">
+                       
+
+ <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row 
+
+gap-3 justify-between items-center bg-slate-50/50">
+                    
+
+        <h3 class="font-bold text-slate-800 text-sm">Riwayat Barang 
+
+Masuk</h3>
+                            <div class="flex gap-2 w-full 
+
+sm:w-auto">
+                                <input type="text" 
+
+id="search-masuk" oninput="renderBarangMasukTable()" placeholder="Cari 
+
+nama/vendor..." class="w-full sm:w-52 px-3 py-1.5 border border-
+
+slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 
+
+focus:outline-none">
+                            </div>
+                 
+
+       </div>
+                        <div class="overflow-x-auto 
+
+flex-1">
+                            <table id="table-masuk-export" 
+
+class="w-full text-left text-sm text-slate-600">
+                       
+
+         <thead class="bg-slate-100 text-[11px] uppercase font-bold 
+
+text-slate-500">
+                                    <tr>
+               
+
+                         <th class="p-3">Tgl Terima</th>
+               
+
+                         <th class="p-3">Nama Barang</th>
+              
+
+                          <th class="p-3 text-center">Jumlah</th>
+      
+
+                                  <th class="p-3">Vendor</th>
+          
+
+                              <th class="p-3 text-center">Aksi</th>
+    
+
+                                </tr>
+                                
+
+</thead>
+                                <tbody id="table-masuk-body" 
+
+class="divide-y divide-slate-100 text-xs">
+                             
+
+       <!-- Populated by JS -->
+                                
+
+</tbody>
+                            </table>
+                        
+
+</div>
+                    </div>
+                </div>
+            
+
+</section>
+
+            <!-- TAB 3: DISTRIBUSI BARANG KELUAR (MULTI-ITEM 
+
+BATCH) -->
+            <section id="tab-barang-keluar" class="tab-
+
+content hidden space-y-6">
+                <div class="bg-white p-6 
+
+rounded-2xl border border-slate-200/80 shadow-sm flex flex-col 
+
+sm:flex-row justify-between items-start sm:items-center gap-4">
+        
+
+            <div>
+                        <h2 class="text-2xl font-bold 
+
+text-slate-900">Distribusi & Pengeluaran Barang</h2>
+                   
+
+     <p class="text-sm text-slate-500">Buat transaksi serah terima 
+
+barang (Mendukung Multi-Item 1 BAST).</p>
+                    </div>
+    
+
+                <button onclick="exportTableToExcel('table-keluar-
+
+export', 'Riwayat_Distribusi_Barang')" class="bg-emerald-600 
+
+hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2.5 
+
+rounded-xl transition flex items-center space-x-2">
+                    
+
+    <i class="fa-solid fa-file-excel"></i>
+                        
+
+<span>Ekspor Excel</span>
+                    </button>
+                
+
+</div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 
+
+gap-6">
+                    <!-- FORM DISTRIBUSI / PENGELUARAN BARANG 
+
+-->
+                    <div class="lg:col-span-5 bg-white p-6 
+
+rounded-2xl border border-slate-200/80 shadow-sm h-fit">
+               
+
+         <h3 class="font-bold text-slate-800 mb-4 pb-3 border-b 
+
+border-slate-100 flex items-center justify-between">
+                   
+
+         <span class="flex items-center space-x-2">
+                    
+
+            <i class="fa-solid fa-truck-ramp-box text-indigo-600"></i>
+ 
+
+                               <span>Form Serah Terima / 
+
+Distribusi</span>
+                            </span>
+                   
+
+     </h3>
+                        
+                        <!-- Step 1: 
+
+Info Transaksi BAST -->
+                        <div class="space-y-3 
+
+pb-4 border-b border-slate-100">
+                            <div 
+
+class="grid grid-cols-2 gap-3">
+                                <div>
+   
+
+                                 <label class="block text-xs font-
+
+semibold text-slate-600 uppercase mb-1">Tanggal Keluar *</label>
+       
+
+                             <input type="date" id="keluar-tanggal" 
+
+required class="w-full px-3 py-2 border border-slate-300 rounded-xl 
+
+text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        
+
+                        </div>
+                                <div>
+    
+
+                                <label class="block text-xs font-
+
+semibold text-slate-600 uppercase mb-1">Nomor BAST Batch</label>
+       
+
+                             <input type="text" id="keluar-no-bast" 
+
+readonly class="w-full px-3 py-2 border border-slate-200 bg-slate-50 
+
+rounded-xl text-xs font-mono font-bold text-slate-600">
+                
+
+                </div>
+                            </div>
+               
+
+             <div>
+                                <label class="block 
+
+text-xs font-semibold text-slate-600 uppercase mb-1">Nama Penerima / 
+
+Unit Kerja *</label>
+                                <input type="text" 
+
+id="keluar-penerima-nama" placeholder="Contoh: Ahmad Subagja (Divisi 
+
+IT)" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-
+
+sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+             
+
+               </div>
+                        </div>
+
+                    
+
+    <!-- Step 2: Tambah Barang Ke Keranjang BAST -->
+                   
+
+     <div class="mt-4 space-y-3">
+                            <p 
+
+class="text-xs font-bold text-slate-800 uppercase flex items-center 
+
+justify-between">
+                                <span>Pilih Barang 
+
+Ditambahkan</span>
+                                <span class="text-
+
+[10px] text-indigo-600 font-semibold" id="keluar-stok-hint">Pilih 
+
+barang dulu</span>
+                            </p>
+
+                     
+
+       <div>
+                                <select id="keluar-
+
+select-item" onchange="updateKeluarStokHint()" class="w-full px-3 py-2 
+
+border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-
+
+indigo-500 focus:outline-none bg-white">
+                               
+
+     <option value="">-- Pilih Barang dari Stok --</option>
+            
+
+                    </select>
+                            </div>
+
+        
+
+                    <div class="grid grid-cols-3 gap-2">
+               
+
+                 <div class="col-span-1">
+                              
+
+      <input type="number" id="keluar-item-jumlah" min="1" 
+
+placeholder="Jml" class="w-full px-3 py-2 border border-slate-300 
+
+rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-
+
+none">
+                                </div>
+                           
+
+     <div class="col-span-2">
+                                    
+
+<select id="keluar-item-kondisi" class="w-full px-3 py-2 border 
+
+border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 
+
+focus:outline-none bg-white">
+                                        
+
+<option value="Baik / Baru">Sangat Baik / Baru</option>
+                
+
+                        <option value="Baik">Baik</option>
+             
+
+                           <option value="Cukup">Cukup</option>
+        
+
+                            </select>
+                                
+
+</div>
+                            </div>
+                            
+
+<div>
+                                <input type="text" id="keluar-
+
+item-sn" placeholder="Nomor Seri / Catatan Tambahan (Opsional)" 
+
+class="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs 
+
+focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                
+
+            </div>
+
+                            <button type="button" 
+
+onclick="addKeluarCartItem()" class="w-full bg-slate-800 hover:bg-
+
+slate-900 text-white text-xs font-semibold py-2.5 rounded-xl 
+
+transition flex items-center justify-center space-x-1.5 shadow">
+       
+
+                         <i class="fa-solid fa-plus"></i>
+              
+
+                  <span>Masukkan ke Daftar BAST</span>
+                 
+
+           </button>
+                        </div>
+
+                     
+
+   <!-- Daftar Item Dalam BAST Saat Ini -->
+                        
+
+<div class="mt-4 pt-3 border-t border-slate-100">
+                      
+
+      <h4 class="text-xs font-bold text-slate-700 mb-2">Daftar Barang 
+
+BAST Ini:</h4>
+                            <div id="keluar-cart-list" 
+
+class="space-y-1.5 max-h-48 overflow-y-auto">
+                          
+
+      <p class="text-xs text-slate-400 italic text-center py-3 border 
+
+border-dashed rounded-xl">Belum ada barang dipilih.</p>
+                
+
+            </div>
+
+                            <button type="button" 
+
+onclick="submitBatchKeluar()" class="mt-4 w-full bg-rose-600 
+
+hover:bg-rose-700 text-white font-medium py-3 rounded-xl text-sm 
+
+transition shadow-md shadow-rose-600/20 flex items-center justify-
+
+center space-x-2">
+                                <i class="fa-solid 
+
+fa-paper-plane"></i>
+                                <span>Simpan 
+
+Transaksi BAST</span>
+                            </button>
+             
+
+           </div>
+                    </div>
+
+                    <!-- 
+
+RIWAYAT DISTRIBUSI BARANG -->
+                    <div class="lg:col-
+
+span-7 bg-white rounded-2xl border border-slate-200/80 shadow-sm flex 
+
+flex-col overflow-hidden">
+                        <div class="p-4 
+
+border-b border-slate-100 flex flex-col sm:flex-row gap-3 justify-
+
+between items-center bg-slate-50/50">
+                            <h3 
+
+class="font-bold text-slate-800 text-sm">Riwayat Transaksi 
+
+Distribusi</h3>
+                            <div class="flex gap-2 w-
+
+full sm:w-auto">
+                                <input type="text" 
+
+id="search-keluar" oninput="renderBarangKeluarTable()" 
+
+placeholder="Cari No BAST / Penerima..." class="w-full sm:w-52 px-3 
+
+py-1.5 border border-slate-300 rounded-xl text-xs focus:ring-2 
+
+focus:ring-indigo-500 focus:outline-none">
+                            
+
+</div>
+                        </div>
+                        <div 
+
+class="overflow-x-auto flex-1">
+                            <table 
+
+id="table-keluar-export" class="w-full text-left text-sm text-slate-
+
+600">
+                                <thead class="bg-slate-100 text-
+
+[11px] uppercase font-bold text-slate-500">
+                            
+
+        <tr>
+                                        <th class="p-
+
+3">Tgl Keluar</th>
+                                        <th 
+
+class="p-3">No. BAST</th>
+                                        <th 
+
+class="p-3">Penerima</th>
+                                        <th 
+
+class="p-3 text-center">Item</th>
+                                      
+
+  <th class="p-3 text-center">Aksi</th>
+                                
+
+    </tr>
+                                </thead>
+                      
+
+          <tbody id="table-keluar-body" class="divide-y divide-slate-
+
+100 text-xs">
+                                    <!-- Populated by JS 
+
+-->
+                                </tbody>
+                            
+
+</table>
+                        </div>
+                    </div>
+       
+
+         </div>
+            </section>
+
+            <!-- TAB 4: CETAK 
+
+BAST PDF -->
+            <section id="tab-bast-pdf" class="tab-content 
+
+hidden space-y-6">
+                <div class="bg-white p-6 rounded-2xl 
+
+border border-slate-200/80 shadow-sm flex flex-col md:flex-row 
+
+justify-between items-start md:items-center gap-4">
+                    
+
+<div>
+                        <h2 class="text-2xl font-bold text-
+
+slate-900">Pembuatan & Cetak Dokumen BAST</h2>
+                        
+
+<p class="text-sm text-slate-500">Lengkapi data Pihak Pertama 
+
+(Pemberi) & Pihak Kedua (Penerima) untuk dokumen resmi.</p>
+            
+
+        </div>
+                    <div class="flex flex-wrap items-
+
+center gap-2">
+                        <button 
+
+onclick="downloadBASTPDF()" class="bg-rose-600 hover:bg-rose-700 
+
+text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition 
+
+flex items-center space-x-2 shadow-sm">
+                            <i 
+
+class="fa-solid fa-file-pdf text-sm"></i>
+                            
+
+<span>Unduh PDF</span>
+                        </button>
+                
+
+        <button onclick="window.print()" class="bg-slate-800 
+
+hover:bg-slate-900 text-white text-xs font-semibold px-4 py-2.5 
+
+rounded-xl transition flex items-center space-x-2 shadow-sm">
+          
+
+                  <i class="fa-solid fa-print text-sm"></i>
+            
+
+                <span>Cetak Langsung</span>
+                        
+
+</button>
+                    </div>
+                </div>
+
+              
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                 
+
+   <!-- CONTROLS & INPUT FORM UNTUK BAST -->
+                    <div 
+
+class="lg:col-span-4 space-y-4">
+                        <div 
+
+class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm 
+
+space-y-4">
+                            <h3 class="font-bold text-
+
+slate-800 text-sm border-b border-slate-100 pb-2">1. Pilih Transaksi 
+
+Distribusi</h3>
+                            <div>
+                       
+
+         <label class="block text-xs font-semibold text-slate-600 
+
+uppercase mb-1">Pilih No. BAST / Transaksi</label>
+                     
+
+           <select id="bast-select-batch" 
+
+onchange="loadBatchToBASTPreview()" class="w-full px-3 py-2 border 
+
+border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 
+
+focus:outline-none bg-white">
+                                    
+
+<option value="">-- Pilih Transaksi BAST --</option>
+                   
+
+             </select>
+                            </div>
+               
+
+         </div>
+
+                        <div class="bg-white p-5 
+
+rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+           
+
+                 <h3 class="font-bold text-slate-800 text-sm border-b 
+
+border-slate-100 pb-2">2. Data Pihak Pertama (Pemberi)</h3>
+            
+
+                <div class="space-y-2">
+                                
+
+<input type="text" id="bast-p1-nama" oninput="updateBASTLive()" 
+
+placeholder="Nama Pemberi" class="w-full px-3 py-1.5 border border-
+
+slate-300 rounded-xl text-xs">
+                                <input 
+
+type="text" id="bast-p1-nip" oninput="updateBASTLive()" 
+
+placeholder="NIP / ID Pemberi" class="w-full px-3 py-1.5 border 
+
+border-slate-300 rounded-xl text-xs">
+                                
+
+<input type="text" id="bast-p1-jabatan" oninput="updateBASTLive()" 
+
+placeholder="Jabatan (cth: Pengelola Barang)" class="w-full px-3 py-
+
+1.5 border border-slate-300 rounded-xl text-xs">
+                       
+
+         <input type="text" id="bast-p1-unit" oninput="updateBASTLive
+
+()" placeholder="Unit Kerja / Sub Bagian" class="w-full px-3 py-1.5 
+
+border border-slate-300 rounded-xl text-xs">
+                           
+
+ </div>
+                        </div>
+
+                        <div 
+
+class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm 
+
+space-y-4">
+                            <h3 class="font-bold text-
+
+slate-800 text-sm border-b border-slate-100 pb-2">3. Data Pihak Kedua 
+
+(Penerima)</h3>
+                            <div class="space-y-2">
+     
+
+                           <input type="text" id="bast-p2-nama" 
+
+oninput="updateBASTLive()" placeholder="Nama Penerima" class="w-full 
+
+px-3 py-1.5 border border-slate-300 rounded-xl text-xs">
+               
+
+                 <input type="text" id="bast-p2-nip" 
+
+oninput="updateBASTLive()" placeholder="NIP / ID Penerima" class="w-
+
+full px-3 py-1.5 border border-slate-300 rounded-xl text-xs">
+          
+
+                      <input type="text" id="bast-p2-jabatan" 
+
+oninput="updateBASTLive()" placeholder="Jabatan Penerima" class="w-
+
+full px-3 py-1.5 border border-slate-300 rounded-xl text-xs">
+          
+
+                      <input type="text" id="bast-p2-unit" 
+
+oninput="updateBASTLive()" placeholder="Unit Kerja Penerima" 
+
+class="w-full px-3 py-1.5 border border-slate-300 rounded-xl text-xs">
+ 
+
+                           </div>
+                        </div>
+
+        
+
+                <div class="bg-white p-5 rounded-2xl border border-
+
+slate-200/80 shadow-sm space-y-4">
+                            <h3 
+
+class="font-bold text-slate-800 text-sm border-b border-slate-100 pb-
+
+2">4. Detail Tambahan</h3>
+                            <div 
+
+class="space-y-2">
+                                <input type="text" 
+
+id="bast-nomor-doc" oninput="updateBASTLive()" placeholder="Nomor 
+
+Surat BAST" class="w-full px-3 py-1.5 border border-slate-300 
+
+rounded-xl text-xs font-mono">
+                                <input 
+
+type="date" id="bast-tgl-doc" onchange="updateBASTLive()" class="w-
+
+full px-3 py-1.5 border border-slate-300 rounded-xl text-xs">
+          
+
+                      <textarea id="bast-keterangan-doc" 
+
+oninput="updateBASTLive()" rows="2" placeholder="Catatan/Keperluan..." 
+
+class="w-full px-3 py-1.5 border border-slate-300 rounded-xl text-
+
+xs"></textarea>
+                            </div>
+                      
+
+  </div>
+                    </div>
+
+                    <!-- PAPER 
+
+PREVIEW CONTAINER -->
+                    <div class="lg:col-span-8 
+
+flex justify-center items-start overflow-x-auto p-2 bg-slate-200/50 
+
+rounded-2xl border border-slate-300/60">
+                        <div 
+
+id="bast-preview-container" class="bast-paper font-serif text-black 
+
+leading-relaxed">
+                            
+                          
+
+  <!-- Header Surat / Kop -->
+                            <div 
+
+class="text-center border-b-2 border-black pb-3 mb-4">
+                 
+
+               <h2 class="text-lg font-bold uppercase tracking-wide" 
+
+id="preview-instansi">RSU DADI KELUARGA</h2>
+                           
+
+     <p class="text-xs italic" id="preview-alamat">Jl. Sultan Agung 8A 
+
+Teluk-Purwokerto Selatan</p>
+                            </div>
+
+         
+
+                   <!-- Judul BAST -->
+                            <div 
+
+class="text-center my-4">
+                                <h3 
+
+class="text-base font-bold uppercase underline">BERITA ACARA SERAH 
+
+TERIMA BARANG</h3>
+                                <p class="text-xs 
+
+mt-0.5">Nomor: <span id="preview-no-bast" class="font-
+
+mono">BAST/2026/001</span></p>
+                            </div>
+
+       
+
+                     <!-- Kalimat Pembuka -->
+                          
+
+  <p class="text-xs mb-3 text-justify">
+                                
+
+Pada hari ini <span id="preview-hari-tgl" class="font-
+
+semibold">Selasa, 28 Juli 2026</span>, kami yang bertanda tangan di 
+
+bawah ini:
+                            </p>
+
+                            
+
+<!-- PIHAK 1 & 2 DETAILS -->
+                            <div 
+
+class="text-xs space-y-2 mb-4 ml-2">
+                                
+
+<div>
+                                    <table class="w-full text-
+
+xs">
+                                        <tr>
+                       
+
+                     <td class="w-24 font-bold align-top">1. Nama</td>
+ 
+
+                                           <td class="w-3 align-
+
+top">:</td>
+                                            <td 
+
+id="preview-p1-nama" class="font-semibold align-top">Sutomo</td>
+       
+
+                                 </tr>
+                                 
+
+       <tr>
+                                            <td 
+
+class="font-bold align-top">&nbsp;&nbsp;&nbsp;NIP/ID</td>
+              
+
+                              <td class="align-top">:</td>
+             
+
+                               <td id="preview-p1-nip" class="align-
+
+top">19880512 201201 1 002</td>
+                                        
+
+</tr>
+                                        <tr>
+                      
+
+                      <td class="font-bold align-
+
+top">&nbsp;&nbsp;&nbsp;Jabatan</td>
+                                    
+
+        <td class="align-top">:</td>
+                                   
+
+         <td id="preview-p1-jabatan" class="align-top">Kepala Gudang & 
+
+Inventaris</td>
+                                        </tr>
+           
+
+                             <tr>
+                                      
+
+      <td class="font-bold align-top">&nbsp;&nbsp;&nbsp;Unit 
+
+Kerja</td>
+                                            <td 
+
+class="align-top">:</td>
+                                            
+
+<td id="preview-p1-unit" class="align-top">Sub Bagian Umum & 
+
+Logistik</td>
+                                        </tr>
+             
+
+                       </table>
+                                    <p 
+
+class="mt-1 italic">Selanjutnya disebut sebagai <span class="font-
+
+bold">PIHAK PERTAMA (Pemberi)</span>.</p>
+                              
+
+  </div>
+
+                                <div class="pt-2">
+             
+
+                       <table class="w-full text-xs">
+                  
+
+                      <tr>
+                                            
+
+<td class="w-24 font-bold align-top">2. Nama</td>
+                      
+
+                      <td class="w-3 align-top">:</td>
+                 
+
+                           <td id="preview-p2-nama" class="font-
+
+semibold align-top">Budi Santoso</td>
+                                  
+
+      </tr>
+                                        <tr>
+                
+
+                            <td class="font-bold align-
+
+top">&nbsp;&nbsp;&nbsp;NIP/ID</td>
+                                     
+
+       <td class="align-top">:</td>
+                                    
+
+        <td id="preview-p2-nip" class="align-top">19920315 201802 1 
+
+005</td>
+                                        </tr>
+                  
+
+                      <tr>
+                                            
+
+<td class="font-bold align-top">&nbsp;&nbsp;&nbsp;Jabatan</td>
+         
+
+                                   <td class="align-top">:</td>
+        
+
+                                    <td id="preview-p2-jabatan" 
+
+class="align-top">Staf Operasional</td>
+                                
+
+        </tr>
+                                        <tr>
+              
+
+                              <td class="font-bold align-
+
+top">&nbsp;&nbsp;&nbsp;Unit Kerja</td>
+                                 
+
+           <td class="align-top">:</td>
+                                
+
+            <td id="preview-p2-unit" class="align-top">Divisi 
+
+Teknologi Informasi</td>
+                                        </tr>
+  
+
+                                  </table>
+                             
+
+       <p class="mt-1 italic">Selanjutnya disebut sebagai <span 
+
+class="font-bold">PIHAK KEDUA (Penerima)</span>.</p>
+                   
+
+             </div>
+                            </div>
+
+                  
+
+          <p class="text-xs mb-3 text-justify">
+                        
+
+        PIHAK PERTAMA menyerahkan barang kepada PIHAK KEDUA, dan PIHAK 
+
+KEDUA menyatakan telah menerima barang dari PIHAK PERTAMA dalam 
+
+keadaan baik dan lengkap dengan rincian sebagai berikut:
+               
+
+             </p>
+
+                            <!-- TABLE BARANG BAST 
+
+-->
+                            <table class="w-full text-xs bast-table 
+
+my-4">
+                                <thead>
+                          
+
+          <tr>
+                                        <th class="w-8 
+
+text-center">No</th>
+                                        <th>Nama 
+
+Barang & Spasifikasi / Merk</th>
+                                       
+
+ <th class="w-16 text-center">Jumlah</th>
+                              
+
+          <th class="w-24 text-center">Kondisi</th>
+                    
+
+                    <th>No. Seri / Catatan</th>
+                        
+
+            </tr>
+                                </thead>
+              
+
+                  <tbody id="preview-table-items">
+                     
+
+               <tr>
+                                        <td 
+
+class="text-center">1</td>
+                                        
+
+<td>Laptop Asus ExpertBook B1400</td>
+                                  
+
+      <td class="text-center">1 Unit</td>
+                              
+
+          <td class="text-center">Sangat Baik</td>
+                     
+
+                   <td>SN: N8NXCV001298412</td>
+                        
+
+            </tr>
+                                </tbody>
+              
+
+              </table>
+
+                            <p class="text-xs 
+
+mb-2 text-justify">
+                                Catatan / 
+
+Keterangan: <span id="preview-keterangan" class="italic">Pengadaan 
+
+unit operasional baru.</span>
+                            </p>
+
+          
+
+                  <p class="text-xs mb-8 text-justify">
+                
+
+                Demikian Berita Acara Serah Terima ini dibuat dalam 
+
+rangkap secukupnya untuk dipergunakan sebagaimana mestinya.
+            
+
+                </p>
+
+                            <!-- TANDA TANGAN 
+
+SECTION -->
+                            <div class="grid grid-cols-2 
+
+text-center text-xs mt-12 gap-4">
+                                <div>
+ 
+
+                                   <p>PIHAK KEDUA (Penerima)</p>
+       
+
+                             <div class="h-20"></div>
+                  
+
+                  <p id="preview-sign-p2-nama" class="font-bold 
+
+underline">BUDI SANTOSO</p>
+                                    <p>NIP. 
+
+<span id="preview-sign-p2-nip">19920315 201802 1 005</span></p>
+        
+
+                        </div>
+                                <div>
+    
+
+                                <p>PIHAK PERTAMA (Pemberi)</p>
+         
+
+                           <div class="h-20"></div>
+                    
+
+                <p id="preview-sign-p1-nama" class="font-bold 
+
+underline">AGUS SETIAWAN, S.T.</p>
+                                    
+
+<p>NIP. <span id="preview-sign-p1-nip">19880512 201201 1 
+
+002</span></p>
+                                </div>
+                   
+
+         </div>
+
+                        </div>
+                    
+
+</div>
+                </div>
+            </section>
+
+            <!-- TAB 
+
+5: PENGATURAN & BACKUP -->
+            <section id="tab-pengaturan" 
+
+class="tab-content hidden space-y-6">
+                <div class="bg-
+
+white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+           
+
+         <h2 class="text-2xl font-bold text-slate-900">Pengaturan 
+
+Sistem & Cadangan Data</h2>
+                    <p class="text-sm 
+
+text-slate-500 mt-1">Atur profil instansi/perusahaan dan kelola 
+
+cadangan database Cloud.</p>
+                </div>
+
+                <div 
+
+class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- 
+
+PROFIL INSTANSI -->
+                    <div class="bg-white p-6 
+
+rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+           
+
+             <h3 class="font-bold text-slate-800 text-base border-b 
+
+border-slate-100 pb-3 flex items-center space-x-2">
+                    
+
+        <i class="fa-solid fa-building text-indigo-600"></i>
+           
+
+                 <span>Profil Instansi & Gudang</span>
+                 
+
+       </h3>
+                        <form id="form-pengaturan" 
+
+onsubmit="saveSettings(event)" class="space-y-4">
+                      
+
+      <div>
+                                <label class="block text-xs 
+
+font-semibold text-slate-600 uppercase mb-1">Nama Instansi / 
+
+Perusahaan</label>
+                                <input type="text" 
+
+id="setting-nama-instansi" required class="w-full px-3 py-2 border 
+
+border-slate-300 rounded-xl text-sm">
+                            
+
+</div>
+                            <div>
+                                
+
+<label class="block text-xs font-semibold text-slate-600 uppercase 
+
+mb-1">Alamat Lengkap</label>
+                                <input 
+
+type="text" id="setting-alamat" required class="w-full px-3 py-2 
+
+border border-slate-300 rounded-xl text-sm">
+                           
+
+ </div>
+                            <div class="grid grid-cols-2 gap-
+
+3">
+                                <div>
+                               
+
+     <label class="block text-xs font-semibold text-slate-600 
+
+uppercase mb-1">Nama Penanggung Jawab</label>
+                          
+
+          <input type="text" id="setting-pj-nama" required class="w-
+
+full px-3 py-2 border border-slate-300 rounded-xl text-sm">
+            
+
+                    </div>
+                                <div>
+        
+
+                            <label class="block text-xs font-semibold 
+
+text-slate-600 uppercase mb-1">NIP / ID PJ</label>
+                     
+
+               <input type="text" id="setting-pj-nip" class="w-full 
+
+px-3 py-2 border border-slate-300 rounded-xl text-sm">
+                 
+
+               </div>
+                            </div>
+                
+
+            <div>
+                                <label class="block 
+
+text-xs font-semibold text-slate-600 uppercase mb-1">Jabatan 
+
+Penanggung Jawab</label>
+                                <input 
+
+type="text" id="setting-pj-jabatan" class="w-full px-3 py-2 border 
+
+border-slate-300 rounded-xl text-sm">
+                            
+
+</div>
+
+                            <button type="submit" class="bg-
+
+indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-2.5 
+
+rounded-xl text-sm transition shadow-md shadow-indigo-600/20">
+         
+
+                       Simpan Pengaturan
+                            
+
+</button>
+                        </form>
+                    </div>
+
+     
+
+               <!-- CADANGAN & RESTORE DATA -->
+                    
+
+<div class="bg-white p-6 rounded-2xl border border-slate-200/80 
+
+shadow-sm space-y-4">
+                        <h3 class="font-bold 
+
+text-slate-800 text-base border-b border-slate-100 pb-3 flex items-
+
+center space-x-2">
+                            <i class="fa-solid fa-
+
+database text-indigo-600"></i>
+                            <span>Backup 
+
+& Restore Data JSON (Cloud)</span>
+                        </h3>
+        
+
+                <p class="text-xs text-slate-500 leading-relaxed">
+     
+
+                       Data saat ini tersimpan langsung di Firebase 
+
+Cloud Firestore. Anda tetap dapat mengunduh cadangan (JSON) atau 
+
+memuat data contoh ke Cloud.
+                        </p>
+
+               
+
+         <div class="space-y-3 pt-2">
+                            
+
+<button onclick="exportBackupJSON()" class="w-full bg-slate-800 
+
+hover:bg-slate-900 text-white font-medium py-3 rounded-xl text-xs 
+
+transition flex items-center justify-center space-x-2">
+                
+
+                <i class="fa-solid fa-download"></i>
+                   
+
+             <span>Unduh Cadangan Data Cloud (JSON)</span>
+             
+
+               </button>
+
+                            <div 
+
+class="border-t border-slate-100 pt-3 flex gap-2">
+                     
+
+           <button onclick="loadDemoData()" class="flex-1 bg-amber-500 
+
+hover:bg-amber-600 text-white font-medium py-2 rounded-xl text-xs 
+
+transition">
+                                    Muat Data Contoh ke 
+
+Cloud
+                                </button>
+                         
+
+       <button onclick="resetAllData()" class="bg-rose-100 hover:bg-
+
+rose-200 text-rose-700 font-medium px-4 py-2 rounded-xl text-xs 
+
+transition">
+                                    Reset Cloud DB
+         
+
+                       </button>
+                            </div>
+     
+
+                   </div>
+                    </div>
+                
+
+</div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+      
+
+  // APP STATE & FIREBASE ADAPTER
+        let barangMasukData = [];
+     
+
+   let barangKeluarData = [];
+        let settingsData = {
+            
+
+namaInstansi: 'PT. Contoh Mandiri Indonesia',
+            alamat: 'Jl. 
+
+Jendral Sudirman No. 123, Jakarta Selatan',
+            pjNama: 'Agus 
+
+Setiawan, S.T.',
+            pjNip: '19880512 201201 1 002',
+            
+
+pjJabatan: 'Kepala Gudang & Inventaris',
+            pjUnit: 'Sub 
+
+Bagian Umum & Logistik'
+        };
+
+        let currentKeluarCart = [];
+
+   
+
+     // Inisialisasi utama dipanggil setelah modul Firebase siap
+       
+
+ window.initCloudApp = async function() {
+            await 
+
+fetchAllDataFromCloud();
+            
+            if 
+
+(barangMasukData.length === 0) {
+                await seedDemoData();
+  
+
+          }
+            initSettingsForm();
+            updateAppHeader
+
+();
+            renderDashboard();
+            renderBarangMasukTable();
+ 
+
+           renderBarangKeluarTable();
+            
+
+populateKeluarItemDropdown();
+            generateNextBASTNo();
+         
+
+   populateBASTBatchSelect();
+
+            const today = new Date
+
+().toISOString().split('T')[0];
+            document.getElementById
+
+('masuk-tanggal').value = today;
+            document.getElementById
+
+('keluar-tanggal').value = today;
+            document.getElementById
+
+('bast-tgl-doc').value = today;
+        };
+
+        window.onload = 
+
+function() {
+            // Fallback jika Firebase lambat / belum 
+
+terinisialisasi
+            setTimeout(() => {
+                if
+
+(document.getElementById('sidebar-instansi-name').innerText.includes
+
+('Memuat')) {
+                    initSettingsForm();
+                   
+
+ updateAppHeader();
+                    renderDashboard();
+              
+
+  }
+            }, 1500);
+        };
+
+        async function 
+
+fetchAllDataFromCloud() {
+            try {
+                const { 
+
+getDocs, collection } = window.firebaseCols;
+                const db = 
+
+window.db;
+
+                // Ambil Barang Masuk
+                const 
+
+masukSnap = await getDocs(collection(db, "barang_masuk"));
+             
+
+   barangMasukData = [];
+                masukSnap.forEach(docSnap => {
+ 
+
+                   barangMasukData.push({ firebaseId: docSnap.id, 
+
+...docSnap.data() });
+                });
+                // Urutkan 
+
+berdasarkan tanggal terbaru jika ada
+                
+
+barangMasukData.sort((a, b) => new Date(b.tanggal) - new Date
+
+(a.tanggal));
+
+                // Ambil Barang Keluar
+                
+
+const keluarSnap = await getDocs(collection(db, "barang_keluar"));
+     
+
+           barangKeluarData = [];
+                keluarSnap.forEach
+
+(docSnap => {
+                    barangKeluarData.push({ firebaseId: 
+
+docSnap.id, ...docSnap.data() });
+                });
+                
+
+barangKeluarData.sort((a, b) => new Date(b.tanggal) - new Date
+
+(a.tanggal));
+
+                // Ambil Settings
+                const 
+
+settingsSnap = await getDocs(collection(db, "settings"));
+              
+
+  settingsSnap.forEach(docSnap => {
+                    if (docSnap.id 
+
+=== 'app_config') {
+                        settingsData = 
+
+docSnap.data();
+                    }
+                });
+            } 
+
+catch (err) {
+                console.error("Gagal mengambil data dari 
+
+Cloud Firebase:", err);
+            }
+        }
+
+        function 
+
+switchTab(tabId) {
+            document.querySelectorAll('.tab-
+
+content').forEach(el => el.classList.add('hidden'));
+            
+
+document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+    
+
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+         
+
+       btn.className = 'nav-btn w-full flex items-center space-x-3 
+
+px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-400 
+
+hover:bg-slate-800 hover:text-white';
+            });
+            const 
+
+activeNav = document.getElementById(`nav-${tabId}`);
+            if 
+
+(activeNav) {
+                activeNav.className = 'nav-btn w-full 
+
+flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium 
+
+transition-all bg-indigo-600 text-white shadow-md shadow-indigo-
+
+600/20';
+            }
+
+            document.querySelectorAll('.nav-btn-
+
+mobile').forEach(btn => {
+                btn.className = 'nav-btn-
+
+mobile flex items-center space-x-2 px-3 py-2 rounded-lg font-medium 
+
+whitespace-nowrap text-slate-400 hover:bg-slate-800 hover:text-white';
+ 
+
+           });
+            const activeMobileNav = 
+
+document.getElementById(`nav-${tabId}-mobile`);
+            if 
+
+(activeMobileNav) {
+                activeMobileNav.className = 'nav-
+
+btn-mobile flex items-center space-x-2 px-3 py-2 rounded-lg font-
+
+medium whitespace-nowrap bg-indigo-600 text-white';
+            }
+
+       
+
+     if (tabId === 'dashboard') {
+                renderDashboard();
+    
+
+        } else if (tabId === 'barang-keluar') {
+                
+
+populateKeluarItemDropdown();
+            } else if (tabId === 'bast-
+
+pdf') {
+                populateBASTBatchSelect();
+                
+
+updateBASTLive();
+            }
+        }
+
+        function 
+
+calculateMasterStock() {
+            const masterMap = {};
+
+            
+
+barangMasukData.forEach(item => {
+                const key = `
+
+${item.nama.trim().toLowerCase()}||${item.merk.trim().toLowerCase()}`;
+ 
+
+               if (!masterMap[key]) {
+                    masterMap
+
+[key] = {
+                        nama: item.nama,
+                      
+
+  merk: item.merk,
+                        totalMasuk: 0,
+               
+
+         totalKeluar: 0,
+                        lastHarga: item.harga 
+
+|| 0
+                    };
+                }
+                masterMap
+
+[key].totalMasuk += Number(item.jumlah);
+                if 
+
+(item.harga) masterMap[key].lastHarga = Number(item.harga);
+            
+
+});
+
+            barangKeluarData.forEach(batch => {
+                if 
+
+(batch.items && Array.isArray(batch.items)) {
+                    
+
+batch.items.forEach(item => {
+                        const key = `
+
+${item.nama.trim().toLowerCase()}||${item.merk.trim().toLowerCase()}`;
+ 
+
+                       if (masterMap[key]) {
+                           
+
+ masterMap[key].totalKeluar += Number(item.jumlah);
+                    
+
+    } else {
+                            masterMap[key] = {
+             
+
+                   nama: item.nama,
+                                
+
+merk: item.merk,
+                                totalMasuk: 0,
+         
+
+                       totalKeluar: Number(item.jumlah),
+               
+
+                 lastHarga: 0
+                            };
+            
+
+            }
+                    });
+                }
+            });
+
+   
+
+         return Object.values(masterMap).map(item => {
+                
+
+const sisaStok = item.totalMasuk - item.totalKeluar;
+                
+
+const nilaiSisa = sisaStok * item.lastHarga;
+                return { 
+
+...item, sisaStok, nilaiSisa };
+            });
+        }
+
+        
+
+function renderDashboard() {
+            const masterList = 
+
+calculateMasterStock();
+
+            let totalMasukVal = 0;
+            
+
+let totalKeluarVal = 0;
+            let totalSisaVal = 0;
+            
+
+let totalNilaiAsetVal = 0;
+
+            masterList.forEach(m => {
+        
+
+        totalMasukVal += m.totalMasuk;
+                totalKeluarVal 
+
++= m.totalKeluar;
+                totalSisaVal += m.sisaStok;
+           
+
+     totalNilaiAsetVal += (m.sisaStok > 0 ? m.nilaiSisa : 0);
+          
+
+  });
+
+            document.getElementById('stat-total-masuk').innerText 
+
+= totalMasukVal.toLocaleString('id-ID');
+            
+
+document.getElementById('stat-total-keluar').innerText = 
+
+totalKeluarVal.toLocaleString('id-ID');
+            
+
+document.getElementById('stat-master-barang').innerText = 
+
+masterList.length.toLocaleString('id-ID');
+            
+
+document.getElementById('stat-sisa-stok').innerText = 
+
+totalSisaVal.toLocaleString('id-ID');
+            
+
+document.getElementById('stat-nilai-aset').innerText = 'Rp ' + 
+
+totalNilaiAsetVal.toLocaleString('id-ID');
+
+            
+
+renderMasterTable(masterList);
+        }
+
+        function 
+
+renderMasterTable(dataList) {
+            const list = dataList || 
+
+calculateMasterStock();
+            const search = 
+
+document.getElementById('search-master').value.toLowerCase();
+          
+
+  const filterStatus = document.getElementById('filter-stok-
+
+status').value;
+            const tbody = document.getElementById
+
+('table-master-body');
+
+            tbody.innerHTML = '';
+
+            
+
+const filtered = list.filter(item => {
+                const 
+
+matchSearch = item.nama.toLowerCase().includes(search) || 
+
+item.merk.toLowerCase().includes(search);
+                let 
+
+matchStatus = true;
+                if (filterStatus === 'available') 
+
+matchStatus = item.sisaStok > 0;
+                else if (filterStatus 
+
+=== 'low') matchStatus = item.sisaStok > 0 && item.sisaStok <= 3;
+      
+
+          else if (filterStatus === 'empty') matchStatus = 
+
+item.sisaStok <= 0;
+                return matchSearch && matchStatus;
+  
+
+          });
+
+            if (filtered.length === 0) {
+                
+
+tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-
+
+slate-400 italic">Tidak ada data stok sesuai kriteria.</td></tr>`;
+     
+
+           return;
+            }
+
+            filtered.forEach(item => {
+  
+
+              let badgeClass = 'bg-emerald-100 text-emerald-700';
+      
+
+          if (item.sisaStok <= 0) badgeClass = 'bg-rose-100 text-
+
+rose-700 font-bold';
+                else if (item.sisaStok <= 3) 
+
+badgeClass = 'bg-amber-100 text-amber-700 font-bold';
+
+                
+
+const tr = document.createElement('tr');
+                tr.className = 
+
+'hover:bg-slate-50/80 transition';
+                tr.innerHTML = `
+     
+
+               <td class="p-4 font-semibold text-slate-800">
+
+${escapeHtml(item.nama)}</td>
+                    <td class="p-4 text-
+
+slate-500">${escapeHtml(item.merk)}</td>
+                    <td 
+
+class="p-4 text-center font-medium text-emerald-600">+
+
+${item.totalMasuk}</td>
+                    <td class="p-4 text-center 
+
+font-medium text-rose-600">-${item.totalKeluar}</td>
+                   
+
+ <td class="p-4 text-center">
+                        <span class="px-
+
+2.5 py-1 rounded-full text-xs ${badgeClass}">
+                          
+
+  ${item.sisaStok}
+                        </span>
+                    
+
+</td>
+                    <td class="p-4 text-right font-medium text-
+
+slate-800">Rp ${(item.sisaStok > 0 ? item.nilaiSisa : 
+
+0).toLocaleString('id-ID')}</td>
+                `;
+                
+
+tbody.appendChild(tr);
+            });
+        }
+
+        async function 
+
+handleMasukSubmit(e) {
+            e.preventDefault();
+            const 
+
+docId = document.getElementById('masuk-doc-id').value;
+            
+
+const tanggal = document.getElementById('masuk-tanggal').value;
+        
+
+    const nama = document.getElementById('masuk-nama').value.trim();
+   
+
+         const merk = document.getElementById('masuk-
+
+merk').value.trim();
+            const jumlah = Number
+
+(document.getElementById('masuk-jumlah').value);
+            const 
+
+harga = Number(document.getElementById('masuk-harga').value || 0);
+     
+
+       const vendor = document.getElementById('masuk-
+
+vendor').value.trim();
+            const keterangan = 
+
+document.getElementById('masuk-keterangan').value.trim();
+
+            
+
+if (!nama || !merk || jumlah <= 0) {
+                Swal.fire
+
+('Perhatian', 'Harap isi nama, merk, dan jumlah dengan benar.', 
+
+'warning');
+                return;
+            }
+
+            Swal.fire({ 
+
+title: 'Menyimpan ke Cloud...', allowOutsideClick: false, didOpen: () 
+
+=> Swal.showLoading() });
+
+            try {
+                const { 
+
+collection, addDoc, updateDoc, doc } = window.firebaseCols;
+            
+
+    const db = window.db;
+
+                if (docId) {
+                  
+
+  await updateDoc(doc(db, "barang_masuk", docId), { tanggal, nama, 
+
+merk, jumlah, harga, vendor, keterangan });
+                } else {
+    
+
+                await addDoc(collection(db, "barang_masuk"), { 
+
+tanggal, nama, merk, jumlah, harga, vendor, keterangan, createdAt: 
+
+Date.now() });
+                }
+
+                await 
+
+fetchAllDataFromCloud();
+                resetFormMasuk();
+              
+
+  renderBarangMasukTable();
+                renderDashboard();
+          
+
+      populateKeluarItemDropdown();
+
+                Swal.fire({
+         
+
+           icon: 'success',
+                    title: 'Berhasil 
+
+Disimpan ke Cloud',
+                    text: 'Data penerimaan barang 
+
+berhasil diperbarui.',
+                    timer: 1500,
+                 
+
+   showConfirmButton: false
+                });
+            } catch 
+
+(err) {
+                Swal.fire('Error', 'Gagal menyimpan ke 
+
+Firebase: ' + err.message, 'error');
+            }
+        }
+
+        
+
+function resetFormMasuk() {
+            document.getElementById('form-
+
+barang-masuk').reset();
+            document.getElementById('masuk-
+
+doc-id').value = '';
+            document.getElementById('btn-masuk-
+
+submit-text').innerText = 'Simpan Transaksi';
+            
+
+document.getElementById('masuk-mode-badge').classList.add('hidden');
+   
+
+         document.getElementById('masuk-tanggal').value = new Date
+
+().toISOString().split('T')[0];
+        }
+
+        function 
+
+renderBarangMasukTable() {
+            const tbody = 
+
+document.getElementById('table-masuk-body');
+            const search = 
+
+document.getElementById('search-masuk').value.toLowerCase();
+           
+
+ tbody.innerHTML = '';
+
+            const filtered = 
+
+barangMasukData.filter(item => 
+                item.nama.toLowerCase
+
+().includes(search) || 
+                item.merk.toLowerCase
+
+().includes(search) ||
+                (item.vendor && 
+
+item.vendor.toLowerCase().includes(search))
+            );
+
+            
+
+if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td 
+
+colspan="5" class="text-center py-6 text-slate-400 italic">Belum ada 
+
+data barang masuk.</td></tr>`;
+                return;
+            }
+
+     
+
+       filtered.forEach(item => {
+                const tr = 
+
+document.createElement('tr');
+                tr.className = 
+
+'hover:bg-slate-50 transition';
+                tr.innerHTML = `
+        
+
+            <td class="p-3 text-slate-500 font-mono">${formatDateIndo
+
+(item.tanggal)}</td>
+                    <td class="p-3">
+               
+
+         <div class="font-semibold text-slate-800">${escapeHtml
+
+(item.nama)}</div>
+                        <div class="text-[11px] 
+
+text-slate-400">${escapeHtml(item.merk)}</div>
+                    
+
+</td>
+                    <td class="p-3 text-center font-bold text-
+
+emerald-600">+${item.jumlah}</td>
+                    <td class="p-3 
+
+text-slate-600">${escapeHtml(item.vendor || '-')}</td>
+                 
+
+   <td class="p-3 text-center space-x-1">
+                        
+
+<button onclick="editBarangMasuk('${item.firebaseId}')" class="text-
+
+indigo-600 hover:text-indigo-800 p-1.5 rounded-lg hover:bg-indigo-50" 
+
+title="Edit">
+                            <i class="fa-solid fa-pen-
+
+to-square"></i>
+                        </button>
+                       
+
+ <button onclick="deleteBarangMasuk('${item.firebaseId}')" 
+
+class="text-rose-600 hover:text-rose-800 p-1.5 rounded-lg hover:bg-
+
+rose-50" title="Hapus">
+                            <i class="fa-solid 
+
+fa-trash"></i>
+                        </button>
+                    
+
+</td>
+                `;
+                tbody.appendChild(tr);
+          
+
+  });
+        }
+
+        function editBarangMasuk(id) {
+            const 
+
+item = barangMasukData.find(i => i.firebaseId === id);
+            if 
+
+(!item) return;
+
+            document.getElementById('masuk-doc-
+
+id').value = item.firebaseId;
+            document.getElementById
+
+('masuk-tanggal').value = item.tanggal;
+            
+
+document.getElementById('masuk-nama').value = item.nama;
+            
+
+document.getElementById('masuk-merk').value = item.merk;
+            
+
+document.getElementById('masuk-jumlah').value = item.jumlah;
+           
+
+ document.getElementById('masuk-harga').value = item.harga || '';
+      
+
+      document.getElementById('masuk-vendor').value = item.vendor || 
+
+'';
+            document.getElementById('masuk-keterangan').value = 
+
+item.keterangan || '';
+
+            document.getElementById('btn-masuk-
+
+submit-text').innerText = 'Perbarui Transaksi';
+            
+
+document.getElementById('masuk-mode-badge').classList.remove
+
+('hidden');
+        }
+
+        async function deleteBarangMasuk(id) {
+     
+
+       const result = await Swal.fire({
+                title: 'Hapus 
+
+Data Masuk?',
+                text: "Penghapusan dari cloud akan 
+
+mempengaruhi perhitungan stok.",
+                icon: 'warning',
+       
+
+         showCancelButton: true,
+                confirmButtonColor: 
+
+'#e11d48',
+                confirmButtonText: 'Ya, Hapus',
+              
+
+  cancelButtonText: 'Batal'
+            });
+
+            if 
+
+(result.isConfirmed) {
+                try {
+                    const { 
+
+deleteDoc, doc } = window.firebaseCols;
+                    await 
+
+deleteDoc(doc(window.db, "barang_masuk", id));
+                    
+
+await fetchAllDataFromCloud();
+                    
+
+renderBarangMasukTable();
+                    renderDashboard();
+        
+
+            populateKeluarItemDropdown();
+                    
+
+Swal.fire('Terhapus', 'Data telah dihapus dari Cloud.', 'success');
+    
+
+            } catch (err) {
+                    Swal.fire('Error', 
+
+'Gagal menghapus: ' + err.message, 'error');
+                }
+          
+
+  }
+        }
+
+        function generateNextBASTNo() {
+            const 
+
+today = new Date();
+            const yyyy = today.getFullYear();
+       
+
+     const count = barangKeluarData.length + 1;
+            const padNo 
+
+= String(count).padStart(3, '0');
+            document.getElementById
+
+('keluar-no-bast').value = `BAST/${yyyy}/${padNo}`;
+        }
+
+        
+
+function populateKeluarItemDropdown() {
+            const select = 
+
+document.getElementById('keluar-select-item');
+            
+
+select.innerHTML = '<option value="">-- Pilih Barang dari Stok --
+
+</option>';
+
+            const masterList = calculateMasterStock();
+      
+
+      masterList.forEach(m => {
+                if (m.sisaStok > 0) {
+   
+
+                 const opt = document.createElement('option');
+         
+
+           opt.value = `${m.nama}||${m.merk}`;
+                    
+
+opt.dataset.sisa = m.sisaStok;
+                    opt.innerText = `
+
+${m.nama} (${m.merk}) - Sisa: ${m.sisaStok}`;
+                    
+
+select.appendChild(opt);
+                }
+            });
+        }
+
+      
+
+  function updateKeluarStokHint() {
+            const select = 
+
+document.getElementById('keluar-select-item');
+            const hint = 
+
+document.getElementById('keluar-stok-hint');
+            const 
+
+selectedOpt = select.options[select.selectedIndex];
+            if 
+
+(selectedOpt && selectedOpt.value) {
+                hint.innerText = 
+
+`Sisa tersedia: ${selectedOpt.dataset.sisa} unit`;
+                
+
+hint.className = 'text-[10px] text-emerald-600 font-semibold';
+         
+
+   } else {
+                hint.innerText = 'Pilih barang dulu';
+       
+
+         hint.className = 'text-[10px] text-indigo-600 font-semibold';
+ 
+
+           }
+        }
+
+        function addKeluarCartItem() {
+            
+
+const select = document.getElementById('keluar-select-item');
+          
+
+  const val = select.value;
+            const jumlahInput = 
+
+document.getElementById('keluar-item-jumlah');
+            const jumlah 
+
+= Number(jumlahInput.value);
+            const kondisi = 
+
+document.getElementById('keluar-item-kondisi').value;
+            const 
+
+sn = document.getElementById('keluar-item-sn').value.trim();
+
+           
+
+ if (!val) {
+                Swal.fire('Pilih Barang', 'Silakan pilih 
+
+barang terlebih dahulu.', 'warning');
+                return;
+           
+
+ }
+            if (jumlah <= 0) {
+                Swal.fire('Jumlah 
+
+Invalid', 'Masukkan jumlah barang yang valid.', 'warning');
+            
+
+    return;
+            }
+
+            const [nama, merk] = val.split
+
+('||');
+            const selectedOpt = select.options
+
+[select.selectedIndex];
+            const maxSisa = Number
+
+(selectedOpt.dataset.sisa);
+
+            const existingCartItem = 
+
+currentKeluarCart.find(i => i.nama === nama && i.merk === merk);
+       
+
+     const currentCartQty = existingCartItem ? existingCartItem.jumlah 
+
+: 0;
+
+            if ((currentCartQty + jumlah) > maxSisa) {
+             
+
+   Swal.fire('Stok Tidak Cukup', `Stok barang hanya sisa ${maxSisa}.`, 
+
+'error');
+                return;
+            }
+
+            if 
+
+(existingCartItem) {
+                existingCartItem.jumlah += jumlah;
+ 
+
+               existingCartItem.kondisi = kondisi;
+                if 
+
+(sn) existingCartItem.sn += `, ${sn}`;
+            } else {
+             
+
+   currentKeluarCart.push({ nama, merk, jumlah, kondisi, sn });
+        
+
+    }
+
+            select.value = '';
+            jumlahInput.value = '';
+ 
+
+           document.getElementById('keluar-item-sn').value = '';
+       
+
+     updateKeluarStokHint();
+            renderKeluarCartList();
+        
+
+}
+
+        function removeKeluarCartItem(index) {
+            
+
+currentKeluarCart.splice(index, 1);
+            renderKeluarCartList();
+ 
+
+       }
+
+        function renderKeluarCartList() {
+            const 
+
+container = document.getElementById('keluar-cart-list');
+            
+
+container.innerHTML = '';
+
+            if (currentKeluarCart.length === 
+
+0) {
+                container.innerHTML = `<p class="text-xs text-
+
+slate-400 italic text-center py-3 border border-dashed rounded-
+
+xl">Belum ada barang dipilih.</p>`;
+                return;
+            
+
+}
+
+            currentKeluarCart.forEach((item, idx) => {
+                
+
+const div = document.createElement('div');
+                
+
+div.className = 'bg-slate-50 border border-slate-200 p-2.5 rounded-xl 
+
+flex items-center justify-between text-xs';
+                
+
+div.innerHTML = `
+                    <div>
+                        <div 
+
+class="font-semibold text-slate-800">${escapeHtml(item.nama)} <span 
+
+class="text-slate-500 font-normal">(${escapeHtml(item.merk)})
+
+</span></div>
+                        <div class="text-[10px] text-
+
+slate-500">Jml: <span class="font-bold text-indigo-600">
+
+${item.jumlah}</span> | Kondisi: ${escapeHtml(item.kondisi)} ${item.sn 
+
+? '| SN: ' + escapeHtml(item.sn) : ''}</div>
+                    </div>
+ 
+
+                   <button onclick="removeKeluarCartItem(${idx})" 
+
+class="text-rose-500 hover:text-rose-700 p-1" title="Hapus">
+           
+
+             <i class="fa-solid fa-xmark text-sm"></i>
+                 
+
+   </button>
+                `;
+                container.appendChild
+
+(div);
+            });
+        }
+
+        async function 
+
+submitBatchKeluar() {
+            const tanggal = 
+
+document.getElementById('keluar-tanggal').value;
+            const 
+
+noBast = document.getElementById('keluar-no-bast').value;
+            
+
+const penerimaNama = document.getElementById('keluar-penerima-
+
+nama').value.trim();
+
+            if (!penerimaNama) {
+                
+
+Swal.fire('Perhatian', 'Harap isi nama penerima / unit kerja.', 
+
+'warning');
+                return;
+            }
+
+            if 
+
+(currentKeluarCart.length === 0) {
+                Swal.fire('Daftar 
+
+Kosong', 'Tambahkan minimal 1 barang ke BAST.', 'warning');
+            
+
+    return;
+            }
+
+            Swal.fire({ title: 'Menyimpan BAST 
+
+ke Cloud...', allowOutsideClick: false, didOpen: () => 
+
+Swal.showLoading() });
+
+            try {
+                const { 
+
+collection, addDoc } = window.firebaseCols;
+                const 
+
+batchRecord = {
+                    noBast,
+                    tanggal,
+ 
+
+                   penerimaNama,
+                    items: 
+
+[...currentKeluarCart],
+                    createdAt: Date.now()
+       
+
+         };
+
+                await addDoc(collection(window.db, 
+
+"barang_keluar"), batchRecord);
+                await 
+
+fetchAllDataFromCloud();
+
+                currentKeluarCart = [];
+        
+
+        renderKeluarCartList();
+                
+
+document.getElementById('keluar-penerima-nama').value = '';
+            
+
+    generateNextBASTNo();
+                renderBarangKeluarTable();
+    
+
+            renderDashboard();
+                
+
+populateKeluarItemDropdown();
+                populateBASTBatchSelect
+
+();
+
+                Swal.fire({
+                    icon: 'success',
+     
+
+               title: 'BAST Berhasil Disimpan di Cloud',
+               
+
+     showCancelButton: true,
+                    confirmButtonText: 
+
+'Cetak BAST',
+                    cancelButtonText: 'Selesai'
+           
+
+     }).then((res) => {
+                    if (res.isConfirmed) {
+      
+
+                  switchTab('bast-pdf');
+                        // 
+
+Pilih batch terbaru di dropdown BAST
+                        const 
+
+selectBatch = document.getElementById('bast-select-batch');
+            
+
+            selectBatch.selectedIndex = 1;
+                        
+
+loadBatchToBASTPreview();
+                    }
+                });
+      
+
+      } catch (err) {
+                Swal.fire('Error', 'Gagal 
+
+menyimpan BAST: ' + err.message, 'error');
+            }
+        }
+
+       
+
+ function renderBarangKeluarTable() {
+            const tbody = 
+
+document.getElementById('table-keluar-body');
+            const search 
+
+= document.getElementById('search-keluar').value.toLowerCase();
+        
+
+    tbody.innerHTML = '';
+
+            const filtered = 
+
+barangKeluarData.filter(b => 
+                b.noBast.toLowerCase
+
+().includes(search) ||
+                b.penerimaNama.toLowerCase
+
+().includes(search)
+            );
+
+            if (filtered.length === 
+
+0) {
+                tbody.innerHTML = `<tr><td colspan="5" 
+
+class="text-center py-6 text-slate-400 italic">Belum ada transaksi 
+
+distribusi.</td></tr>`;
+                return;
+            }
+
+            
+
+filtered.forEach(b => {
+                const tr = 
+
+document.createElement('tr');
+                tr.className = 
+
+'hover:bg-slate-50 transition';
+                tr.innerHTML = `
+        
+
+            <td class="p-3 text-slate-500 font-mono">${formatDateIndo
+
+(b.tanggal)}</td>
+                    <td class="p-3 font-semibold 
+
+text-slate-800 font-mono text-xs">${escapeHtml(b.noBast)}</td>
+         
+
+           <td class="p-3 text-slate-700">${escapeHtml
+
+(b.penerimaNama)}</td>
+                    <td class="p-3 text-center">
+ 
+
+                       <span class="bg-indigo-100 text-indigo-700 px-2 
+
+py-0.5 rounded-full font-bold text-[10px]">
+                            
+
+${b.items ? b.items.length : 0} Item
+                        </span>
+    
+
+                </td>
+                    <td class="p-3 text-center 
+
+space-x-1">
+                        <button 
+
+onclick="viewBASTFromHistory('${b.firebaseId}')" class="text-indigo-
+
+600 hover:text-indigo-800 p-1.5 rounded-lg hover:bg-indigo-50" 
+
+title="Cetak BAST">
+                            <i class="fa-solid fa-
+
+file-signature"></i>
+                        </button>
+                  
+
+      <button onclick="deleteBarangKeluar('${b.firebaseId}')" 
+
+class="text-rose-600 hover:text-rose-800 p-1.5 rounded-lg hover:bg-
+
+rose-50" title="Hapus">
+                            <i class="fa-solid 
+
+fa-trash"></i>
+                        </button>
+                    
+
+</td>
+                `;
+                tbody.appendChild(tr);
+          
+
+  });
+        }
+
+        function viewBASTFromHistory(id) {
+            
+
+switchTab('bast-pdf');
+            document.getElementById('bast-
+
+select-batch').value = id;
+            loadBatchToBASTPreview();
+        
+
+}
+
+        async function deleteBarangKeluar(id) {
+            const 
+
+result = await Swal.fire({
+                title: 'Hapus Transaksi 
+
+BAST?',
+                text: "Penghapusan akan mengembalikan stok ke 
+
+master cloud.",
+                icon: 'warning',
+                
+
+showCancelButton: true,
+                confirmButtonColor: '#e11d48',
+  
+
+              confirmButtonText: 'Ya, Hapus',
+                
+
+cancelButtonText: 'Batal'
+            });
+
+            if 
+
+(result.isConfirmed) {
+                try {
+                    const { 
+
+deleteDoc, doc } = window.firebaseCols;
+                    await 
+
+deleteDoc(doc(window.db, "barang_keluar", id));
+                    
+
+await fetchAllDataFromCloud();
+                    
+
+renderBarangKeluarTable();
+                    renderDashboard();
+       
+
+             populateKeluarItemDropdown();
+                    
+
+populateBASTBatchSelect();
+                    Swal.fire('Terhapus', 
+
+'Transaksi BAST telah dihapus.', 'success');
+                } catch 
+
+(err) {
+                    Swal.fire('Error', 'Gagal menghapus: ' + 
+
+err.message, 'error');
+                }
+            }
+        }
+
+        
+
+function populateBASTBatchSelect() {
+            const select = 
+
+document.getElementById('bast-select-batch');
+            
+
+select.innerHTML = '<option value="">-- Pilih Transaksi BAST --
+
+</option>';
+
+            barangKeluarData.forEach(b => {
+                
+
+const opt = document.createElement('option');
+                opt.value 
+
+= b.firebaseId;
+                opt.innerText = `${b.noBast} - 
+
+${b.penerimaNama} (${formatDateIndo(b.tanggal)})`;
+                
+
+select.appendChild(opt);
+            });
+        }
+
+        function 
+
+loadBatchToBASTPreview() {
+            const batchId = 
+
+document.getElementById('bast-select-batch').value;
+            const 
+
+batch = barangKeluarData.find(b => b.firebaseId === batchId);
+
+          
+
+  if (!batch) return;
+
+            document.getElementById('bast-p1-
+
+nama').value = settingsData.pjNama;
+            
+
+document.getElementById('bast-p1-nip').value = settingsData.pjNip;
+     
+
+       document.getElementById('bast-p1-jabatan').value = 
+
+settingsData.pjJabatan;
+            document.getElementById('bast-p1-
+
+unit').value = settingsData.pjUnit;
+
+            
+
+document.getElementById('bast-p2-nama').value = batch.penerimaNama;
+    
+
+        document.getElementById('bast-p2-nip').value = '-';
+            
+
+document.getElementById('bast-p2-jabatan').value = 'Penerima Barang';
+  
+
+          document.getElementById('bast-p2-unit').value = 'Unit Kerja 
+
+/ Operasional';
+
+            document.getElementById('bast-nomor-
+
+doc').value = batch.noBast;
+            document.getElementById('bast-
+
+tgl-doc').value = batch.tanggal;
+
+            updateBASTLive(batch);
+     
+
+   }
+
+        function updateBASTLive(currentBatch = null) {
+            
+
+const batchId = document.getElementById('bast-select-batch').value;
+    
+
+        const batch = currentBatch || barangKeluarData.find(b => 
+
+b.firebaseId === batchId);
+
+            document.getElementById
+
+('preview-instansi').innerText = 
+
+settingsData.namaInstansi.toUpperCase();
+            
+
+document.getElementById('preview-alamat').innerText = 
+
+settingsData.alamat;
+
+            const p1Nama = 
+
+document.getElementById('bast-p1-nama').value || settingsData.pjNama;
+  
+
+          const p1Nip = document.getElementById('bast-p1-nip').value 
+
+|| settingsData.pjNip;
+            const p1Jabatan = 
+
+document.getElementById('bast-p1-jabatan').value || 
+
+settingsData.pjJabatan;
+
+            const p2Nama = 
+
+document.getElementById('bast-p2-nama').value || 'Penerima Barang';
+    
+
+        const p2Nip = document.getElementById('bast-p2-nip').value || 
+
+'-';
+            const p2Jabatan = document.getElementById('bast-p2-
+
+jabatan').value || '-';
+            const p2Unit = 
+
+document.getElementById('bast-p2-unit').value || '-';
+
+            const 
+
+noBast = document.getElementById('bast-nomor-doc').value || (batch ? 
+
+batch.noBast : 'BAST/2026/001');
+            const tglDoc = 
+
+document.getElementById('bast-tgl-doc').value || new Date
+
+().toISOString().split('T')[0];
+            const ketDoc = 
+
+document.getElementById('bast-keterangan-doc').value || 'Pengadaan dan 
+
+distribusi barang operasional.';
+
+            document.getElementById
+
+('preview-no-bast').innerText = noBast;
+            
+
+document.getElementById('preview-hari-tgl').innerText = 
+
+formatDateLongIndo(tglDoc);
+
+            document.getElementById
+
+('preview-p1-nama').innerText = p1Nama;
+            
+
+document.getElementById('preview-p1-nip').innerText = p1Nip;
+           
+
+ document.getElementById('preview-p1-jabatan').innerText = p1Jabatan;
+  
+
+          document.getElementById('preview-p1-unit').innerText = 
+
+document.getElementById('bast-p1-unit').value || '-';
+
+            
+
+document.getElementById('preview-p2-nama').innerText = p2Nama;
+         
+
+   document.getElementById('preview-p2-nip').innerText = p2Nip;
+        
+
+    document.getElementById('preview-p2-jabatan').innerText = 
+
+p2Jabatan;
+            document.getElementById('preview-p2-
+
+unit').innerText = p2Unit;
+
+            document.getElementById
+
+('preview-keterangan').innerText = ketDoc;
+
+            
+
+document.getElementById('preview-sign-p1-nama').innerText = 
+
+p1Nama.toUpperCase();
+            document.getElementById('preview-
+
+sign-p1-nip').innerText = p1Nip;
+
+            document.getElementById
+
+('preview-sign-p2-nama').innerText = p2Nama.toUpperCase();
+            
+
+document.getElementById('preview-sign-p2-nip').innerText = p2Nip;
+
+      
+
+      const tbody = document.getElementById('preview-table-items');
+    
+
+        tbody.innerHTML = '';
+
+            const itemsToRender = batch ? 
+
+batch.items : [
+                { nama: 'Laptop Asus ExpertBook B1400', 
+
+merk: 'Core i5 / 8GB', jumlah: 1, kondisi: 'Sangat Baik / Baru', sn: 
+
+'SN: N8NXCV001298412' }
+            ];
+
+            
+
+itemsToRender.forEach((it, i) => {
+                const tr = 
+
+document.createElement('tr');
+                tr.innerHTML = `
+          
+
+          <td class="text-center">${i + 1}</td>
+                    
+
+<td>${escapeHtml(it.nama)} (${escapeHtml(itemMerkClean(it.merk))})
+
+</td>
+                    <td class="text-center">${it.jumlah} 
+
+Unit</td>
+                    <td class="text-center">${escapeHtml
+
+(it.kondisi || 'Baik')}</td>
+                    <td>${escapeHtml(it.sn 
+
+|| '-')}</td>
+                `;
+                tbody.appendChild(tr);
+  
+
+          });
+        }
+
+        function itemMerkClean(merk) {
+           
+
+ return merk ? merk : 'Umum';
+        }
+
+        function 
+
+downloadBASTPDF() {
+            const element = 
+
+document.getElementById('bast-preview-container');
+            const 
+
+noBast = document.getElementById('preview-no-bast').innerText.replace
+
+(/\//g, '_');
+            const opt = {
+                margin:       
+
+[10, 10, 10, 10],
+                filename:     `BAST_${noBast}.pdf`,
+   
+
+             image:        { type: 'jpeg', quality: 0.98 },
+            
+
+    html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 
+
+'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            
+
+Swal.fire({
+                title: 'Menyiapkan PDF...',
+                
+
+text: 'Mohon tunggu sebentar.',
+                allowOutsideClick: 
+
+false,
+                didOpen: () => { Swal.showLoading(); }
+           
+
+ });
+
+            html2pdf().set(opt).from(element).save().then(() => {
+  
+
+              Swal.close();
+            }).catch(err => {
+               
+
+ Swal.fire('Error', 'Gagal mengunduh PDF BAST: ' + err.message, 
+
+'error');
+            });
+        }
+
+        function initSettingsForm() {
+ 
+
+           document.getElementById('setting-nama-instansi').value = 
+
+settingsData.namaInstansi;
+            document.getElementById
+
+('setting-alamat').value = settingsData.alamat;
+            
+
+document.getElementById('setting-pj-nama').value = 
+
+settingsData.pjNama;
+            document.getElementById('setting-pj-
+
+nip').value = settingsData.pjNip;
+            document.getElementById
+
+('setting-pj-jabatan').value = settingsData.pjJabatan;
+        }
+
+        
+
+function updateAppHeader() {
+            document.getElementById
+
+('sidebar-instansi-name').innerText = settingsData.namaInstansi;
+       
+
+ }
+
+        async function saveSettings(e) {
+            
+
+e.preventDefault();
+            settingsData = {
+                
+
+namaInstansi: document.getElementById('setting-nama-
+
+instansi').value.trim(),
+                alamat: 
+
+document.getElementById('setting-alamat').value.trim(),
+                
+
+pjNama: document.getElementById('setting-pj-nama').value.trim(),
+       
+
+         pjNip: document.getElementById('setting-pj-nip').value.trim
+
+(),
+                pjJabatan: document.getElementById('setting-pj-
+
+jabatan').value.trim(),
+                pjUnit: 'Sub Bagian Logistik'
+   
+
+         };
+
+            try {
+                const { setDoc, doc } = 
+
+window.firebaseCols;
+                await setDoc(doc(window.db, 
+
+"settings", "app_config"), settingsData);
+                
+
+updateAppHeader();
+                updateBASTLive();
+                
+
+Swal.fire('Tersimpan', 'Pengaturan instansi telah diperbarui di 
+
+Cloud.', 'success');
+            } catch (err) {
+                
+
+Swal.fire('Error', 'Gagal menyimpan pengaturan: ' + err.message, 
+
+'error');
+            }
+        }
+
+        function exportBackupJSON() {
+   
+
+         const backupPayload = {
+                version: '1.0',
+        
+
+        exportDate: new Date().toISOString(),
+                settings: 
+
+settingsData,
+                barangMasuk: barangMasukData,
+             
+
+   barangKeluar: barangKeluarData
+            };
+
+            const 
+
+dataStr = "data:text/json;charset=utf-8," + encodeURIComponent
+
+(JSON.stringify(backupPayload, null, 2));
+            const 
+
+dlAnchorElem = document.createElement('a');
+            
+
+dlAnchorElem.setAttribute("href", dataStr);
+            
+
+dlAnchorElem.setAttribute("download", `Backup_Cloud_Inventaris_${new 
+
+Date().toISOString().split('T')[0]}.json`);
+            
+
+document.body.appendChild(dlAnchorElem);
+            
+
+dlAnchorElem.click();
+            dlAnchorElem.remove();
+        }
+
+       
+
+ async function seedDemoData() {
+            const today = new Date
+
+().toISOString().split('T')[0];
+            const demoMasuk = [
+         
+
+       { tanggal: today, nama: 'Laptop Asus ExpertBook', merk: 
+
+'B1400CEAE', jumlah: 10, harga: 12500000, vendor: 'PT. Asus 
+
+Indonesia', keterangan: 'Pengadaan TI' },
+                { tanggal: 
+
+today, nama: 'Printer HP LaserJet', merk: 'Pro M404dn', jumlah: 5, 
+
+harga: 4200000, vendor: 'CV. Sentra Office', keterangan: 'Printer 
+
+Operasional' },
+                { tanggal: today, nama: 'Monitor Dell 
+
+24 Inch', merk: 'P2422H', jumlah: 8, harga: 2800000, vendor: 'PT. 
+
+Mandiri Komputer', keterangan: 'Layar Tambahan' }
+            ];
+
+        
+
+    const demoKeluar = [
+                {
+                    noBast: 
+
+'BAST/2026/001',
+                    tanggal: today,
+                    
+
+penerimaNama: 'Budi Santoso (Divisi IT)',
+                    items: [
+  
+
+                      { nama: 'Laptop Asus ExpertBook', merk: 
+
+'B1400CEAE', jumlah: 2, kondisi: 'Baik / Baru', sn: 'SN: N8NX001298' }
+ 
+
+                   ]
+                }
+            ];
+
+            try {
+   
+
+             const { collection, addDoc, setDoc, doc } = 
+
+window.firebaseCols;
+                const db = window.db;
+
+              
+
+  for (let item of demoMasuk) {
+                    await addDoc
+
+(collection(db, "barang_masuk"), item);
+                }
+               
+
+ for (let item of demoKeluar) {
+                    await addDoc
+
+(collection(db, "barang_keluar"), item);
+        
   <!-- Tailwind CSS CDN -->
     <script 
 
