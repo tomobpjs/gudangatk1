@@ -89,7 +89,7 @@
                 </div>
             </div>
 
-            <!-- Menu Navigation Items (Numbers removed) -->
+            <!-- Menu Navigation Items -->
             <nav class="flex-1 overflow-y-auto p-4 space-y-1.5">
                 <div class="text-[10px] uppercase font-bold tracking-wider text-slate-500 px-3 mb-2">Menu Utama</div>
                 
@@ -425,7 +425,7 @@
                                         <th class="p-3 text-right">Harga Satuan</th>
                                         <th class="p-3 text-right">Total Harga</th>
                                         <th class="p-3">Supplier / Vendor</th>
-                                        <th class="p-3 text-center w-24">Aksi</th>
+                                        <th class="p-3 text-center w-28">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody id="purchases-table-tbody" class="divide-y divide-darkBorder bg-darkCard/50">
@@ -588,9 +588,20 @@
                                     <input type="date" id="dist-date" required class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100">
                                 </div>
                                 <div>
+                                    <label class="block text-xs font-medium text-slate-300 mb-1">Kategori Barang</label>
+                                    <select id="dist-category" onchange="onDistCategoryChange()" required class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100">
+                                        <option value="">-- Pilih Kategori --</option>
+                                        <option value="ATK">ATK (Alat Tulis Kantor)</option>
+                                        <option value="Plastik">Plastik</option>
+                                        <option value="Alat Kebersihan/RT">Alat Kebersihan/RT</option>
+                                        <option value="Chemical Laundry">Chemical Laundry</option>
+                                        <option value="Bahan Basah&Kering">Bahan Basah & Kering</option>
+                                    </select>
+                                </div>
+                                <div>
                                     <label class="block text-xs font-medium text-slate-300 mb-1">Pilih Barang</label>
                                     <select id="dist-item" required class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100">
-                                        <option value="">-- Pilih Barang Master --</option>
+                                        <option value="">-- Pilih Kategori Terlebih Dahulu --</option>
                                     </select>
                                 </div>
                                 <div>
@@ -634,7 +645,7 @@
                                             <th class="p-3">Nama Barang</th>
                                             <th class="p-3 text-right">Jumlah</th>
                                             <th class="p-3">Unit Tujuan</th>
-                                            <th class="p-3 text-center w-20">Aksi</th>
+                                            <th class="p-3 text-center w-28">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody id="distribution-table-tbody" class="divide-y divide-darkBorder bg-darkCard/50">
@@ -790,13 +801,13 @@
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'hospital-logistics-app';
         const firebaseConfig = {
-  apiKey: "AIzaSyDEXHSwJq7l-B9UgmYzqgDqKCNUS0ho-j0",
-  authDomain: "rekapbelanja.firebaseapp.com",
-  projectId: "rekapbelanja",
-  storageBucket: "rekapbelanja.firebasestorage.app",
-  messagingSenderId: "867729593347",
-  appId: "1:867729593347:web:1db201e3cc649490cdaa36"
-};
+          apiKey: "AIzaSyDEXHSwJq7l-B9UgmYzqgDqKCNUS0ho-j0",
+          authDomain: "rekapbelanja.firebaseapp.com",
+          projectId: "rekapbelanja",
+          storageBucket: "rekapbelanja.firebasestorage.app",
+          messagingSenderId: "867729593347",
+          appId: "1:867729593347:web:1db201e3cc649490cdaa36"
+        };
 
         // Initialize Firebase
         async function initFirebase() {
@@ -904,7 +915,6 @@
             renderDashboard();
             renderMasterTable();
             renderPurchasesTable();
-            populateMasterDropdowns();
             renderTrendDropdown();
             renderMonthlyReport();
             renderDistributionTable();
@@ -995,7 +1005,7 @@
             document.getElementById('custom-modal').classList.add('hidden');
         };
 
-        // Purchase Input Management
+        // Purchase Input Management with Category Filtering for "Nama Barang"
         let purchaseRowsCount = 0;
         window.initPurchaseRows = function() {
             const tbody = document.getElementById('purchase-input-tbody');
@@ -1015,16 +1025,18 @@
             tr.className = 'hover:bg-slate-800/50 transition';
 
             const today = new Date().toISOString().split('T')[0];
+            const defaultCat = 'ATK';
+            
             let itemOptions = '<option value="">-- Pilih Barang Master --</option>';
-            window.masterItems.forEach(item => {
-                itemOptions += `<option value="${item.name}" data-cat="${item.category}">${item.name} (${item.unit})</option>`;
+            window.masterItems.filter(item => item.category === defaultCat).forEach(item => {
+                itemOptions += `<option value="${item.name}">${item.name} (${item.unit})</option>`;
             });
 
             tr.innerHTML = `
                 <td class="p-3 text-center font-mono text-slate-400">${purchaseRowsCount}</td>
                 <td class="p-3"><input type="date" value="${today}" class="p-2 bg-slate-900 border border-darkBorder rounded-xl w-full text-xs text-slate-100 row-date"></td>
                 <td class="p-3">
-                    <select class="p-2 bg-slate-900 border border-darkBorder rounded-xl w-full text-xs text-slate-100 row-cat">
+                    <select onchange="onPurchaseCategoryChange(${purchaseRowsCount})" class="p-2 bg-slate-900 border border-darkBorder rounded-xl w-full text-xs text-slate-100 row-cat">
                         <option value="ATK">ATK</option>
                         <option value="Plastik">Plastik</option>
                         <option value="Alat Kebersihan/RT">Alat Kebersihan/RT</option>
@@ -1033,7 +1045,7 @@
                     </select>
                 </td>
                 <td class="p-3">
-                    <select onchange="onPurchaseItemChange(${purchaseRowsCount})" class="p-2 bg-slate-900 border border-darkBorder rounded-xl w-full text-xs text-slate-100 row-item">
+                    <select class="p-2 bg-slate-900 border border-darkBorder rounded-xl w-full text-xs text-slate-100 row-item">
                         ${itemOptions}
                     </select>
                 </td>
@@ -1047,14 +1059,18 @@
             tbody.appendChild(tr);
         };
 
-        window.onPurchaseItemChange = function(rowId) {
+        window.onPurchaseCategoryChange = function(rowId) {
             const row = document.getElementById(`purchase-row-${rowId}`);
             if (!row) return;
-            const itemSelect = row.querySelector('.row-item');
             const catSelect = row.querySelector('.row-cat');
-            const selectedOption = itemSelect.options[itemSelect.selectedIndex];
-            const cat = selectedOption.getAttribute('data-cat');
-            if (cat) catSelect.value = cat;
+            const itemSelect = row.querySelector('.row-item');
+            const selectedCat = catSelect.value;
+
+            let opts = '<option value="">-- Pilih Barang Master --</option>';
+            window.masterItems.filter(item => item.category === selectedCat).forEach(item => {
+                opts += `<option value="${item.name}">${item.name} (${item.unit})</option>`;
+            });
+            itemSelect.innerHTML = opts;
         };
 
         window.removePurchaseRow = function(rowId) {
@@ -1135,7 +1151,6 @@
                 showModal('Berhasil', `Barang master "${name}" berhasil ditambahkan ke Cloud.`, 'success');
                 document.getElementById('master-item-form').reset();
                 renderMasterTable();
-                populateMasterDropdowns();
                 renderTrendDropdown();
             }
         };
@@ -1183,23 +1198,11 @@
             }
 
             renderMasterTable();
-            populateMasterDropdowns();
             renderTrendDropdown();
             showModal('Terhapus', 'Barang master berhasil dihapus.', 'success');
         };
 
-        window.populateMasterDropdowns = function() {
-            const distItem = document.getElementById('dist-item');
-            if (distItem) {
-                let opts = '<option value="">-- Pilih Barang Master --</option>';
-                window.masterItems.forEach(i => {
-                    opts += `<option value="${i.name}">${i.name} (${i.unit})</option>`;
-                });
-                distItem.innerHTML = opts;
-            }
-        };
-
-        // Database Pembelian
+        // Database Pembelian with Edit & Delete
         window.renderPurchasesTable = function() {
             const tbody = document.getElementById('purchases-table-tbody');
             const catFilterEl = document.getElementById('filter-purchases-category');
@@ -1235,11 +1238,41 @@
                     <td class="p-3 text-right font-mono font-semibold text-emerald-400">Rp ${total.toLocaleString('id-ID')}</td>
                     <td class="p-3 text-slate-300">${p.vendor}</td>
                     <td class="p-3 text-center">
-                        <button onclick="deletePurchase(${p.id})" class="text-rose-400 hover:text-rose-300 p-1.5"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="editPurchase(${p.id})" class="text-blue-400 hover:text-blue-300 p-1.5" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deletePurchase(${p.id})" class="text-rose-400 hover:text-rose-300 p-1.5" title="Hapus"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
+        };
+
+        window.editPurchase = async function(id) {
+            const p = window.purchases.find(item => item.id === id);
+            if (!p) return;
+            const newQty = prompt("Edit Jumlah Pembelian:", p.qty);
+            if (newQty === null) return;
+            const newPrice = prompt("Edit Harga Satuan (Rp):", p.price);
+            if (newPrice === null) return;
+            const newVendor = prompt("Edit Supplier / Vendor:", p.vendor);
+            if (newVendor === null) return;
+
+            p.qty = parseInt(newQty) || p.qty;
+            p.price = parseFloat(newPrice) || p.price;
+            p.vendor = newVendor.trim() || p.vendor;
+
+            localStorage.setItem('rs_purchases', JSON.stringify(window.purchases));
+            if (window.db && window.user) {
+                try {
+                    await setDoc(doc(window.db, 'artifacts', appId, 'public', 'data', 'purchases', String(p.id)), p);
+                } catch (err) { console.error(err); }
+            }
+            renderPurchasesTable();
+            renderDashboard();
+            renderTrendDropdown();
+            renderMonthlyReport();
+            renderHistoryTable();
+            renderNeedsAnalysis();
+            showModal('Berhasil', 'Data pembelian berhasil diperbarui.', 'success');
         };
 
         window.deletePurchase = async function(id) {
@@ -1436,7 +1469,20 @@
             if (vendorsEl) vendorsEl.innerText = `${vendorsSet.size} Vendor`;
         };
 
-        // Pengeluaran / Distribusi
+        // Pengeluaran / Distribusi with Category Filtering & Edit/Delete
+        window.onDistCategoryChange = function() {
+            const catSelect = document.getElementById('dist-category');
+            const itemSelect = document.getElementById('dist-item');
+            if (!catSelect || !itemSelect) return;
+            const selectedCat = catSelect.value;
+
+            let opts = '<option value="">-- Pilih Barang Master --</option>';
+            window.masterItems.filter(i => i.category === selectedCat).forEach(i => {
+                opts += `<option value="${i.name}">${i.name} (${i.unit})</option>`;
+            });
+            itemSelect.innerHTML = opts;
+        };
+
         window.handleDistributionSubmit = async function(e) {
             e.preventDefault();
             const date = document.getElementById('dist-date').value;
@@ -1466,7 +1512,7 @@
                 showModal('Berhasil', `Distribusi barang ke ${unit} berhasil dicatat ke Cloud.`, 'success');
                 document.getElementById('distribution-form').reset();
                 updateCurrentDate();
-                populateMasterDropdowns();
+                document.getElementById('dist-item').innerHTML = '<option value="">-- Pilih Kategori Terlebih Dahulu --</option>';
                 renderDistributionTable();
                 renderDashboard();
                 renderHistoryTable();
@@ -1498,11 +1544,36 @@
                     <td class="p-3 text-right font-mono text-rose-400 font-semibold">${d.qty}</td>
                     <td class="p-3"><span class="bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded text-[10px] font-semibold">${d.unit}</span></td>
                     <td class="p-3 text-center">
-                        <button onclick="deleteDistribution(${d.id})" class="text-rose-400 hover:text-rose-300 p-1.5"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="editDistribution(${d.id})" class="text-blue-400 hover:text-blue-300 p-1.5" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteDistribution(${d.id})" class="text-rose-400 hover:text-rose-300 p-1.5" title="Hapus"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
+        };
+
+        window.editDistribution = async function(id) {
+            const d = window.distributions.find(item => item.id === id);
+            if (!d) return;
+            const newQty = prompt("Edit Jumlah Keluar:", d.qty);
+            if (newQty === null) return;
+            const newUnit = prompt("Edit Unit / Ruangan Tujuan:", d.unit);
+            if (newUnit === null) return;
+
+            d.qty = parseInt(newQty) || d.qty;
+            d.unit = newUnit.trim() || d.unit;
+
+            localStorage.setItem('rs_distributions', JSON.stringify(window.distributions));
+            if (window.db && window.user) {
+                try {
+                    await setDoc(doc(window.db, 'artifacts', appId, 'public', 'data', 'distributions', String(d.id)), d);
+                } catch (err) { console.error(err); }
+            }
+            renderDistributionTable();
+            renderDashboard();
+            renderHistoryTable();
+            renderNeedsAnalysis();
+            showModal('Berhasil', 'Data distribusi berhasil diperbarui.', 'success');
         };
 
         window.deleteDistribution = async function(id) {
