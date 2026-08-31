@@ -334,34 +334,67 @@
                 <!-- 3. MASTER KATEGORI & BARANG -->
                 <section id="view-database_kategori" class="view-section hidden space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl h-fit space-y-4">
-                            <h3 class="font-bold text-sm text-white flex items-center border-b border-darkBorder pb-3">
-                                <i class="fa-solid fa-square-plus mr-2 text-purple-400"></i> Tambah Nama Barang Master
-                            </h3>
-                            <form id="master-item-form" onsubmit="handleMasterItemSubmit(event)" class="space-y-4">
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1">Pilih Kategori Barang</label>
-                                    <select id="master-category" required class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-purple-500">
-                                        <option value="">-- Pilih Kategori --</option>
-                                        <option value="ATK">ATK (Alat Tulis Kantor)</option>
-                                        <option value="Plastik">Plastik</option>
-                                        <option value="Alat Kebersihan/RT">Alat Kebersihan/RT</option>
-                                        <option value="Chemical Laundry">Chemical Laundry</option>
-                                        <option value="Bahan Basah&Kering">Bahan Basah & Kering</option>
-                                    </select>
+                        <div class="space-y-6">
+                            <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl h-fit space-y-4">
+                                <h3 class="font-bold text-sm text-white flex items-center border-b border-darkBorder pb-3">
+                                    <i class="fa-solid fa-square-plus mr-2 text-purple-400"></i> Tambah Nama Barang Master
+                                </h3>
+                                <form id="master-item-form" onsubmit="handleMasterItemSubmit(event)" class="space-y-4">
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-300 mb-1">Pilih Kategori Barang</label>
+                                        <select id="master-category" required class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-purple-500">
+                                            <option value="">-- Pilih Kategori --</option>
+                                            <option value="ATK">ATK (Alat Tulis Kantor)</option>
+                                            <option value="Plastik">Plastik</option>
+                                            <option value="Alat Kebersihan/RT">Alat Kebersihan/RT</option>
+                                            <option value="Chemical Laundry">Chemical Laundry</option>
+                                            <option value="Bahan Basah&Kering">Bahan Basah & Kering</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-300 mb-1">Nama Barang</label>
+                                        <input type="text" id="master-item-name" required placeholder="Contoh: Kertas HVS A4 80gr" class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-purple-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-300 mb-1">Satuan Unit</label>
+                                        <input type="text" id="master-item-unit" required placeholder="Contoh: Rim, Pcs, Box, Kg" class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-purple-500">
+                                    </div>
+                                    <button type="submit" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-semibold shadow-lg shadow-purple-500/20 transition">
+                                        Simpan ke Master Database
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Form Import Master Barang per Kategori -->
+                            <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl h-fit space-y-4">
+                                <h3 class="font-bold text-sm text-white flex items-center border-b border-darkBorder pb-3">
+                                    <i class="fa-solid fa-file-import mr-2 text-emerald-400"></i> Import Master Barang CSV
+                                </h3>
+                                <p class="text-[10px] text-slate-400">Format CSV: Kategori, Nama Barang, Satuan (tanpa header, dipisah koma).</p>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-300 mb-1">Kategori Tujuan Import (Opsional)</label>
+                                        <select id="import-master-category" class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
+                                            <option value="">Gunakan Kategori dari File CSV</option>
+                                            <option value="ATK">ATK (Alat Tulis Kantor)</option>
+                                            <option value="Plastik">Plastik</option>
+                                            <option value="Alat Kebersihan/RT">Alat Kebersihan/RT</option>
+                                            <option value="Chemical Laundry">Chemical Laundry</option>
+                                            <option value="Bahan Basah&Kering">Bahan Basah & Kering</option>
+                                        </select>
+                                        <p class="text-[9px] text-slate-500 mt-1">*Jika dipilih, akan mengabaikan kolom kategori di CSV.</p>
+                                    </div>
+                                    <div>
+                                        <input type="file" id="import-master-file" accept=".csv" class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-300 file:mr-4 file:py-1 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer">
+                                    </div>
+                                    <button onclick="importMasterCSV()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-lg shadow-emerald-500/20 transition">
+                                        Import File CSV
+                                    </button>
+                                    <button onclick="downloadMasterCSVSample()" class="w-full py-1.5 text-emerald-400 hover:text-emerald-300 underline text-[10px] font-medium transition text-center">
+                                        Download Template CSV
+                                    </button>
                                 </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1">Nama Barang</label>
-                                    <input type="text" id="master-item-name" required placeholder="Contoh: Kertas HVS A4 80gr" class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-purple-500">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1">Satuan Unit</label>
-                                    <input type="text" id="master-item-unit" required placeholder="Contoh: Rim, Pcs, Box, Kg" class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-purple-500">
-                                </div>
-                                <button type="submit" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-semibold shadow-lg shadow-purple-500/20 transition">
-                                    Simpan ke Master Database
-                                </button>
-                            </form>
+                            </div>
                         </div>
 
                         <div class="lg:col-span-2 bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl space-y-4">
@@ -747,13 +780,13 @@
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = {
-  apiKey: "AIzaSyDEXHSwJq7l-B9UgmYzqgDqKCNUS0ho-j0",
-  authDomain: "rekapbelanja.firebaseapp.com",
-  projectId: "rekapbelanja",
-  storageBucket: "rekapbelanja.firebasestorage.app",
-  messagingSenderId: "867729593347",
-  appId: "1:867729593347:web:1db201e3cc649490cdaa36"
-};
+            apiKey: "AIzaSyDEXHSwJq7l-B9UgmYzqgDqKCNUS0ho-j0",
+            authDomain: "rekapbelanja.firebaseapp.com",
+            projectId: "rekapbelanja",
+            storageBucket: "rekapbelanja.firebasestorage.app",
+            messagingSenderId: "867729593347",
+            appId: "1:867729593347:web:1db201e3cc649490cdaa36"
+        };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -1104,6 +1137,88 @@
             renderMasterTable();
         }
 
+        // --- IMPORT MASTER ITEMS CSV ---
+        window.downloadMasterCSVSample = function() {
+            const csv = 'ATK,Kertas HVS A4 80gr,Rim\nPlastik,Plastik Sampah Medis Kuning,Pack\nAlat Kebersihan/RT,Sapu Lidi,Pcs';
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Template_Import_Master_Barang.csv`;
+            link.click();
+        }
+
+        window.importMasterCSV = function() {
+            const fileInput = document.getElementById('import-master-file');
+            const targetCategory = document.getElementById('import-master-category').value;
+            
+            if (!fileInput.files.length) {
+                showModal('Peringatan', 'Pilih file CSV terlebih dahulu.', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const text = e.target.result;
+                    const rows = text.split('\n').filter(row => row.trim() !== '');
+                    let addedCount = 0;
+                    
+                    rows.forEach(row => {
+                        const cols = row.split(',').map(col => col.trim());
+                        
+                        let category, name, unit;
+
+                        if (targetCategory) {
+                            // If user selected a specific category, ignore the first column in CSV if it exists, or assume CSV is only 2 columns (name, unit)
+                            category = targetCategory;
+                            if (cols.length >= 3) {
+                                name = cols[1];
+                                unit = cols[2];
+                            } else if (cols.length === 2) {
+                                name = cols[0];
+                                unit = cols[1];
+                            } else {
+                                return; // Skip invalid row
+                            }
+                        } else {
+                            // If no target category selected, expect 3 columns: category, name, unit
+                            if (cols.length >= 3) {
+                                category = cols[0];
+                                name = cols[1];
+                                unit = cols[2];
+                            } else {
+                                return; // Skip invalid row
+                            }
+                        }
+
+                        if (category && name && unit) {
+                            // Basic duplicate check (by name and category)
+                            const isDuplicate = window.state.masterItems.some(m => m.name.toLowerCase() === name.toLowerCase() && m.category === category);
+                            if (!isDuplicate) {
+                                window.state.masterItems.push({ id: Date.now() + Math.random(), category, name, unit });
+                                addedCount++;
+                            }
+                        }
+                    });
+
+                    if (addedCount > 0) {
+                        await window.saveData();
+                        logActivity('Import Master', `Berhasil mengimport ${addedCount} master barang dari CSV.`);
+                        showModal('Berhasil!', `${addedCount} item master barang berhasil diimport.`, 'success');
+                        renderMasterTable();
+                        fileInput.value = ''; // Reset file input
+                    } else {
+                        showModal('Informasi', 'Tidak ada item baru yang ditambahkan. Mungkin format salah atau data sudah ada.', 'info');
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    showModal('Gagal', 'Terjadi kesalahan saat memproses file CSV. Pastikan format benar (tanpa koma di dalam nama barang).', 'error');
+                }
+            };
+            reader.readAsText(fileInput.files[0]);
+        }
+
         window.renderMasterTable = function() {
             const tbody = document.getElementById('master-table-tbody');
             const search = document.getElementById('search-master').value.toLowerCase();
@@ -1161,15 +1276,15 @@
                     <td class="p-3 text-center font-mono text-slate-400">${idx + 1}</td>
                     <td class="p-3 font-medium text-white">${u}</td>
                     <td class="p-3 text-center">
-                        <button onclick="deleteUnit(${idx})" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="deleteUnit('${u}')" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        window.deleteUnit = async function(index) {
-            window.state.units.splice(index, 1);
+        window.deleteUnit = async function(unitName) {
+            window.state.units = window.state.units.filter(u => u !== unitName);
             await window.saveData();
             renderUnitTable();
             showModal('Terhapus', 'Unit / ruangan berhasil dihapus.', 'success');
