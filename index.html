@@ -29,6 +29,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2canvas for JPG download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body { font-family: 'Poppins', sans-serif; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -57,6 +59,14 @@
             .print-only { display: block !important; }
             .watermark { color: rgba(0, 0, 0, 0.04) !important; }
             .print-card { background: white !important; border: 1px solid #cbd5e1 !important; color: black !important; }
+        }
+        
+        /* Table specifically for image download */
+        #chart-data-table-container {
+            background-color: #1e293b; /* Ensure background color is rendered */
+            color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
         }
     </style>
 </head>
@@ -335,9 +345,10 @@
                 <section id="view-database_kategori" class="view-section hidden space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="space-y-6">
+                            <!-- Form Single Master Barang -->
                             <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl h-fit space-y-4">
                                 <h3 class="font-bold text-sm text-white flex items-center border-b border-darkBorder pb-3">
-                                    <i class="fa-solid fa-square-plus mr-2 text-purple-400"></i> Tambah Nama Barang Master
+                                    <i class="fa-solid fa-square-plus mr-2 text-purple-400"></i> Tambah Single Nama Barang
                                 </h3>
                                 <form id="master-item-form" onsubmit="handleMasterItemSubmit(event)" class="space-y-4">
                                     <div>
@@ -365,10 +376,46 @@
                                 </form>
                             </div>
 
-                            <!-- Form Import Master Barang per Kategori -->
+                            <!-- Fitur Baru: Input Massal Teks (Copy-Paste List) -->
+                            <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl h-fit space-y-4">
+                                <div class="border-b border-darkBorder pb-3 flex items-center justify-between">
+                                    <h3 class="font-bold text-sm text-white flex items-center">
+                                        <i class="fa-solid fa-list-check mr-2 text-cyan-400"></i> Input Massal Teks (Paste List)
+                                    </h3>
+                                    <span class="px-2 py-0.5 rounded text-[10px] bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-semibold">Fitur Cepat</span>
+                                </div>
+                                <p class="text-[10px] text-slate-400 leading-relaxed">Copy & Paste daftar nama barang dari Excel/Catatan (1 item per baris). Anda bisa menggunakan format baku atau tambahkan koma untuk satuan (Contoh: <code class="text-cyan-400 font-mono">Spidol Biru, Box</code>).</p>
+                                
+                                <form id="batch-master-form" onsubmit="handleBatchMasterSubmit(event)" class="space-y-4">
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-300 mb-1">Pilih Kategori Barang Target</label>
+                                        <select id="batch-master-category" required class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-500">
+                                            <option value="">-- Pilih Kategori --</option>
+                                            <option value="ATK">ATK (Alat Tulis Kantor)</option>
+                                            <option value="Plastik">Plastik</option>
+                                            <option value="Alat Kebersihan/RT">Alat Kebersihan/RT</option>
+                                            <option value="Chemical Laundry">Chemical Laundry</option>
+                                            <option value="Bahan Basah&Kering">Bahan Basah & Kering</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-300 mb-1">Satuan Default (Jika Tidak Ditulis)</label>
+                                        <input type="text" id="batch-master-unit" placeholder="Pcs / Box / Pack / Rim / Kg" class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-500" value="Pcs">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-300 mb-1">Daftar Barang (Multi-Baris)</label>
+                                        <textarea id="batch-master-text" rows="5" required placeholder="Contoh Paste:&#10;Kertas HVS A4 80gr&#10;Pulpen Standard Hitam&#10;Map Snelhecter, Pack&#10;Penggaris 30cm, Pcs" class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-500 font-mono leading-relaxed"></textarea>
+                                    </div>
+                                    <button type="submit" class="w-full py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl text-xs font-semibold shadow-lg shadow-cyan-500/20 transition flex items-center justify-center space-x-2">
+                                        <i class="fa-solid fa-layer-group"></i><span>Proses & Simpan Massal</span>
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Form Import Master Barang per Kategori CSV -->
                             <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl h-fit space-y-4">
                                 <h3 class="font-bold text-sm text-white flex items-center border-b border-darkBorder pb-3">
-                                    <i class="fa-solid fa-file-import mr-2 text-emerald-400"></i> Import Master Barang CSV
+                                    <i class="fa-solid fa-file-import mr-2 text-emerald-400"></i> Import Master Barang File CSV
                                 </h3>
                                 <p class="text-[10px] text-slate-400">Format CSV: Kategori, Nama Barang, Satuan (tanpa header, dipisah koma).</p>
                                 <div class="space-y-4">
@@ -406,7 +453,7 @@
                                     <input type="text" id="search-master" oninput="renderMasterTable()" placeholder="Cari barang..." class="bg-slate-900 border border-darkBorder rounded-xl px-3 py-1.5 text-xs text-slate-100 focus:outline-none">
                                 </div>
                             </div>
-                            <div class="overflow-x-auto rounded-xl border border-darkBorder max-h-[500px]">
+                            <div class="overflow-x-auto rounded-xl border border-darkBorder max-h-[700px]">
                                 <table class="w-full text-left text-xs border-collapse">
                                     <thead class="bg-slate-900 text-slate-300 uppercase tracking-wider font-semibold border-b border-darkBorder sticky top-0">
                                         <tr>
@@ -734,6 +781,40 @@
 
                 <!-- 12. GRAFIK & PERSENTASE -->
                 <section id="view-grafik_komprehensif" class="view-section hidden space-y-6">
+                    <!-- Filter Section for Charts -->
+                    <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-darkBorder pb-4 gap-4">
+                            <div>
+                                <h3 class="font-bold text-base text-white flex items-center">
+                                    <i class="fa-solid fa-filter mr-2 text-blue-400"></i> Filter Data Grafik
+                                </h3>
+                            </div>
+                            <div class="flex space-x-3">
+                                <select id="chart-month-filter" onchange="renderComprehensiveCharts()" class="bg-slate-900 border border-darkBorder rounded-xl px-3 py-2 text-xs text-slate-100">
+                                    <option value="all">Semua Bulan</option>
+                                    <option value="01">Januari</option>
+                                    <option value="02">Februari</option>
+                                    <option value="03">Maret</option>
+                                    <option value="04">April</option>
+                                    <option value="05">Mei</option>
+                                    <option value="06">Juni</option>
+                                    <option value="07">Juli</option>
+                                    <option value="08" selected>Agustus</option>
+                                    <option value="09">September</option>
+                                    <option value="10">Oktober</option>
+                                    <option value="11">November</option>
+                                    <option value="12">Desember</option>
+                                </select>
+                                <select id="chart-year-filter" onchange="renderComprehensiveCharts()" class="bg-slate-900 border border-darkBorder rounded-xl px-3 py-2 text-xs text-slate-100">
+                                    <option value="all">Semua Tahun</option>
+                                    <option value="2025">2025</option>
+                                    <option value="2026" selected>2026</option>
+                                    <option value="2027">2027</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl space-y-4">
                             <h3 class="font-bold text-sm text-white flex items-center">
@@ -751,6 +832,40 @@
                             <div class="h-72 relative flex items-center justify-center">
                                 <canvas id="compBarChart"></canvas>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- New Persentase Table Section -->
+                    <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl space-y-4 relative" id="chart-data-table-container">
+                        <div class="flex items-center justify-between border-b border-darkBorder pb-4">
+                            <h3 class="font-bold text-sm text-white flex items-center">
+                                <i class="fa-solid fa-table mr-2 text-purple-400"></i> Data Persentase Belanja
+                            </h3>
+                            <button onclick="downloadChartDataAsImage()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-semibold flex items-center space-x-2 shadow-lg shadow-purple-500/20 transition">
+                                <i class="fa-solid fa-camera"></i><span>Download JPG</span>
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto rounded-xl border border-darkBorder">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead class="bg-slate-900 text-slate-300 uppercase tracking-wider font-semibold border-b border-darkBorder">
+                                    <tr>
+                                        <th class="p-3 w-12 text-center">No</th>
+                                        <th class="p-3">Kategori</th>
+                                        <th class="p-3 text-right">Total Belanja (Rp)</th>
+                                        <th class="p-3 text-right">Persentase (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="chart-data-table-tbody" class="divide-y divide-darkBorder bg-darkCard/50">
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                                <tfoot class="bg-slate-800/80 font-bold border-t border-darkBorder">
+                                    <tr>
+                                        <td colspan="2" class="p-3 text-right text-white">Total Keseluruhan:</td>
+                                        <td id="chart-data-total-rp" class="p-3 text-right text-emerald-400">Rp 0</td>
+                                        <td class="p-3 text-right text-white">100%</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
                         </div>
                     </div>
                 </section>
@@ -939,7 +1054,7 @@
             window.state.history.unshift({ id: Date.now(), time: timeStr, activity, detail });
         }
 
-        // Tab Navigation
+        // --- STREAMING_CHUNK:Tab Navigation... ---
         window.switchTab = function(tabId) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             document.getElementById(`view-${tabId}`).classList.remove('hidden');
@@ -1137,6 +1252,67 @@
             renderMasterTable();
         }
 
+        // --- INPUT MASSAL TEKS (COPY-PASTE BATCH INPUT) ---
+        window.handleBatchMasterSubmit = async function(e) {
+            e.preventDefault();
+            const category = document.getElementById('batch-master-category').value;
+            const defaultUnit = document.getElementById('batch-master-unit').value.trim() || 'Pcs';
+            const rawText = document.getElementById('batch-master-text').value;
+
+            if (!category || !rawText.trim()) {
+                showModal('Peringatan', 'Silakan pilih kategori dan masukkan daftar nama barang.', 'error');
+                return;
+            }
+
+            const lines = rawText.split('\n');
+            let addedCount = 0;
+            let duplicateCount = 0;
+
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return;
+
+                let name = trimmed;
+                let unit = defaultUnit;
+
+                // Cek jika baris memiliki pemisah koma untuk nama & satuan (Contoh: "Spidol Biru, Box")
+                if (trimmed.includes(',')) {
+                    const parts = trimmed.split(',');
+                    name = parts[0].trim();
+                    unit = parts[1].trim() || defaultUnit;
+                }
+
+                if (name) {
+                    // Mencegah duplikasi nama barang di kategori yang sama
+                    const exists = window.state.masterItems.some(
+                        m => m.category === category && m.name.toLowerCase() === name.toLowerCase()
+                    );
+
+                    if (!exists) {
+                        window.state.masterItems.push({
+                            id: Date.now() + Math.random(),
+                            category,
+                            name,
+                            unit
+                        });
+                        addedCount++;
+                    } else {
+                        duplicateCount++;
+                    }
+                }
+            });
+
+            if (addedCount > 0) {
+                await window.saveData();
+                logActivity('Input Massal Master', `Berhasil menambahkan ${addedCount} barang baru ke kategori ${category}.`);
+                showModal('Berhasil!', `Berhasil menambahkan ${addedCount} nama barang baru ke kategori ${category}.${duplicateCount > 0 ? ` (${duplicateCount} barang diabaikan karena sudah ada)` : ''}`, 'success');
+                document.getElementById('batch-master-text').value = '';
+                renderMasterTable();
+            } else {
+                showModal('Informasi', 'Tidak ada barang baru yang ditambahkan. Mungkin seluruh nama barang sudah ada di database.', 'info');
+            }
+        }
+
         // --- IMPORT MASTER ITEMS CSV ---
         window.downloadMasterCSVSample = function() {
             const csv = 'ATK,Kertas HVS A4 80gr,Rim\nPlastik,Plastik Sampah Medis Kuning,Pack\nAlat Kebersihan/RT,Sapu Lidi,Pcs';
@@ -1169,7 +1345,6 @@
                         let category, name, unit;
 
                         if (targetCategory) {
-                            // If user selected a specific category, ignore the first column in CSV if it exists, or assume CSV is only 2 columns (name, unit)
                             category = targetCategory;
                             if (cols.length >= 3) {
                                 name = cols[1];
@@ -1178,21 +1353,19 @@
                                 name = cols[0];
                                 unit = cols[1];
                             } else {
-                                return; // Skip invalid row
+                                return;
                             }
                         } else {
-                            // If no target category selected, expect 3 columns: category, name, unit
                             if (cols.length >= 3) {
                                 category = cols[0];
                                 name = cols[1];
                                 unit = cols[2];
                             } else {
-                                return; // Skip invalid row
+                                return;
                             }
                         }
 
                         if (category && name && unit) {
-                            // Basic duplicate check (by name and category)
                             const isDuplicate = window.state.masterItems.some(m => m.name.toLowerCase() === name.toLowerCase() && m.category === category);
                             if (!isDuplicate) {
                                 window.state.masterItems.push({ id: Date.now() + Math.random(), category, name, unit });
@@ -1206,7 +1379,7 @@
                         logActivity('Import Master', `Berhasil mengimport ${addedCount} master barang dari CSV.`);
                         showModal('Berhasil!', `${addedCount} item master barang berhasil diimport.`, 'success');
                         renderMasterTable();
-                        fileInput.value = ''; // Reset file input
+                        fileInput.value = '';
                     } else {
                         showModal('Informasi', 'Tidak ada item baru yang ditambahkan. Mungkin format salah atau data sudah ada.', 'info');
                     }
@@ -1581,7 +1754,6 @@
             window.state.history = [];
             await window.saveData();
             renderHistoryTable();
-            showModal('Berhasil', 'Log histori berhasil dibersihkan.', 'success');
         }
 
         // --- ANALISA KEBUTUHAN ---
@@ -1589,89 +1761,146 @@
             const container = document.getElementById('restock-cards-container');
             container.innerHTML = '';
 
-            const itemTotals = {};
+            const itemStats = {};
+            
+            // Hitung total masuk
             window.state.purchases.forEach(p => {
-                itemTotals[p.itemName] = (itemTotals[p.itemName] || 0) + Number(p.qty);
+                if (!itemStats[p.itemName]) itemStats[p.itemName] = { in: 0, out: 0 };
+                itemStats[p.itemName].in += p.qty;
             });
 
-            const itemDists = {};
+            // Hitung total keluar
             window.state.distributions.forEach(d => {
-                itemDists[d.itemName] = (itemDists[d.itemName] || 0) + Number(d.qty);
+                if (!itemStats[d.itemName]) itemStats[d.itemName] = { in: 0, out: 0 };
+                itemStats[d.itemName].out += d.qty;
             });
 
-            Object.keys(itemTotals).forEach(name => {
-                const purchased = itemTotals[name];
-                const distributed = itemDists[name] || 0;
-                const stockRemaining = purchased - distributed;
-                const ratio = distributed / (purchased || 1);
+            const alerts = [];
+            for (const [itemName, stats] of Object.entries(itemStats)) {
+                const sisa = stats.in - stats.out;
+                // Logika sederhana: jika sisa <= 20% dari total masuk ATAU sisa < 10, anggap menipis
+                if (stats.in > 0 && (sisa <= (stats.in * 0.2) || sisa < 10)) {
+                    let status = 'Kritis';
+                    let colorClass = 'bg-rose-500/10 border-rose-500/30 text-rose-400';
+                    let icon = 'fa-triangle-exclamation';
 
-                let statusColor = 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10';
-                let statusText = 'Stok Aman';
-                if (stockRemaining <= 5 || ratio > 0.8) {
-                    statusColor = 'border-rose-500/50 text-rose-400 bg-rose-500/10';
-                    statusText = 'Segera Restock!';
-                } else if (stockRemaining <= 15) {
-                    statusColor = 'border-amber-500/50 text-amber-400 bg-amber-500/10';
-                    statusText = 'Stok Menipis';
+                    if (sisa > 0) {
+                        status = 'Menipis';
+                        colorClass = 'bg-amber-500/10 border-amber-500/30 text-amber-400';
+                        icon = 'fa-bell';
+                    } else if (sisa < 0) {
+                        status = 'Data Tidak Valid';
+                    }
+
+                    alerts.push({ itemName, sisa, status, colorClass, icon, out: stats.out });
                 }
+            }
 
-                const card = document.createElement('div');
-                card.className = `bg-slate-900 border border-darkBorder rounded-2xl p-5 space-y-3 shadow-lg`;
-                card.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border ${statusColor}">${statusText}</span>
-                        <span class="text-xs font-mono text-slate-400">Sisa: ${stockRemaining} unit</span>
+            if (alerts.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-1 md:col-span-3 text-center py-8">
+                        <div class="text-emerald-400 text-4xl mb-3"><i class="fa-solid fa-check-circle"></i></div>
+                        <p class="text-slate-300 text-sm">Stok logistik terpantau aman. Tidak ada indikasi barang kritis.</p>
                     </div>
-                    <h4 class="font-bold text-sm text-white">${name}</h4>
-                    <p class="text-xs text-slate-400">Tersalurkan: ${distributed} dari ${purchased} total dibeli.</p>
                 `;
-                container.appendChild(card);
+                return;
+            }
+
+            alerts.sort((a, b) => a.sisa - b.sisa).forEach(a => {
+                const div = document.createElement('div');
+                div.className = `border rounded-xl p-4 ${a.colorClass} relative overflow-hidden`;
+                div.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h4 class="font-bold text-sm text-white mb-1 truncate" title="${a.itemName}">${a.itemName}</h4>
+                            <p class="text-[11px] opacity-80">Estimasi Sisa Stok: <span class="font-mono font-bold text-sm ml-1">${a.sisa}</span></p>
+                        </div>
+                        <i class="fa-solid ${a.icon} text-2xl opacity-50"></i>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-current/20 flex items-center justify-between">
+                        <span class="text-[10px] uppercase font-bold tracking-wider py-0.5 px-2 rounded-full border border-current/30">${a.status}</span>
+                        <span class="text-[10px] opacity-80"><i class="fa-solid fa-truck-fast mr-1"></i>${a.out} Terdistribusi</span>
+                    </div>
+                `;
+                container.appendChild(div);
             });
         }
 
-        // --- GRAFIK KOMPREHENSIF ---
+        // --- STREAMING_CHUNK:Grafik & Persentase with Filter and Downloadable Table... ---
         window.renderComprehensiveCharts = function() {
-            const ctxPie = document.getElementById('compPieChart').getContext('2d');
-            if (window.charts.compPie) window.charts.compPie.destroy();
+            const monthFilter = document.getElementById('chart-month-filter').value;
+            const yearFilter = document.getElementById('chart-year-filter').value;
+
+            // Filter purchases based on selection
+            let filteredPurchases = window.state.purchases;
+            if (monthFilter !== 'all' || yearFilter !== 'all') {
+                filteredPurchases = window.state.purchases.filter(p => {
+                    const dateParts = p.date.split('-'); // [YYYY, MM, DD]
+                    const pYear = dateParts[0];
+                    const pMonth = dateParts[1];
+                    
+                    const matchMonth = monthFilter === 'all' || pMonth === monthFilter;
+                    const matchYear = yearFilter === 'all' || pYear === yearFilter;
+                    
+                    return matchMonth && matchYear;
+                });
+            }
 
             const categories = ['ATK', 'Plastik', 'Alat Kebersihan/RT', 'Chemical Laundry', 'Bahan Basah&Kering'];
-            const catTotals = categories.map(cat => {
-                return window.state.purchases.filter(p => p.category === cat).reduce((acc, curr) => acc + (curr.qty * curr.price), 0);
+            
+            // Calculate totals for Pie Chart (Amount in Rp)
+            const catTotalsRp = categories.map(cat => {
+                return filteredPurchases.filter(p => p.category === cat).reduce((acc, curr) => acc + (curr.qty * curr.price), 0);
+            });
+            const grandTotalRp = catTotalsRp.reduce((a, b) => a + b, 0);
+
+            // Calculate totals for Bar Chart (Volume/Qty)
+            const catTotalsQty = categories.map(cat => {
+                return filteredPurchases.filter(p => p.category === cat).reduce((acc, curr) => acc + Number(curr.qty), 0);
             });
 
+            // 1. Render Pie Chart
+            const ctxPie = document.getElementById('compPieChart').getContext('2d');
+            if (window.charts.compPie) window.charts.compPie.destroy();
             window.charts.compPie = new Chart(ctxPie, {
                 type: 'doughnut',
                 data: {
                     labels: categories,
                     datasets: [{
-                        data: catTotals,
-                        backgroundColor: ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899']
+                        data: catTotalsRp,
+                        backgroundColor: ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899'],
+                        borderWidth: 0,
+                        hoverOffset: 4
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#fff' }, position: 'bottom' } }
+                    plugins: {
+                        legend: { position: 'right', labels: { color: '#e2e8f0', font: { size: 10 } } },
+                        tooltip: { callbacks: { label: function(context) {
+                            let val = context.raw;
+                            return ' Rp ' + val.toLocaleString('id-ID');
+                        }}}
+                    },
+                    cutout: '70%'
                 }
             });
 
+            // 2. Render Bar Chart
             const ctxBar = document.getElementById('compBarChart').getContext('2d');
             if (window.charts.compBar) window.charts.compBar.destroy();
-
-            const itemQtyMap = {};
-            window.state.purchases.forEach(p => {
-                itemQtyMap[p.itemName] = (itemQtyMap[p.itemName] || 0) + Number(p.qty);
-            });
-
             window.charts.compBar = new Chart(ctxBar, {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(itemQtyMap),
+                    labels: categories,
                     datasets: [{
-                        label: 'Total Qty Dibeli',
-                        data: Object.values(itemQtyMap),
-                        backgroundColor: '#3b82f6',
-                        borderRadius: 6
+                        label: 'Volume Dibeli (Unit)',
+                        data: catTotalsQty,
+                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                        borderColor: '#3b82f6',
+                        borderWidth: 1,
+                        borderRadius: 4
                     }]
                 },
                 options: {
@@ -1680,17 +1909,64 @@
                     plugins: { legend: { display: false } },
                     scales: {
                         y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
-                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } }
                     }
                 }
             });
+
+            // 3. Render Table Data
+            const tbody = document.getElementById('chart-data-table-tbody');
+            tbody.innerHTML = '';
+            
+            categories.forEach((cat, index) => {
+                const totalRp = catTotalsRp[index];
+                const percentage = grandTotalRp > 0 ? ((totalRp / grandTotalRp) * 100).toFixed(1) : 0;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 text-center font-mono text-slate-400">${index + 1}</td>
+                    <td class="p-3 font-medium text-white">${cat}</td>
+                    <td class="p-3 text-right font-mono">Rp ${totalRp.toLocaleString('id-ID')}</td>
+                    <td class="p-3 text-right font-mono text-cyan-400 font-semibold">${percentage}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('chart-data-total-rp').innerText = `Rp ${grandTotalRp.toLocaleString('id-ID')}`;
         }
 
-        // Initialize Firebase & Dashboard on load
-        window.onload = function() {
-            initFirebase();
-            updateDashboard();
-        };
+        window.downloadChartDataAsImage = function() {
+            const tableContainer = document.getElementById('chart-data-table-container');
+            const originalBg = tableContainer.style.backgroundColor;
+            
+            // Ensure background is solid for the image capture
+            tableContainer.style.backgroundColor = '#1e293b'; 
+
+            html2canvas(tableContainer, {
+                backgroundColor: '#1e293b',
+                scale: 2 // Higher resolution
+            }).then(canvas => {
+                tableContainer.style.backgroundColor = originalBg; // Restore original bg
+                
+                const link = document.createElement('a');
+                const month = document.getElementById('chart-month-filter').options[document.getElementById('chart-month-filter').selectedIndex].text;
+                const year = document.getElementById('chart-year-filter').value;
+                const period = year === 'all' && document.getElementById('chart-month-filter').value === 'all' ? 'Keseluruhan' : `${month}_${year}`;
+                
+                link.download = `Persentase_Belanja_${period}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.9);
+                link.click();
+            }).catch(err => {
+                console.error("Error generating image:", err);
+                showModal('Gagal', 'Terjadi kesalahan saat mengunduh gambar.', 'error');
+                tableContainer.style.backgroundColor = originalBg;
+            });
+        }
+
+        // Initialize App
+        initFirebase();
+        updateDashboard();
+
     </script>
 </body>
 </html>
