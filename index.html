@@ -360,6 +360,9 @@
                                             <option value="Alat Kebersihan/Chemical">Alat Kebersihan/Chemical</option>
                                             <option value="Laundry">Laundry</option>
                                             <option value=""Kelistrikan">"Kelistrikan</option>
+                                            <option value=""Bahan Kering">"Bahan Kering</option>
+                                            <option value=""Bahan Basah">"Bahan Basah</option>
+                                            
                                         </select>
                                     </div>
                                     <div>
@@ -396,6 +399,8 @@
                                             <option value="Alat Kebersihan/Chemical">Alat Kebersihan/Chemical</option>
                                             <option value="Laundry">Laundry</option>
                                             <option value="Kelistrikan">Kelistrikan</option>
+                                            <option value=""Bahan Kering">"Bahan Kering</option>
+                                            <option value=""Bahan Basah">"Bahan Basah</option>
                                         </select>
                                     </div>
                                     <div>
@@ -428,6 +433,8 @@
                                             <option value="Alat Kebersihan/RT">Alat Kebersihan/RT</option>
                                             <option value="Laundry">Laundry</option>
                                             <option value="Kelistrikan">Kelistrikan</option>
+                                            <option value=""Bahan Kering">"Bahan Kering</option>
+                                            <option value=""Bahan Basah">"Bahan Basah</option>
                                         </select>
                                         <p class="text-[9px] text-slate-500 mt-1">*Jika dipilih, akan mengabaikan kolom kategori di CSV.</p>
                                     </div>
@@ -1117,7 +1124,7 @@
             const ctx = document.getElementById('dashCategoryChart').getContext('2d');
             if (window.charts.dashCat) window.charts.dashCat.destroy();
 
-            const categories = ['ATK', 'Plastik', 'Alat Kebersihan/Chemical', 'Laundry', 'Kelistrikan'];
+            const categories = ['ATK', 'Plastik', 'Alat Kebersihan/Chemical', 'Laundry', 'Kelistrikan', 'Bahan Kering', 'Bahan Basah'];
             const catTotals = categories.map(cat => {
                 return window.state.purchases.filter(p => p.category === cat).reduce((acc, curr) => acc + (curr.qty * curr.price), 0);
             });
@@ -1175,6 +1182,8 @@
                         <option value="Alat Kebersihan/Chemical">Alat Kebersihan/Chemical</option>
                         <option value="Laundry">Laundry</option>
                         <option value="Kelistrikan">Kelistrikan</option>
+                        <option value=""Bahan Kering">"Bahan Kering</option>
+                        <option value=""Bahan Basah">"Bahan Basah</option>
                     </select>
                 </td>
                 <td class="p-3">
@@ -1846,7 +1855,7 @@
                 });
             }
 
-            const categories = ['ATK', 'Plastik', 'Alat Kebersihan/Chemical', 'Laundry', 'Kelistrikan'];
+            const categories = ['ATK', 'Plastik', 'Alat Kebersihan/Chemical', 'Laundry', 'Kelistrikan', 'Bahan Kering', 'Bahan Basah'];
             
             // Calculate totals for Pie Chart (Amount in Rp)
             const catTotalsRp = categories.map(cat => {
