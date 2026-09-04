@@ -355,11 +355,11 @@
                                         <label class="block text-xs font-medium text-slate-300 mb-1">Pilih Kategori Barang</label>
                                         <select id="master-category" required class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-purple-500">
                                             <option value="">-- Pilih Kategori --</option>
-                                            <option value="ATK">ATK (Alat Tulis Kantor)</option>
+                                            <option value="ATK">ATK</option>
                                             <option value="Plastik">Plastik</option>
-                                            <option value="Alat Kebersihan/RT">Alat Kebersihan/RT</option>
-                                            <option value="Chemical Laundry">Chemical Laundry</option>
-                                            <option value="Bahan Basah&Kering">Bahan Basah & Kering</option>
+                                            <option value="Alat Kebersihan/Chemical">Alat Kebersihan/Chemical</option>
+                                            <option value="Laundry">Laundry</option>
+                                            <option value=""Kelistrikan">"Kelistrikan</option>
                                         </select>
                                     </div>
                                     <div>
@@ -391,11 +391,11 @@
                                         <label class="block text-xs font-medium text-slate-300 mb-1">Pilih Kategori Barang Target</label>
                                         <select id="batch-master-category" required class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-500">
                                             <option value="">-- Pilih Kategori --</option>
-                                            <option value="ATK">ATK (Alat Tulis Kantor)</option>
+                                            <option value="ATK">ATK</option>
                                             <option value="Plastik">Plastik</option>
-                                            <option value="Alat Kebersihan/RT">Alat Kebersihan/RT</option>
-                                            <option value="Chemical Laundry">Chemical Laundry</option>
-                                            <option value="Bahan Basah&Kering">Bahan Basah & Kering</option>
+                                            <option value="Alat Kebersihan/Chemical">Alat Kebersihan/Chemical</option>
+                                            <option value="Laundry">Laundry</option>
+                                            <option value="Kelistrikan">Kelistrikan</option>
                                         </select>
                                     </div>
                                     <div>
@@ -423,11 +423,11 @@
                                         <label class="block text-xs font-medium text-slate-300 mb-1">Kategori Tujuan Import (Opsional)</label>
                                         <select id="import-master-category" class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
                                             <option value="">Gunakan Kategori dari File CSV</option>
-                                            <option value="ATK">ATK (Alat Tulis Kantor)</option>
+                                            <option value="ATK">ATK</option>
                                             <option value="Plastik">Plastik</option>
                                             <option value="Alat Kebersihan/RT">Alat Kebersihan/RT</option>
-                                            <option value="Chemical Laundry">Chemical Laundry</option>
-                                            <option value="Bahan Basah&Kering">Bahan Basah & Kering</option>
+                                            <option value="Laundry">Laundry</option>
+                                            <option value="Kelistrikan">Kelistrikan</option>
                                         </select>
                                         <p class="text-[9px] text-slate-500 mt-1">*Jika dipilih, akan mengabaikan kolom kategori di CSV.</p>
                                     </div>
@@ -914,17 +914,17 @@
             purchases: [
                 { id: 1, date: '2026-08-01', category: 'ATK', itemName: 'Kertas HVS A4 80gr', qty: 50, price: 55000, vendor: 'CV Mitra Office' },
                 { id: 2, date: '2026-08-03', category: 'Plastik', itemName: 'Plastik Sampah Medis Kuning', qty: 30, price: 45000, vendor: 'PT Medika Plastindo' },
-                { id: 3, date: '2026-08-05', category: 'Alat Kebersihan/RT', itemName: 'Cairan Karbol Wangi 5L', qty: 20, price: 75000, vendor: 'CV Bersih Sejahtera' },
-                { id: 4, date: '2026-08-08', category: 'Chemical Laundry', itemName: 'Deterjen Cair Laundry RS', qty: 40, price: 120000, vendor: 'PT Kimia Utama' },
-                { id: 5, date: '2026-08-10', category: 'Bahan Basah&Kering', itemName: 'Beras Premium Pasien 25kg', qty: 15, price: 350000, vendor: 'UD Sumber Pangan' }
+                { id: 3, date: '2026-08-05', category: 'Alat Kebersihan/Chemical', itemName: 'Cairan Karbol Wangi 5L', qty: 20, price: 75000, vendor: 'CV Bersih Sejahtera' },
+                { id: 4, date: '2026-08-08', category: 'Laundry', itemName: 'Deterjen Cair Laundry RS', qty: 40, price: 120000, vendor: 'PT Kimia Utama' },
+                { id: 5, date: '2026-08-10', category: 'Kelistrikan', itemName: 'Beras Premium Pasien 25kg', qty: 15, price: 350000, vendor: 'UD Sumber Pangan' }
             ],
             masterItems: [
                 { id: 1, category: 'ATK', name: 'Kertas HVS A4 80gr', unit: 'Rim' },
                 { id: 2, category: 'ATK', name: 'Ballpoint Standard Hitam', unit: 'Box' },
                 { id: 3, category: 'Plastik', name: 'Plastik Sampah Medis Kuning', unit: 'Pack' },
-                { id: 4, category: 'Alat Kebersihan/RT', name: 'Cairan Karbol Wangi 5L', unit: 'Jerigen' },
-                { id: 5, category: 'Chemical Laundry', name: 'Deterjen Cair Laundry RS', unit: 'Liter' },
-                { id: 6, category: 'Bahan Basah&Kering', name: 'Beras Premium Pasien 25kg', unit: 'Karung' }
+                { id: 4, category: 'Alat Kebersihan/Chemical', name: 'Cairan Karbol Wangi 5L', unit: 'Jerigen' },
+                { id: 5, category: 'Laundry', name: 'Deterjen Cair Laundry RS', unit: 'Liter' },
+                { id: 6, category: 'Kelistrikan', name: 'Beras Premium Pasien 25kg', unit: 'Karung' }
             ],
             units: [
                 'IGD (Gawat Darurat)',
@@ -1117,7 +1117,7 @@
             const ctx = document.getElementById('dashCategoryChart').getContext('2d');
             if (window.charts.dashCat) window.charts.dashCat.destroy();
 
-            const categories = ['ATK', 'Plastik', 'Alat Kebersihan/RT', 'Chemical Laundry', 'Bahan Basah&Kering'];
+            const categories = ['ATK', 'Plastik', 'Alat Kebersihan/Chemical', 'Laundry', 'Kelistrikan'];
             const catTotals = categories.map(cat => {
                 return window.state.purchases.filter(p => p.category === cat).reduce((acc, curr) => acc + (curr.qty * curr.price), 0);
             });
@@ -1172,9 +1172,9 @@
                         <option value="">Pilih Kategori</option>
                         <option value="ATK">ATK</option>
                         <option value="Plastik">Plastik</option>
-                        <option value="Alat Kebersihan/RT">Alat Kebersihan/RT</option>
-                        <option value="Chemical Laundry">Chemical Laundry</option>
-                        <option value="Bahan Basah&Kering">Bahan Basah & Kering</option>
+                        <option value="Alat Kebersihan/Chemical">Alat Kebersihan/Chemical</option>
+                        <option value="Laundry">Laundry</option>
+                        <option value="Kelistrikan">Kelistrikan</option>
                     </select>
                 </td>
                 <td class="p-3">
@@ -1846,7 +1846,7 @@
                 });
             }
 
-            const categories = ['ATK', 'Plastik', 'Alat Kebersihan/RT', 'Chemical Laundry', 'Bahan Basah&Kering'];
+            const categories = ['ATK', 'Plastik', 'Alat Kebersihan/Chemical', 'Laundry', 'Kelistrikan'];
             
             // Calculate totals for Pie Chart (Amount in Rp)
             const catTotalsRp = categories.map(cat => {
