@@ -95,7 +95,7 @@
                     <p class="text-xs text-blue-400 font-medium">Manajemen Stok Rumah Tangga</p>
                 </div>
             </div>
-R
+
             <!-- Menu Navigation Items -->
             <nav class="flex-1 overflow-y-auto p-4 space-y-1.5">
                 <div class="text-[10px] uppercase font-bold tracking-wider text-slate-500 px-3 mb-2">Menu Utama</div>
@@ -302,19 +302,38 @@ R
                 <!-- 2. INPUT PEMBELIAN BARANG -->
                 <section id="view-input_barang" class="view-section hidden space-y-6">
                     <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl">
-                        <div class="flex items-center justify-between mb-6 pb-4 border-b border-darkBorder">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 pb-4 border-b border-darkBorder gap-4">
                             <div>
                                 <h3 class="font-bold text-base text-white flex items-center">
                                     <i class="fa-solid fa-cart-plus mr-2 text-emerald-400"></i> Input Pembelian Barang Logistik
                                 </h3>
                                 <p class="text-xs text-slate-400 mt-0.5">Form tabel bergaya Excel untuk penginputan massal atau satuan barang masuk.</p>
                             </div>
-                            <div class="flex space-x-2">
+                            <div class="flex flex-wrap gap-2">
                                 <button onclick="addPurchaseRow()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold flex items-center space-x-2 shadow-lg shadow-blue-500/20 transition">
                                     <i class="fa-solid fa-plus"></i><span>Tambah Baris</span>
                                 </button>
                                 <button onclick="saveAllPurchases()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold flex items-center space-x-2 shadow-lg shadow-emerald-500/20 transition">
                                     <i class="fa-solid fa-cloud-arrow-up"></i><span>Simpan ke Cloud Firebase</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Fitur Import CSV Pembelian -->
+                        <div class="mb-6 p-4 border border-darkBorder rounded-xl bg-slate-900/50 flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div>
+                                <h4 class="font-bold text-sm text-white flex items-center mb-1">
+                                    <i class="fa-solid fa-file-csv mr-2 text-amber-400"></i> Import Pembelian Massal (CSV)
+                                </h4>
+                                <p class="text-[10px] text-slate-400">Format: Tanggal(YYYY-MM-DD), Kategori, Nama Barang, Jumlah, Harga Satuan, Vendor</p>
+                            </div>
+                            <div class="flex items-center space-x-3 w-full md:w-auto">
+                                <input type="file" id="import-purchase-file" accept=".csv" class="w-full md:w-auto bg-slate-800 border border-darkBorder rounded-xl p-1.5 text-xs text-slate-300 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-amber-600 file:text-white hover:file:bg-amber-700 cursor-pointer">
+                                <button onclick="importPurchaseCSV()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold flex items-center space-x-2 shadow-lg shadow-amber-500/20 transition whitespace-nowrap">
+                                    <i class="fa-solid fa-upload"></i><span>Import</span>
+                                </button>
+                                <button onclick="downloadPurchaseCSVSample()" class="px-3 py-2 text-amber-400 hover:text-amber-300 text-xs font-medium underline transition whitespace-nowrap">
+                                    Template
                                 </button>
                             </div>
                         </div>
@@ -1061,7 +1080,6 @@ R
             window.state.history.unshift({ id: Date.now(), time: timeStr, activity, detail });
         }
 
-        // --- STREAMING_CHUNK:Tab Navigation... ---
         window.switchTab = function(tabId) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             document.getElementById(`view-${tabId}`).classList.remove('hidden');
@@ -1243,6 +1261,78 @@ R
             } else {
                 showModal('Peringatan', 'Pastikan semua kolom terisi dengan benar minimal 1 baris.', 'error');
             }
+        }
+
+        // --- IMPORT CSV PEMBELIAN ---
+        window.downloadPurchaseCSVSample = function() {
+            const csv = 'Tanggal,Kategori,Nama Barang,Jumlah,Harga Satuan,Vendor\n2026-08-15,ATK,Kertas HVS A4 80gr,10,55000,CV Mitra Office\n2026-08-16,Plastik,Plastik Sampah Medis Kuning,5,45000,PT Medika Plastindo';
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Template_Import_Pembelian.csv`;
+            link.click();
+        }
+
+        window.importPurchaseCSV = function() {
+            const fileInput = document.getElementById('import-purchase-file');
+            if (!fileInput.files.length) {
+                showModal('Peringatan', 'Pilih file CSV terlebih dahulu.', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const text = e.target.result;
+                    const rows = text.split('\n').filter(row => row.trim() !== '');
+                    let addedCount = 0;
+                    
+                    let startIndex = 0;
+                    if (rows[0].toLowerCase().includes('tanggal')) {
+                        startIndex = 1; // Skip header row
+                    }
+                    
+                    for (let i = startIndex; i < rows.length; i++) {
+                        const cols = rows[i].split(',').map(col => col.trim());
+                        
+                        if (cols.length >= 6) {
+                            const date = cols[0];
+                            const category = cols[1];
+                            const itemName = cols[2];
+                            const qty = Number(cols[3]);
+                            const price = Number(cols[4]);
+                            const vendor = cols[5];
+
+                            if (date && category && itemName && !isNaN(qty) && qty > 0 && !isNaN(price) && price >= 0 && vendor) {
+                                window.state.purchases.push({
+                                    id: Date.now() + Math.random(),
+                                    date, category, itemName, qty, price, vendor
+                                });
+                                addedCount++;
+                            }
+                        }
+                    }
+
+                    if (addedCount > 0) {
+                        await window.saveData();
+                        logActivity('Import Pembelian', `Berhasil mengimport ${addedCount} data pembelian dari CSV.`);
+                        showModal('Berhasil!', `${addedCount} transaksi pembelian berhasil diimport.`, 'success');
+                        fileInput.value = ''; // Reset the input file
+                        
+                        // Update visual UI if necessary
+                        if (!document.getElementById('view-database_pembelian').classList.contains('hidden')) {
+                            renderPurchasesTable();
+                        }
+                    } else {
+                        showModal('Informasi', 'Tidak ada data valid yang diimport. Pastikan format CSV sesuai template.', 'info');
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    showModal('Gagal', 'Terjadi kesalahan saat memproses file CSV.', 'error');
+                }
+            };
+            reader.readAsText(fileInput.files[0]);
         }
 
         // --- MASTER CATEGORY & ITEMS ---
@@ -1835,7 +1925,6 @@ R
             });
         }
 
-        // --- STREAMING_CHUNK:Grafik & Persentase with Filter and Downloadable Table... ---
         window.renderComprehensiveCharts = function() {
             const monthFilter = document.getElementById('chart-month-filter').value;
             const yearFilter = document.getElementById('chart-year-filter').value;
