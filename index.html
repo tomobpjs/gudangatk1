@@ -381,6 +381,7 @@
                                             <option value="Kelistrikan">Kelistrikan</option>
                                             <option value="Bahan Kering">Bahan Kering</option>
                                             <option value="Bahan Basah">Bahan Basah</option>
+                                            <option value="BHP RT">BHP RT</option>
                                             
                                         </select>
                                     </div>
@@ -420,6 +421,7 @@
                                             <option value="Kelistrikan">Kelistrikan</option>
                                             <option value="Bahan Kering">Bahan Kering</option>
                                             <option value="Bahan Basah">Bahan Basah</option>
+                                            <option value="BHP RT">BHP RT</option>
                                         </select>
                                     </div>
                                     <div>
@@ -453,7 +455,8 @@
                                             <option value="Laundry">Laundry</option>
                                             <option value="Kelistrikan">Kelistrikan</option>
                                             <option value="Bahan Kering">Bahan Kering</option>
-                                            <option value="Bahan Basah">Bahan Basah</option>
+                                            <option value="BHP RT">BHP RT</option>
+                                            
                                         </select>
                                         <p class="text-[9px] text-slate-500 mt-1">*Jika dipilih, akan mengabaikan kolom kategori di CSV.</p>
                                     </div>
@@ -559,6 +562,7 @@
                                     <option value="Alat Kebersihan/RT">Alat Kebersihan/RT</option>
                                     <option value="Chemical Laundry">Chemical Laundry</option>
                                     <option value="Bahan Basah&Kering">Bahan Basah & Kering</option>
+                                     <option value="BHP RT">BHP RT</option>
                                 </select>
                                 <input type="text" id="search-purchases" oninput="renderPurchasesTable()" placeholder="Cari item / vendor..." class="bg-slate-900 border border-darkBorder rounded-xl px-3 py-2 text-xs text-slate-100">
                             </div>
@@ -1142,7 +1146,7 @@
             const ctx = document.getElementById('dashCategoryChart').getContext('2d');
             if (window.charts.dashCat) window.charts.dashCat.destroy();
 
-            const categories = ['ATK', 'Plastik', 'Alat Kebersihan/Chemical', 'Laundry', 'Kelistrikan', 'Bahan Kering', 'Bahan Basah'];
+            const categories = ['ATK', 'Plastik', 'Alat Kebersihan/Chemical', 'Laundry', 'Kelistrikan', 'Bahan Kering', 'Bahan Basah', 'BHP RT'];
             const catTotals = categories.map(cat => {
                 return window.state.purchases.filter(p => p.category === cat).reduce((acc, curr) => acc + (curr.qty * curr.price), 0);
             });
@@ -1202,6 +1206,7 @@
                         <option value="Kelistrikan">Kelistrikan</option>
                         <option value="Bahan Kering">Bahan Kering</option>
                         <option value="Bahan Basah">Bahan Basah</option>
+                         <option value="BHP RT">BHP RT</option>
                     </select>
                 </td>
                 <td class="p-3">
@@ -1944,7 +1949,7 @@
                 });
             }
 
-            const categories = ['ATK', 'Plastik', 'Alat Kebersihan/Chemical', 'Laundry', 'Kelistrikan', 'Bahan Kering', 'Bahan Basah'];
+            const categories = ['ATK', 'Plastik', 'Alat Kebersihan/Chemical', 'Laundry', 'Kelistrikan', 'Bahan Kering', 'Bahan Basah', 'BHP RT'];
             
             // Calculate totals for Pie Chart (Amount in Rp)
             const catTotalsRp = categories.map(cat => {
