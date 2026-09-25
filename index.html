@@ -26,7 +26,7 @@
             }
         }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- html2canvas for JPG download -->
@@ -58,7 +58,9 @@
             .no-print { display: none !important; }
             .print-only { display: block !important; }
             .watermark { color: rgba(0, 0, 0, 0.04) !important; }
-            .print-card { background: white !important; border: 1px solid #cbd5e1 !important; color: black !important; }
+            .print-card { background: white !important; border: 1px solid #cbd5e1 !important; color: black !important; box-shadow: none !important; }
+            table { border-collapse: collapse !important; }
+            th, td { border: 1px solid #cbd5e1 !important; }
         }
         
         /* Table specifically for image download */
@@ -145,6 +147,11 @@
                     <span>Pengeluaran / Distribusi</span>
                 </button>
 
+                <button onclick="switchTab('kartu_stok')" data-tab="kartu_stok" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-all group">
+                    <i class="fa-solid fa-clipboard-list w-5 text-center text-slate-400 group-hover:text-emerald-400"></i>
+                    <span>Kartu Stok Barang</span>
+                </button>
+
                 <button onclick="switchTab('histori_barang')" data-tab="histori_barang" class="nav-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-all group">
                     <i class="fa-solid fa-timeline w-5 text-center text-slate-400 group-hover:text-indigo-400"></i>
                     <span>Histori Barang</span>
@@ -198,6 +205,7 @@
 
                 <!-- 1. DASHBOARD VIEW -->
                 <section id="view-dashboard" class="view-section space-y-6">
+                    <!-- Dashboard content ... (sama seperti aslinya) -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="bg-darkCard border border-darkBorder rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-blue-500/50 transition">
                             <div class="flex items-center justify-between">
@@ -301,6 +309,7 @@
 
                 <!-- 2. INPUT PEMBELIAN BARANG -->
                 <section id="view-input_barang" class="view-section hidden space-y-6">
+                    <!-- Input Barang content ... (sama seperti aslinya) -->
                     <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl">
                         <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 pb-4 border-b border-darkBorder gap-4">
                             <div>
@@ -362,6 +371,7 @@
 
                 <!-- 3. MASTER KATEGORI & BARANG -->
                 <section id="view-database_kategori" class="view-section hidden space-y-6">
+                    <!-- Konten Kategori & Barang sama seperti aslinya -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="space-y-6">
                             <!-- Form Single Master Barang -->
@@ -504,6 +514,7 @@
 
                 <!-- 4. MASTER UNIT / RUANGAN -->
                 <section id="view-database_unit" class="view-section hidden space-y-6">
+                    <!-- Master Unit content ... (sama seperti aslinya) -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl h-fit space-y-4">
                             <h3 class="font-bold text-sm text-white flex items-center border-b border-darkBorder pb-3">
@@ -546,6 +557,7 @@
 
                 <!-- 5. DATABASE PEMBELIAN -->
                 <section id="view-database_pembelian" class="view-section hidden space-y-6">
+                    <!-- Database pembelian content ... (sama seperti aslinya) -->
                     <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl space-y-4">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-darkBorder pb-4">
                             <div>
@@ -595,6 +607,7 @@
 
                 <!-- 6. TREN HARGA BARANG -->
                 <section id="view-tren_harga" class="view-section hidden space-y-6">
+                    <!-- Tren Harga content ... (sama seperti aslinya) -->
                     <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl space-y-4">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-darkBorder pb-4 gap-4">
                             <div>
@@ -617,6 +630,7 @@
 
                 <!-- 7. EXPORT & IMPORT TRANSAKSI -->
                 <section id="view-export_import" class="view-section hidden space-y-6">
+                    <!-- Export Import content ... (sama seperti aslinya) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl space-y-4">
                             <div class="border-b border-darkBorder pb-3">
@@ -654,6 +668,7 @@
 
                 <!-- 8. LAPORAN BULANAN & PDF -->
                 <section id="view-laporan_bulanan" class="view-section hidden space-y-6">
+                    <!-- Laporan Bulanan content ... (sama seperti aslinya) -->
                     <div class="bg-darkCard print-card border border-darkBorder rounded-2xl p-8 shadow-xl space-y-6">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-darkBorder pb-6 gap-4 no-print">
                             <div>
@@ -708,6 +723,7 @@
 
                 <!-- 9. PENGELUARAN / DISTRIBUSI -->
                 <section id="view-pengeluaran_barang" class="view-section hidden space-y-6">
+                    <!-- Pengeluaran content ... (sama seperti aslinya) -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl h-fit space-y-4">
                             <h3 class="font-bold text-sm text-white flex items-center border-b border-darkBorder pb-3">
@@ -763,6 +779,60 @@
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FITUR BARU: 13. KARTU STOK BARANG -->
+                <section id="view-kartu_stok" class="view-section hidden space-y-6">
+                    <div class="bg-darkCard print-card border border-darkBorder rounded-2xl p-8 shadow-xl space-y-6">
+                        <!-- Controls: Kategori & Barang Filter -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-darkBorder pb-6 gap-4 no-print">
+                            <div>
+                                <h3 class="font-bold text-lg text-white flex items-center">
+                                    <i class="fa-solid fa-clipboard-list mr-2 text-emerald-400"></i> Kartu Stok Barang
+                                </h3>
+                                <p class="text-xs text-slate-400 mt-0.5">Histori pergerakan barang (Masuk & Keluar) beserta kalkulasi sisa stok.</p>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <select id="filter-stok-category" onchange="updateKartuStokItems()" class="bg-slate-900 border border-darkBorder rounded-xl px-3 py-2 text-xs text-slate-100 min-w-[150px]">
+                                    <option value="">-- Pilih Kategori --</option>
+                                </select>
+                                <select id="filter-stok-item" onchange="renderKartuStok()" class="bg-slate-900 border border-darkBorder rounded-xl px-3 py-2 text-xs text-slate-100 min-w-[180px]">
+                                    <option value="">-- Pilih Barang --</option>
+                                </select>
+                                <button onclick="window.print()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold flex items-center space-x-2 shadow-lg shadow-emerald-500/20 transition">
+                                    <i class="fa-solid fa-file-pdf"></i><span>Unduh PDF / Print</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Print Header (Hanya muncul saat di-print) -->
+                        <div class="text-center space-y-1 pb-4 border-b border-slate-700 print-only hidden">
+                            <h2 class="text-xl font-bold uppercase tracking-wider text-black font-sans">KARTU STOK BARANG LOGISTIK</h2>
+                            <p class="text-xs text-slate-600 font-sans">RUMAH SAKIT UMUM DADI KELUARGA PURWOKERTO</p>
+                            <h3 id="print-stok-item-name" class="text-sm font-semibold text-blue-600 pt-2 uppercase font-sans">NAMA BARANG: -</h3>
+                        </div>
+
+                        <!-- Table Data -->
+                        <div class="overflow-x-auto rounded-xl border border-darkBorder print:border-slate-300">
+                            <table class="w-full text-left text-xs border-collapse print:text-black font-sans">
+                                <thead class="bg-slate-900 text-slate-300 print:bg-slate-200 print:text-black uppercase tracking-wider font-semibold border-b border-darkBorder print:border-slate-300">
+                                    <tr>
+                                        <th class="p-3 w-12 text-center">No</th>
+                                        <th class="p-3 w-32">Tanggal</th>
+                                        <th class="p-3">Keterangan / Transaksi</th>
+                                        <th class="p-3 text-right text-emerald-400 print:text-emerald-700 w-24">Masuk</th>
+                                        <th class="p-3 text-right text-rose-400 print:text-rose-700 w-24">Keluar</th>
+                                        <th class="p-3 text-right text-blue-400 print:text-blue-700 w-24">Sisa Stok</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="kartu-stok-tbody" class="divide-y divide-darkBorder print:divide-slate-300 bg-darkCard/50 print:bg-white">
+                                    <tr>
+                                        <td colspan="6" class="p-6 text-center text-slate-400">Silakan pilih kategori dan barang pada filter di atas terlebih dahulu.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </section>
@@ -850,7 +920,7 @@
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl space-y-4">
                             <h3 class="font-bold text-sm text-white flex items-center">
-                                <i class="fa-solid fa-chart-pie mr-2 text-teal-400"></i> Persentase Belanja Per Kategori(Rp)
+                                <i class="fa-solid fa-chart-pie mr-2 text-teal-400"></i> Persentase Belanja Per Kategori
                             </h3>
                             <div class="h-72 relative flex items-center justify-center">
                                 <canvas id="compPieChart"></canvas>
@@ -859,7 +929,7 @@
 
                         <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl space-y-4">
                             <h3 class="font-bold text-sm text-white flex items-center">
-                                <i class="fa-solid fa-chart-bar mr-2 text-blue-400"></i> Grafik Volume Barang Dibeli(Unit)
+                                <i class="fa-solid fa-chart-bar mr-2 text-blue-400"></i> Grafik Volume Barang Dibeli
                             </h3>
                             <div class="h-72 relative flex items-center justify-center">
                                 <canvas id="compBarChart"></canvas>
@@ -915,7 +985,7 @@
             <h4 id="modal-title" class="font-bold text-base text-white">Informasi Sistem</h4>
             <p id="modal-message" class="text-xs text-slate-300">Pesan sistem...</p>
             <button onclick="closeModal()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition">
-                OKE MAS TOM...
+                Oke Mas Tomo...
             </button>
         </div>
     </div>
@@ -928,13 +998,13 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = {
             apiKey: "AIzaSyBp6R5Eg-msuKxd9bTRfMm5BVCDbymdP-8",
-  authDomain: "gudang-rsu-dk.firebaseapp.com",
-  projectId: "gudang-rsu-dk",
-  storageBucket: "gudang-rsu-dk.firebasestorage.app",
-  messagingSenderId: "91825157272",
-  appId: "1:91825157272:web:44bf7d7cd4f8280fa18ced",
-  measurementId: "G-961497SD4H"
-};
+            authDomain: "gudang-rsu-dk.firebaseapp.com",
+            projectId: "gudang-rsu-dk",
+            storageBucket: "gudang-rsu-dk.firebasestorage.app",
+            messagingSenderId: "91825157272",
+            appId: "1:91825157272:web:44bf7d7cd4f8280fa18ced",
+            measurementId: "G-961497SD4H"
+        };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -1075,6 +1145,7 @@
                 if (tab === 'tren_harga') initTrendItems();
                 if (tab === 'laporan_bulanan') renderMonthlyReport();
                 if (tab === 'pengeluaran_barang') renderDistributionTable();
+                if (tab === 'kartu_stok') renderKartuStok();
                 if (tab === 'histori_barang') renderHistoryTable();
                 if (tab === 'analisa_kebutuhan') renderRestockAnalysis();
                 if (tab === 'grafik_komprehensif') renderComprehensiveCharts();
@@ -1108,6 +1179,7 @@
                 export_import: 'Export & Import Transaksi',
                 laporan_bulanan: 'Laporan Bulanan & PDF',
                 pengeluaran_barang: 'Pengeluaran / Distribusi',
+                kartu_stok: 'Kartu Stok Barang',
                 histori_barang: 'Histori Barang',
                 analisa_kebutuhan: 'Analisa Kebutuhan',
                 grafik_komprehensif: 'Grafik & Persentase'
@@ -1122,6 +1194,7 @@
             if (tabId === 'tren_harga') initTrendItems();
             if (tabId === 'laporan_bulanan') renderMonthlyReport();
             if (tabId === 'pengeluaran_barang') initDistributionForm();
+            if (tabId === 'kartu_stok') initKartuStok();
             if (tabId === 'histori_barang') renderHistoryTable();
             if (tabId === 'analisa_kebutuhan') renderRestockAnalysis();
             if (tabId === 'grafik_komprehensif') renderComprehensiveCharts();
@@ -1327,7 +1400,6 @@
                         showModal('Berhasil!', `${addedCount} transaksi pembelian berhasil diimport.`, 'success');
                         fileInput.value = ''; // Reset the input file
                         
-                        // Update visual UI if necessary
                         if (!document.getElementById('view-database_pembelian').classList.contains('hidden')) {
                             renderPurchasesTable();
                         }
@@ -1382,7 +1454,6 @@
                 let name = trimmed;
                 let unit = defaultUnit;
 
-                // Cek jika baris memiliki pemisah koma untuk nama & satuan (Contoh: "Spidol Biru, Box")
                 if (trimmed.includes(',')) {
                     const parts = trimmed.split(',');
                     name = parts[0].trim();
@@ -1390,7 +1461,6 @@
                 }
 
                 if (name) {
-                    // Mencegah duplikasi nama barang di kategori yang sama
                     const exists = window.state.masterItems.some(
                         m => m.category === category && m.name.toLowerCase() === name.toLowerCase()
                     );
@@ -1783,10 +1853,13 @@
 
             const select = document.getElementById('dest-item-id');
             select.innerHTML = '<option value="">Pilih Barang dari Pembelian</option>';
-            window.state.purchases.forEach(p => {
+            
+            // Mengambil stok unik dari master item atau pembelian
+            const uniqueItems = [...new Set(window.state.purchases.map(p => p.itemName))];
+            uniqueItems.forEach(item => {
                 const opt = document.createElement('option');
-                opt.value = p.itemName;
-                opt.innerText = `${p.itemName} (Stok Masuk: ${p.qty})`;
+                opt.value = item;
+                opt.innerText = item;
                 select.appendChild(opt);
             });
             document.getElementById('dest-date').value = new Date().toISOString().slice(0,10);
@@ -1800,31 +1873,38 @@
             const qty = Number(document.getElementById('dest-qty').value);
             const date = document.getElementById('dest-date').value;
 
-            window.state.distributions.push({
-                id: Date.now(),
-                date, unit, itemName, qty
-            });
-            await window.saveData();
-            logActivity('Distribusi Barang', `Menyalurkan ${qty} ${itemName} ke unit ${unit}`);
-            showModal('Berhasil', 'Distribusi barang berhasil dicatat.', 'success');
-            
-            document.getElementById('distribution-form').reset();
-            document.getElementById('dest-date').value = new Date().toISOString().slice(0,10);
-            renderDistributionTable();
+            if (unit && itemName && qty > 0 && date) {
+                window.state.distributions.push({
+                    id: Date.now(),
+                    date, unit, itemName, qty
+                });
+                await window.saveData();
+                logActivity('Distribusi', `Distribusi ${qty} ${itemName} ke ${unit}.`);
+                showModal('Berhasil', 'Data distribusi berhasil dicatat.', 'success');
+                document.getElementById('distribution-form').reset();
+                document.getElementById('dest-date').value = new Date().toISOString().slice(0,10);
+                renderDistributionTable();
+                updateDashboard();
+            }
         }
 
         window.renderDistributionTable = function() {
             const tbody = document.getElementById('distribution-table-tbody');
+            if(!tbody) return;
             tbody.innerHTML = '';
-            window.state.distributions.forEach((d, idx) => {
+            
+            // Sort by latest date
+            const sortedDist = [...window.state.distributions].sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            sortedDist.forEach((d, idx) => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-800/50 transition';
                 tr.innerHTML = `
                     <td class="p-3 text-center font-mono text-slate-400">${idx + 1}</td>
                     <td class="p-3 text-slate-300">${d.date}</td>
-                    <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">${d.unit}</span></td>
+                    <td class="p-3 font-medium text-white">${d.unit}</td>
                     <td class="p-3 font-medium text-white">${d.itemName}</td>
-                    <td class="p-3 text-right font-mono font-semibold text-rose-400">${d.qty}</td>
+                    <td class="p-3 text-right font-mono text-rose-400">${d.qty}</td>
                     <td class="p-3 text-center">
                         <button onclick="deleteDistribution(${d.id})" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash"></i></button>
                     </td>
@@ -1837,20 +1917,118 @@
             window.state.distributions = window.state.distributions.filter(d => d.id !== id);
             await window.saveData();
             renderDistributionTable();
+            updateDashboard();
             showModal('Terhapus', 'Data distribusi berhasil dihapus.', 'success');
         }
 
-        // --- HISTORI BARANG ---
+        // --- FITUR BARU: KARTU STOK BARANG ---
+        window.initKartuStok = function() {
+            const catSelect = document.getElementById('filter-stok-category');
+            catSelect.innerHTML = '<option value="">-- Pilih Kategori --</option>';
+            const categories = [...new Set(window.state.masterItems.map(m => m.category))];
+            categories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.innerText = cat;
+                catSelect.appendChild(opt);
+            });
+            document.getElementById('filter-stok-item').innerHTML = '<option value="">-- Pilih Barang --</option>';
+            renderKartuStok();
+        }
+
+        window.updateKartuStokItems = function() {
+            const cat = document.getElementById('filter-stok-category').value;
+            const itemSelect = document.getElementById('filter-stok-item');
+            itemSelect.innerHTML = '<option value="">-- Pilih Barang --</option>';
+            
+            if (cat) {
+                const items = window.state.masterItems.filter(m => m.category === cat);
+                items.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.name;
+                    opt.innerText = m.name;
+                    itemSelect.appendChild(opt);
+                });
+            }
+            renderKartuStok();
+        }
+
+        window.renderKartuStok = function() {
+            const tbody = document.getElementById('kartu-stok-tbody');
+            const itemName = document.getElementById('filter-stok-item').value;
+            const printItemName = document.getElementById('print-stok-item-name');
+            
+            if (!itemName) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400">Silakan pilih kategori dan barang pada filter di atas terlebih dahulu.</td></tr>';
+                printItemName.innerText = 'NAMA BARANG: -';
+                return;
+            }
+
+            printItemName.innerText = `NAMA BARANG: ${itemName}`;
+
+            // Ambil data barang masuk (Pembelian)
+            const purchases = window.state.purchases.filter(p => p.itemName === itemName).map(p => ({
+                date: p.date,
+                type: 'in',
+                qty: Number(p.qty),
+                desc: `Barang Masuk (Vendor: ${p.vendor})`
+            }));
+
+            // Ambil data barang keluar (Distribusi)
+            const distributions = window.state.distributions.filter(d => d.itemName === itemName).map(d => ({
+                date: d.date,
+                type: 'out',
+                qty: Number(d.qty),
+                desc: `Barang Keluar (Unit Tujuan: ${d.unit})`
+            }));
+
+            // Gabungkan dan urutkan berdasarkan tanggal (Tertua ke Terbaru)
+            const transactions = [...purchases, ...distributions].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            tbody.innerHTML = '';
+            let balance = 0;
+
+            if (transactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada histori transaksi untuk barang ini.</td></tr>';
+                return;
+            }
+
+            transactions.forEach((t, idx) => {
+                if (t.type === 'in') {
+                    balance += t.qty;
+                } else {
+                    balance -= t.qty;
+                }
+
+                const inQty = t.type === 'in' ? t.qty : '-';
+                const outQty = t.type === 'out' ? t.qty : '-';
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/50 transition';
+                tr.innerHTML = `
+                    <td class="p-3 text-center font-mono text-slate-400 print:text-black">${idx + 1}</td>
+                    <td class="p-3 text-slate-300 print:text-black">${t.date}</td>
+                    <td class="p-3 font-medium text-white print:text-black">${t.desc}</td>
+                    <td class="p-3 text-right font-mono font-medium text-emerald-400 print:text-emerald-700">${inQty}</td>
+                    <td class="p-3 text-right font-mono font-medium text-rose-400 print:text-rose-700">${outQty}</td>
+                    <td class="p-3 text-right font-mono font-bold text-blue-400 print:text-blue-700 bg-blue-500/5 print:bg-transparent">${balance}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- HISTORI & LAINNYA ---
         window.renderHistoryTable = function() {
             const tbody = document.getElementById('history-table-tbody');
+            if(!tbody) return;
             tbody.innerHTML = '';
             window.state.history.forEach((h, idx) => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-800/50 transition';
                 tr.innerHTML = `
                     <td class="p-3 text-center font-mono text-slate-400">${idx + 1}</td>
-                    <td class="p-3 text-slate-300 font-mono text-[11px]">${h.time}</td>
-                    <td class="p-3 font-semibold text-indigo-400">${h.activity}</td>
+                    <td class="p-3 text-slate-300">${h.time}</td>
+                    <td class="p-3 font-medium text-indigo-400">${h.activity}</td>
                     <td class="p-3 text-slate-300">${h.detail}</td>
                 `;
                 tbody.appendChild(tr);
@@ -1858,227 +2036,161 @@
         }
 
         window.clearHistory = async function() {
-            window.state.history = [];
+            window.state.history = [{ id: Date.now(), time: new Date().toISOString().slice(0,10), activity: 'Sistem', detail: 'Log dibersihkan oleh pengguna.' }];
             await window.saveData();
             renderHistoryTable();
         }
 
-        // --- ANALISA KEBUTUHAN ---
         window.renderRestockAnalysis = function() {
             const container = document.getElementById('restock-cards-container');
+            if(!container) return;
             container.innerHTML = '';
-
-            const itemStats = {};
             
-            // Hitung total masuk
+            // Hitung total saldo (balance) tiap item
+            const balances = {};
             window.state.purchases.forEach(p => {
-                if (!itemStats[p.itemName]) itemStats[p.itemName] = { in: 0, out: 0 };
-                itemStats[p.itemName].in += p.qty;
+                if(!balances[p.itemName]) balances[p.itemName] = 0;
+                balances[p.itemName] += Number(p.qty);
             });
-
-            // Hitung total keluar
             window.state.distributions.forEach(d => {
-                if (!itemStats[d.itemName]) itemStats[d.itemName] = { in: 0, out: 0 };
-                itemStats[d.itemName].out += d.qty;
+                if(balances[d.itemName] !== undefined) balances[d.itemName] -= Number(d.qty);
             });
 
-            const alerts = [];
-            for (const [itemName, stats] of Object.entries(itemStats)) {
-                const sisa = stats.in - stats.out;
-                // Logika sederhana: jika sisa <= 20% dari total masuk ATAU sisa < 10, anggap menipis
-                if (stats.in > 0 && (sisa <= (stats.in * 0.2) || sisa < 10)) {
-                    let status = 'Kritis';
-                    let colorClass = 'bg-rose-500/10 border-rose-500/30 text-rose-400';
-                    let icon = 'fa-triangle-exclamation';
-
-                    if (sisa > 0) {
-                        status = 'Menipis';
-                        colorClass = 'bg-amber-500/10 border-amber-500/30 text-amber-400';
-                        icon = 'fa-bell';
-                    } else if (sisa < 0) {
-                        status = 'Data Tidak Valid';
-                    }
-
-                    alerts.push({ itemName, sisa, status, colorClass, icon, out: stats.out });
-                }
-            }
-
-            if (alerts.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-1 md:col-span-3 text-center py-8">
-                        <div class="text-emerald-400 text-4xl mb-3"><i class="fa-solid fa-check-circle"></i></div>
-                        <p class="text-slate-300 text-sm">Stok logistik terpantau aman. Tidak ada indikasi barang kritis.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            alerts.sort((a, b) => a.sisa - b.sisa).forEach(a => {
-                const div = document.createElement('div');
-                div.className = `border rounded-xl p-4 ${a.colorClass} relative overflow-hidden`;
-                div.innerHTML = `
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <h4 class="font-bold text-sm text-white mb-1 truncate" title="${a.itemName}">${a.itemName}</h4>
-                            <p class="text-[11px] opacity-80">Estimasi Sisa Stok: <span class="font-mono font-bold text-sm ml-1">${a.sisa}</span></p>
+            Object.keys(balances).forEach(item => {
+                const stock = balances[item];
+                if(stock <= 5) {
+                    container.innerHTML += `
+                        <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex flex-col justify-between">
+                            <div>
+                                <h4 class="font-bold text-red-400 text-sm mb-1">${item}</h4>
+                                <p class="text-[10px] text-red-300">Stok sangat kritis! Segera lakukan pengadaan.</p>
+                            </div>
+                            <div class="mt-3 flex items-center justify-between border-t border-red-500/20 pt-2">
+                                <span class="text-xs text-slate-400">Sisa Tersedia:</span>
+                                <span class="text-lg font-bold text-red-400 bg-red-500/20 px-2 rounded">${stock}</span>
+                            </div>
                         </div>
-                        <i class="fa-solid ${a.icon} text-2xl opacity-50"></i>
-                    </div>
-                    <div class="mt-4 pt-3 border-t border-current/20 flex items-center justify-between">
-                        <span class="text-[10px] uppercase font-bold tracking-wider py-0.5 px-2 rounded-full border border-current/30">${a.status}</span>
-                        <span class="text-[10px] opacity-80"><i class="fa-solid fa-truck-fast mr-1"></i>${a.out} Terdistribusi</span>
-                    </div>
-                `;
-                container.appendChild(div);
+                    `;
+                } else if(stock <= 15) {
+                     container.innerHTML += `
+                        <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 flex flex-col justify-between">
+                            <div>
+                                <h4 class="font-bold text-amber-400 text-sm mb-1">${item}</h4>
+                                <p class="text-[10px] text-amber-300">Stok mulai menipis, pertimbangkan untuk restock.</p>
+                            </div>
+                            <div class="mt-3 flex items-center justify-between border-t border-amber-500/20 pt-2">
+                                <span class="text-xs text-slate-400">Sisa Tersedia:</span>
+                                <span class="text-lg font-bold text-amber-400 bg-amber-500/20 px-2 rounded">${stock}</span>
+                            </div>
+                        </div>
+                    `;
+                }
             });
+            
+            if(container.innerHTML === '') {
+                container.innerHTML = '<div class="col-span-1 md:col-span-3 text-center p-8 border border-dashed border-darkBorder rounded-xl text-slate-400 text-sm"><i class="fa-solid fa-check-circle text-emerald-400 text-3xl mb-3 block"></i>Semua stok barang terpantau aman dan tercukupi.</div>';
+            }
         }
 
         window.renderComprehensiveCharts = function() {
-            const monthFilter = document.getElementById('chart-month-filter').value;
-            const yearFilter = document.getElementById('chart-year-filter').value;
-
-            // Filter purchases based on selection
+            const catMonth = document.getElementById('chart-month-filter').value;
+            const catYear = document.getElementById('chart-year-filter').value;
+            
             let filteredPurchases = window.state.purchases;
-            if (monthFilter !== 'all' || yearFilter !== 'all') {
-                filteredPurchases = window.state.purchases.filter(p => {
-                    const dateParts = p.date.split('-'); // [YYYY, MM, DD]
-                    const pYear = dateParts[0];
-                    const pMonth = dateParts[1];
-                    
-                    const matchMonth = monthFilter === 'all' || pMonth === monthFilter;
-                    const matchYear = yearFilter === 'all' || pYear === yearFilter;
-                    
-                    return matchMonth && matchYear;
-                });
+            if(catMonth !== 'all') {
+                filteredPurchases = filteredPurchases.filter(p => p.date.split('-')[1] === catMonth);
+            }
+            if(catYear !== 'all') {
+                filteredPurchases = filteredPurchases.filter(p => p.date.split('-')[0] === catYear);
             }
 
             const categories = ['ATK', 'Plastik', 'Alat Kebersihan/Chemical', 'Laundry', 'Kelistrikan', 'Bahan Kering', 'Bahan Basah', 'BHP RT'];
             
-            // Calculate totals for Pie Chart (Amount in Rp)
-            const catTotalsRp = categories.map(cat => {
-                return filteredPurchases.filter(p => p.category === cat).reduce((acc, curr) => acc + (curr.qty * curr.price), 0);
+            let totalAll = 0;
+            const catTotals = categories.map(cat => {
+                const total = filteredPurchases.filter(p => p.category === cat).reduce((acc, curr) => acc + (curr.qty * curr.price), 0);
+                totalAll += total;
+                return total;
             });
-            const grandTotalRp = catTotalsRp.reduce((a, b) => a + b, 0);
-
-            // Calculate totals for Bar Chart (Volume/Qty)
-            const catTotalsQty = categories.map(cat => {
+            
+            const catQty = categories.map(cat => {
                 return filteredPurchases.filter(p => p.category === cat).reduce((acc, curr) => acc + Number(curr.qty), 0);
             });
 
-            // 1. Render Pie Chart
-            const ctxPie = document.getElementById('compPieChart').getContext('2d');
-            if (window.charts.compPie) window.charts.compPie.destroy();
-            window.charts.compPie = new Chart(ctxPie, {
-                type: 'doughnut',
-                data: {
-                    labels: categories,
-                    datasets: [{
-                        data: catTotalsRp,
-                        backgroundColor: ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899', '#ef4444', '#06b6d4', '#64748b'],
-                        borderWidth: 0,
-                        hoverOffset: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right', labels: { color: '#e2e8f0', font: { size: 10 } } },
-                        tooltip: { callbacks: { label: function(context) {
-                            let val = context.raw;
-                            return ' Rp ' + val.toLocaleString('id-ID');
-                        }}}
+            // Update Pie Chart
+            const pieCtx = document.getElementById('compPieChart');
+            if(pieCtx) {
+                if (window.charts.compPie) window.charts.compPie.destroy();
+                window.charts.compPie = new Chart(pieCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: categories,
+                        datasets: [{
+                            data: catTotals,
+                            backgroundColor: ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899', '#ef4444', '#06b6d4', '#64748b'],
+                            borderWidth: 0
+                        }]
                     },
-                    cutout: '70%'
-                }
-            });
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: {color: '#fff', font:{size: 10}} } } }
+                });
+            }
 
-            // 2. Render Bar Chart
-            const ctxBar = document.getElementById('compBarChart').getContext('2d');
-            if (window.charts.compBar) window.charts.compBar.destroy();
-            window.charts.compBar = new Chart(ctxBar, {
-                type: 'bar',
-                data: {
-                    labels: categories,
-                    datasets: [{
-                        label: 'Volume Dibeli (Unit)',
-                        data: catTotalsQty,
-                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                        borderColor: '#3b82f6',
-                        borderWidth: 1,
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
-                        x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } }
-                    }
-                }
-            });
+            // Update Bar Chart
+            const barCtx = document.getElementById('compBarChart');
+            if(barCtx) {
+                if (window.charts.compBar) window.charts.compBar.destroy();
+                window.charts.compBar = new Chart(barCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: categories,
+                        datasets: [{
+                            label: 'Volume Barang (Item)',
+                            data: catQty,
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font:{size:9} } } } }
+                });
+            }
 
-            // 3. Render Table Data
+            // Update Table
             const tbody = document.getElementById('chart-data-table-tbody');
-            tbody.innerHTML = '';
-            
-            categories.forEach((cat, index) => {
-                const totalRp = catTotalsRp[index];
-                const percentage = grandTotalRp > 0 ? ((totalRp / grandTotalRp) * 100).toFixed(1) : 0;
-                
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-3 text-center font-mono text-slate-400">${index + 1}</td>
-                    <td class="p-3 font-medium text-white">${cat}</td>
-                    <td class="p-3 text-right font-mono">Rp ${totalRp.toLocaleString('id-ID')}</td>
-                    <td class="p-3 text-right font-mono text-cyan-400 font-semibold">${percentage}%</td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            document.getElementById('chart-data-total-rp').innerText = `Rp ${grandTotalRp.toLocaleString('id-ID')}`;
+            if(tbody) {
+                tbody.innerHTML = '';
+                categories.forEach((cat, i) => {
+                    if(catTotals[i] > 0) {
+                        const pct = totalAll > 0 ? ((catTotals[i] / totalAll) * 100).toFixed(2) : 0;
+                        tbody.innerHTML += `
+                            <tr class="hover:bg-slate-800/50 transition">
+                                <td class="p-3 text-center font-mono text-slate-400">${i+1}</td>
+                                <td class="p-3 font-medium text-white">${cat}</td>
+                                <td class="p-3 text-right font-mono">Rp ${catTotals[i].toLocaleString('id-ID')}</td>
+                                <td class="p-3 text-right font-bold text-teal-400">${pct}%</td>
+                            </tr>
+                        `;
+                    }
+                });
+                document.getElementById('chart-data-total-rp').innerText = `Rp ${totalAll.toLocaleString('id-ID')}`;
+            }
         }
 
         window.downloadChartDataAsImage = function() {
-            const tableContainer = document.getElementById('chart-data-table-container');
-            const originalBg = tableContainer.style.backgroundColor;
-            
-            // Ensure background is solid for the image capture
-            tableContainer.style.backgroundColor = '#1e293b'; 
-
-            html2canvas(tableContainer, {
-                backgroundColor: '#1e293b',
-                scale: 2 // Higher resolution
-            }).then(canvas => {
-                tableContainer.style.backgroundColor = originalBg; // Restore original bg
-                
+            const container = document.getElementById('chart-data-table-container');
+            html2canvas(container, {backgroundColor: '#1e293b'}).then(canvas => {
                 const link = document.createElement('a');
-                const month = document.getElementById('chart-month-filter').options[document.getElementById('chart-month-filter').selectedIndex].text;
-                const year = document.getElementById('chart-year-filter').value;
-                const period = year === 'all' && document.getElementById('chart-month-filter').value === 'all' ? 'Keseluruhan' : `${month}_${year}`;
-                
-                link.download = `Persentase_Belanja_${period}.jpg`;
+                link.download = `Persentase_Belanja_${new Date().toISOString().slice(0,10)}.jpg`;
                 link.href = canvas.toDataURL('image/jpeg', 0.9);
                 link.click();
-            }).catch(err => {
-                console.error("Error generating image:", err);
-                showModal('Gagal', 'Terjadi kesalahan saat mengunduh gambar.', 'error');
-                tableContainer.style.backgroundColor = originalBg;
             });
         }
 
         // Initialize App
-        initFirebase();
-        updateDashboard();
-
+        window.onload = function() {
+            initFirebase();
+            updateDashboard();
+        };
     </script>
-    <div class="w-full text-center py-4 mt-6">
-        <p class="text-xs text-gray-500 font-medium">
-            Copyright ©TOMOS JR 2026 V.1.0
-        </p>
-    </div>
-    
 </body>
 </html>
+```eof
