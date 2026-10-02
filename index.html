@@ -63,9 +63,8 @@
             th, td { border: 1px solid #cbd5e1 !important; }
         }
         
-        /* Table specifically for image download */
         #chart-data-table-container {
-            background-color: #1e293b; /* Ensure background color is rendered */
+            background-color: #1e293b;
             color: white;
             padding: 1rem;
             border-radius: 0.5rem;
@@ -98,7 +97,6 @@
                 </div>
             </div>
 
-            <!-- Menu Navigation Items -->
             <nav class="flex-1 overflow-y-auto p-4 space-y-1.5">
                 <div class="text-[10px] uppercase font-bold tracking-wider text-slate-500 px-3 mb-2">Menu Utama</div>
                 
@@ -168,7 +166,6 @@
                 </button>
             </nav>
 
-            <!-- User Status & Cloud Sync Indicator -->
             <div class="p-4 border-t border-darkBorder bg-slate-900/60 flex items-center justify-between">
                 <div class="flex items-center space-x-2">
                     <div id="sync-dot" class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></div>
@@ -180,7 +177,6 @@
 
         <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
             
-            <!-- Top Header Bar -->
             <header class="h-16 bg-darkCard/85 backdrop-blur border-b border-darkBorder px-6 flex items-center justify-between sticky top-0 z-20 no-print">
                 <div class="flex items-center space-x-3">
                     <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition">
@@ -200,12 +196,10 @@
                 </div>
             </header>
 
-            <!-- Views Container -->
             <div class="p-6 flex-1 max-w-7xl w-full mx-auto space-y-6">
 
                 <!-- 1. DASHBOARD VIEW -->
                 <section id="view-dashboard" class="view-section space-y-6">
-                    <!-- Dashboard content ... (sama seperti aslinya) -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="bg-darkCard border border-darkBorder rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-blue-500/50 transition">
                             <div class="flex items-center justify-between">
@@ -268,7 +262,6 @@
                         </div>
                     </div>
 
-                    <!-- Quick Action & Mini Charts -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="lg:col-span-2 bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-lg flex flex-col justify-between">
                             <div class="flex items-center justify-between mb-4">
@@ -309,7 +302,6 @@
 
                 <!-- 2. INPUT PEMBELIAN BARANG -->
                 <section id="view-input_barang" class="view-section hidden space-y-6">
-                    <!-- Input Barang content ... (sama seperti aslinya) -->
                     <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl">
                         <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 pb-4 border-b border-darkBorder gap-4">
                             <div>
@@ -328,7 +320,6 @@
                             </div>
                         </div>
 
-                        <!-- Fitur Import CSV Pembelian -->
                         <div class="mb-6 p-4 border border-darkBorder rounded-xl bg-slate-900/50 flex flex-col md:flex-row items-center justify-between gap-4">
                             <div>
                                 <h4 class="font-bold text-sm text-white flex items-center mb-1">
@@ -362,7 +353,6 @@
                                     </tr>
                                 </thead>
                                 <tbody id="purchase-input-tbody" class="divide-y divide-darkBorder bg-darkCard/50">
-                                    <!-- Dynamic rows inserted here -->
                                 </tbody>
                             </table>
                         </div>
@@ -371,10 +361,8 @@
 
                 <!-- 3. MASTER KATEGORI & BARANG -->
                 <section id="view-database_kategori" class="view-section hidden space-y-6">
-                    <!-- Konten Kategori & Barang sama seperti aslinya -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="space-y-6">
-                            <!-- Form Single Master Barang -->
                             <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl h-fit space-y-4">
                                 <h3 class="font-bold text-sm text-white flex items-center border-b border-darkBorder pb-3">
                                     <i class="fa-solid fa-square-plus mr-2 text-purple-400"></i> Tambah Single Nama Barang
@@ -392,7 +380,6 @@
                                             <option value="Bahan Kering">Bahan Kering</option>
                                             <option value="Bahan Basah">Bahan Basah</option>
                                             <option value="BHP RT">BHP RT</option>
-                                            
                                         </select>
                                     </div>
                                     <div>
@@ -409,7 +396,6 @@
                                 </form>
                             </div>
 
-                            <!-- Fitur Baru: Input Massal Teks (Copy-Paste List) -->
                             <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl h-fit space-y-4">
                                 <div class="border-b border-darkBorder pb-3 flex items-center justify-between">
                                     <h3 class="font-bold text-sm text-white flex items-center">
@@ -435,7 +421,7 @@
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="block text-xs font-medium text-slate-300 mb-1">Satuan Default (Jika Tidak Ditulis)</label>
+                                        <label class="block text-xs font-medium text-slate-300 mb-1">Satuan Default</label>
                                         <input type="text" id="batch-master-unit" placeholder="Pcs / Box / Pack / Rim / Kg" class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-500" value="Pcs">
                                     </div>
                                     <div>
@@ -448,12 +434,10 @@
                                 </form>
                             </div>
 
-                            <!-- Form Import Master Barang per Kategori CSV -->
                             <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl h-fit space-y-4">
                                 <h3 class="font-bold text-sm text-white flex items-center border-b border-darkBorder pb-3">
                                     <i class="fa-solid fa-file-import mr-2 text-emerald-400"></i> Import Master Barang File CSV
                                 </h3>
-                                <p class="text-[10px] text-slate-400">Format CSV: Kategori, Nama Barang, Satuan (tanpa header, dipisah koma).</p>
                                 <div class="space-y-4">
                                     <div>
                                         <label class="block text-xs font-medium text-slate-300 mb-1">Kategori Tujuan Import (Opsional)</label>
@@ -466,9 +450,7 @@
                                             <option value="Kelistrikan">Kelistrikan</option>
                                             <option value="Bahan Kering">Bahan Kering</option>
                                             <option value="BHP RT">BHP RT</option>
-                                            
                                         </select>
-                                        <p class="text-[9px] text-slate-500 mt-1">*Jika dipilih, akan mengabaikan kolom kategori di CSV.</p>
                                     </div>
                                     <div>
                                         <input type="file" id="import-master-file" accept=".csv" class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-300 file:mr-4 file:py-1 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer">
@@ -504,7 +486,6 @@
                                         </tr>
                                     </thead>
                                     <tbody id="master-table-tbody" class="divide-y divide-darkBorder bg-darkCard/50">
-                                        <!-- Rendered dynamically -->
                                     </tbody>
                                 </table>
                             </div>
@@ -514,7 +495,6 @@
 
                 <!-- 4. MASTER UNIT / RUANGAN -->
                 <section id="view-database_unit" class="view-section hidden space-y-6">
-                    <!-- Master Unit content ... (sama seperti aslinya) -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl h-fit space-y-4">
                             <h3 class="font-bold text-sm text-white flex items-center border-b border-darkBorder pb-3">
@@ -547,7 +527,6 @@
                                         </tr>
                                     </thead>
                                     <tbody id="unit-table-tbody" class="divide-y divide-darkBorder bg-darkCard/50">
-                                        <!-- Rendered dynamically -->
                                     </tbody>
                                 </table>
                             </div>
@@ -557,7 +536,6 @@
 
                 <!-- 5. DATABASE PEMBELIAN -->
                 <section id="view-database_pembelian" class="view-section hidden space-y-6">
-                    <!-- Database pembelian content ... (sama seperti aslinya) -->
                     <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl space-y-4">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-darkBorder pb-4">
                             <div>
@@ -598,7 +576,6 @@
                                     </tr>
                                 </thead>
                                 <tbody id="purchases-table-tbody" class="divide-y divide-darkBorder bg-darkCard/50">
-                                    <!-- Rendered dynamically -->
                                 </tbody>
                             </table>
                         </div>
@@ -607,7 +584,6 @@
 
                 <!-- 6. TREN HARGA BARANG -->
                 <section id="view-tren_harga" class="view-section hidden space-y-6">
-                    <!-- Tren Harga content ... (sama seperti aslinya) -->
                     <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl space-y-4">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-darkBorder pb-4 gap-4">
                             <div>
@@ -630,7 +606,6 @@
 
                 <!-- 7. EXPORT & IMPORT TRANSAKSI -->
                 <section id="view-export_import" class="view-section hidden space-y-6">
-                    <!-- Export Import content ... (sama seperti aslinya) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl space-y-4">
                             <div class="border-b border-darkBorder pb-3">
@@ -668,7 +643,6 @@
 
                 <!-- 8. LAPORAN BULANAN & PDF -->
                 <section id="view-laporan_bulanan" class="view-section hidden space-y-6">
-                    <!-- Laporan Bulanan content ... (sama seperti aslinya) -->
                     <div class="bg-darkCard print-card border border-darkBorder rounded-2xl p-8 shadow-xl space-y-6">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-darkBorder pb-6 gap-4 no-print">
                             <div>
@@ -705,7 +679,6 @@
                         </div>
 
                         <div id="monthly-report-content" class="space-y-4">
-                            <!-- Injected dynamically -->
                         </div>
 
                         <div class="grid grid-cols-2 pt-12 text-xs">
@@ -723,70 +696,74 @@
 
                 <!-- 9. PENGELUARAN / DISTRIBUSI -->
                 <section id="view-pengeluaran_barang" class="view-section hidden space-y-6">
-                    <!-- Pengeluaran content ... (sama seperti aslinya) -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl h-fit space-y-4">
-                            <h3 class="font-bold text-sm text-white flex items-center border-b border-darkBorder pb-3">
-                                <i class="fa-solid fa-truck-ramp-box mr-2 text-rose-400"></i> Distribusi Barang ke Unit RS
-                            </h3>
-                            <form id="distribution-form" onsubmit="handleDistributionSubmit(event)" class="space-y-4">
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1">Pilih Unit / Ruangan Tujuan</label>
-                                    <select id="dest-unit" required class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100">
-                                        <option value="">-- Pilih Unit RS --</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1">Pilih Barang dari Pembelian</label>
-                                    <select id="dest-item-id" required class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100">
-                                        <option value="">-- Pilih Barang --</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1">Jumlah Keluar</label>
-                                    <input type="number" id="dest-qty" min="1" required placeholder="0" class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-300 mb-1">Tanggal Distribusi</label>
-                                    <input type="date" id="dest-date" required class="w-full bg-slate-900 border border-darkBorder rounded-xl p-2.5 text-xs text-slate-100">
-                                </div>
-                                <button type="submit" class="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold shadow-lg shadow-rose-500/20 transition">
-                                    Kirim & Catat Distribusi
+                    <!-- Form Input Distribusi Massal Bergaya Excel -->
+                    <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 pb-4 border-b border-darkBorder gap-4">
+                            <div>
+                                <h3 class="font-bold text-base text-white flex items-center">
+                                    <i class="fa-solid fa-truck-ramp-box mr-2 text-rose-400"></i> Distribusi Barang ke Unit RS
+                                </h3>
+                                <p class="text-xs text-slate-400 mt-0.5">Form tabel bergaya Excel untuk pengeluaran massal ke berbagai unit. Sistem akan memotong stok secara otomatis.</p>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="addDistributionRow()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold flex items-center space-x-2 shadow-lg shadow-blue-500/20 transition">
+                                    <i class="fa-solid fa-plus"></i><span>Tambah Baris</span>
                                 </button>
-                            </form>
+                                <button onclick="saveAllDistributions()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold flex items-center space-x-2 shadow-lg shadow-rose-500/20 transition">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i><span>Kirim & Catat Distribusi</span>
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="lg:col-span-2 bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl space-y-4">
-                            <div class="flex items-center justify-between border-b border-darkBorder pb-3">
-                                <h3 class="font-bold text-sm text-white flex items-center">
-                                    <i class="fa-solid fa-list-check mr-2 text-rose-400"></i> Riwayat Distribusi Barang Keluar
-                                </h3>
-                            </div>
-                            <div class="overflow-x-auto rounded-xl border border-darkBorder max-h-[500px]">
-                                <table class="w-full text-left text-xs border-collapse">
-                                    <thead class="bg-slate-900 text-slate-300 uppercase tracking-wider font-semibold border-b border-darkBorder sticky top-0">
-                                        <tr>
-                                            <th class="p-3 w-12 text-center">No</th>
-                                            <th class="p-3">Tanggal</th>
-                                            <th class="p-3">Unit Tujuan</th>
-                                            <th class="p-3">Nama Barang</th>
-                                            <th class="p-3 text-right">Jumlah</th>
-                                            <th class="p-3 text-center w-20">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="distribution-table-tbody" class="divide-y divide-darkBorder bg-darkCard/50">
-                                        <!-- Rendered dynamically -->
-                                    </tbody>
-                                </table>
-                            </div>
+                        <div class="overflow-x-auto rounded-xl border border-darkBorder">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead class="bg-slate-900 text-slate-300 uppercase tracking-wider font-semibold border-b border-darkBorder">
+                                    <tr>
+                                        <th class="p-3 w-12 text-center">No</th>
+                                        <th class="p-3">Tanggal</th>
+                                        <th class="p-3">Unit Tujuan</th>
+                                        <th class="p-3">Kategori</th>
+                                        <th class="p-3">Nama Barang</th>
+                                        <th class="p-3 w-24">Jumlah Keluar</th>
+                                        <th class="p-3 text-center w-16">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="distribution-input-tbody" class="divide-y divide-darkBorder bg-darkCard/50">
+                                    <!-- Dynamic rows inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tabel Riwayat Distribusi -->
+                    <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl space-y-4">
+                        <div class="flex items-center justify-between border-b border-darkBorder pb-3">
+                            <h3 class="font-bold text-sm text-white flex items-center">
+                                <i class="fa-solid fa-list-check mr-2 text-rose-400"></i> Riwayat Distribusi Barang Keluar
+                            </h3>
+                        </div>
+                        <div class="overflow-x-auto rounded-xl border border-darkBorder max-h-[500px]">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead class="bg-slate-900 text-slate-300 uppercase tracking-wider font-semibold border-b border-darkBorder sticky top-0">
+                                    <tr>
+                                        <th class="p-3 w-12 text-center">No</th>
+                                        <th class="p-3">Tanggal</th>
+                                        <th class="p-3">Unit Tujuan</th>
+                                        <th class="p-3">Nama Barang</th>
+                                        <th class="p-3 text-right">Jumlah</th>
+                                        <th class="p-3 text-center w-20">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="distribution-table-tbody" class="divide-y divide-darkBorder bg-darkCard/50">
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </section>
 
-                <!-- FITUR BARU: 13. KARTU STOK BARANG -->
+                <!-- 13. KARTU STOK BARANG -->
                 <section id="view-kartu_stok" class="view-section hidden space-y-6">
                     <div class="bg-darkCard print-card border border-darkBorder rounded-2xl p-8 shadow-xl space-y-6">
-                        <!-- Controls: Kategori & Barang Filter -->
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-darkBorder pb-6 gap-4 no-print">
                             <div>
                                 <h3 class="font-bold text-lg text-white flex items-center">
@@ -797,6 +774,14 @@
                             <div class="flex flex-wrap items-center gap-3">
                                 <select id="filter-stok-category" onchange="updateKartuStokItems()" class="bg-slate-900 border border-darkBorder rounded-xl px-3 py-2 text-xs text-slate-100 min-w-[150px]">
                                     <option value="">-- Pilih Kategori --</option>
+                                    <option value="ATK">ATK</option>
+                                    <option value="Plastik">Plastik</option>
+                                    <option value="Alat Kebersihan/Chemical">Alat Kebersihan/Chemical</option>
+                                    <option value="Laundry">Laundry</option>
+                                    <option value="Kelistrikan">Kelistrikan</option>
+                                    <option value="Bahan Kering">Bahan Kering</option>
+                                     <option value="Bahan Basah">Bahan Basah</option>
+                                     <option value="BHP RT">BHP RT</option>
                                 </select>
                                 <select id="filter-stok-item" onchange="renderKartuStok()" class="bg-slate-900 border border-darkBorder rounded-xl px-3 py-2 text-xs text-slate-100 min-w-[180px]">
                                     <option value="">-- Pilih Barang --</option>
@@ -807,14 +792,12 @@
                             </div>
                         </div>
 
-                        <!-- Print Header (Hanya muncul saat di-print) -->
                         <div class="text-center space-y-1 pb-4 border-b border-slate-700 print-only hidden">
                             <h2 class="text-xl font-bold uppercase tracking-wider text-black font-sans">KARTU STOK BARANG LOGISTIK</h2>
                             <p class="text-xs text-slate-600 font-sans">RUMAH SAKIT UMUM DADI KELUARGA PURWOKERTO</p>
                             <h3 id="print-stok-item-name" class="text-sm font-semibold text-blue-600 pt-2 uppercase font-sans">NAMA BARANG: -</h3>
                         </div>
 
-                        <!-- Table Data -->
                         <div class="overflow-x-auto rounded-xl border border-darkBorder print:border-slate-300">
                             <table class="w-full text-left text-xs border-collapse print:text-black font-sans">
                                 <thead class="bg-slate-900 text-slate-300 print:bg-slate-200 print:text-black uppercase tracking-wider font-semibold border-b border-darkBorder print:border-slate-300">
@@ -859,7 +842,6 @@
                                     </tr>
                                 </thead>
                                 <tbody id="history-table-tbody" class="divide-y divide-darkBorder bg-darkCard/50">
-                                    <!-- Rendered dynamically -->
                                 </tbody>
                             </table>
                         </div>
@@ -876,14 +858,12 @@
                             <p class="text-xs text-slate-400 mt-1">Sistem cerdas mendeteksi estimasi stok menipis berdasarkan rasio distribusi unit.</p>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="restock-cards-container">
-                            <!-- Rendered dynamically -->
                         </div>
                     </div>
                 </section>
 
                 <!-- 12. GRAFIK & PERSENTASE -->
                 <section id="view-grafik_komprehensif" class="view-section hidden space-y-6">
-                    <!-- Filter Section for Charts -->
                     <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl space-y-4">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-darkBorder pb-4 gap-4">
                             <div>
@@ -937,7 +917,6 @@
                         </div>
                     </div>
 
-                    <!-- New Persentase Table Section -->
                     <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 shadow-xl space-y-4 relative" id="chart-data-table-container">
                         <div class="flex items-center justify-between border-b border-darkBorder pb-4">
                             <h3 class="font-bold text-sm text-white flex items-center">
@@ -958,7 +937,6 @@
                                     </tr>
                                 </thead>
                                 <tbody id="chart-data-table-tbody" class="divide-y divide-darkBorder bg-darkCard/50">
-                                    <!-- Rendered dynamically -->
                                 </tbody>
                                 <tfoot class="bg-slate-800/80 font-bold border-t border-darkBorder">
                                     <tr>
@@ -976,7 +954,7 @@
         </main>
     </div>
 
-    <!-- Custom Modal for Notifications / Messages -->
+    <!-- Modal Notifications -->
     <div id="custom-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden">
         <div class="bg-darkCard border border-darkBorder rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl space-y-4 text-center">
             <div id="modal-icon" class="w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center mx-auto text-xl">
@@ -1012,22 +990,14 @@
 
         let userId = null;
 
-        // Global application state
         window.state = {
             purchases: [
                 { id: 1, date: '2026-08-01', category: 'ATK', itemName: 'Kertas HVS A4 80gr', qty: 50, price: 55000, vendor: 'CV Mitra Office' },
-                { id: 2, date: '2026-08-03', category: 'Plastik', itemName: 'Plastik Sampah Medis Kuning', qty: 30, price: 45000, vendor: 'PT Medika Plastindo' },
-                { id: 3, date: '2026-08-05', category: 'Alat Kebersihan/Chemical', itemName: 'Cairan Karbol Wangi 5L', qty: 20, price: 75000, vendor: 'CV Bersih Sejahtera' },
-                { id: 4, date: '2026-08-08', category: 'Laundry', itemName: 'Deterjen Cair Laundry RS', qty: 40, price: 120000, vendor: 'PT Kimia Utama' },
-                { id: 5, date: '2026-08-10', category: 'Kelistrikan', itemName: 'Beras Premium Pasien 25kg', qty: 15, price: 350000, vendor: 'UD Sumber Pangan' }
+                { id: 2, date: '2026-08-03', category: 'Plastik', itemName: 'Plastik Sampah Medis Kuning', qty: 30, price: 45000, vendor: 'PT Medika Plastindo' }
             ],
             masterItems: [
                 { id: 1, category: 'ATK', name: 'Kertas HVS A4 80gr', unit: 'Rim' },
-                { id: 2, category: 'ATK', name: 'Ballpoint Standard Hitam', unit: 'Box' },
-                { id: 3, category: 'Plastik', name: 'Plastik Sampah Medis Kuning', unit: 'Pack' },
-                { id: 4, category: 'Alat Kebersihan/Chemical', name: 'Cairan Karbol Wangi 5L', unit: 'Jerigen' },
-                { id: 5, category: 'Laundry', name: 'Deterjen Cair Laundry RS', unit: 'Liter' },
-                { id: 6, category: 'Kelistrikan', name: 'Beras Premium Pasien 25kg', unit: 'Karung' }
+                { id: 2, category: 'Plastik', name: 'Plastik Sampah Medis Kuning', unit: 'Pack' }
             ],
             units: [
                 'IGD (Gawat Darurat)',
@@ -1040,8 +1010,7 @@
                 'Laundry & Rumah Tangga'
             ],
             distributions: [
-                { id: 1, date: '2026-08-04', unit: 'IGD (Gawat Darurat)', itemName: 'Plastik Sampah Medis Kuning', qty: 5 },
-                { id: 2, date: '2026-08-06', unit: 'Rawat Inap Melati', itemName: 'Cairan Karbol Wangi 5L', qty: 3 }
+                { id: 1, date: '2026-08-04', unit: 'IGD (Gawat Darurat)', category: 'Plastik', itemName: 'Plastik Sampah Medis Kuning', qty: 5 }
             ],
             history: [
                 { id: 1, time: '2026-08-01 08:30', activity: 'Inisialisasi Sistem', detail: 'Sistem Logistik RS Pro v3.6 Cloud diaktifkan.' }
@@ -1050,7 +1019,6 @@
 
         window.charts = {};
 
-        // Helper: Show custom modal
         window.showModal = function(title, message, type = 'info') {
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-message').innerText = message;
@@ -1072,7 +1040,6 @@
             document.getElementById('custom-modal').classList.add('hidden');
         }
 
-        // Firestore real-time sync setup
         async function initFirebase() {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -1084,7 +1051,6 @@
                 
                 const stateDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'hospital_states', 'main');
                 
-                // Real-time listener
                 onSnapshot(stateDocRef, (docSnap) => {
                     if (docSnap.exists()) {
                         const cloudData = docSnap.data();
@@ -1144,7 +1110,7 @@
                 if (tab === 'database_pembelian') renderPurchasesTable();
                 if (tab === 'tren_harga') initTrendItems();
                 if (tab === 'laporan_bulanan') renderMonthlyReport();
-                if (tab === 'pengeluaran_barang') renderDistributionTable();
+                if (tab === 'pengeluaran_barang') { initDistributionInputRows(); renderDistributionTable(); }
                 if (tab === 'kartu_stok') renderKartuStok();
                 if (tab === 'histori_barang') renderHistoryTable();
                 if (tab === 'analisa_kebutuhan') renderRestockAnalysis();
@@ -1193,8 +1159,8 @@
             if (tabId === 'database_pembelian') renderPurchasesTable();
             if (tabId === 'tren_harga') initTrendItems();
             if (tabId === 'laporan_bulanan') renderMonthlyReport();
-            if (tabId === 'pengeluaran_barang') initDistributionForm();
-            if (tabId === 'kartu_stok') initKartuStok();
+            if (tabId === 'pengeluaran_barang') { initDistributionInputRows(); renderDistributionTable(); }
+            if (tabId === 'kartu_stok') { updateKartuStokItems(); renderKartuStok(); }
             if (tabId === 'histori_barang') renderHistoryTable();
             if (tabId === 'analisa_kebutuhan') renderRestockAnalysis();
             if (tabId === 'grafik_komprehensif') renderComprehensiveCharts();
@@ -1207,7 +1173,6 @@
 
         document.getElementById('current-date-display').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        // --- DASHBOARD FUNCTIONS ---
         window.updateDashboard = function() {
             let totalBelanja = window.state.purchases.reduce((acc, curr) => acc + (curr.qty * curr.price), 0);
             let totalItem = window.state.purchases.reduce((acc, curr) => acc + Number(curr.qty), 0);
@@ -1344,547 +1309,142 @@
             }
         }
 
-        // --- IMPORT CSV PEMBELIAN ---
-        window.downloadPurchaseCSVSample = function() {
-            const csv = 'Tanggal,Kategori,Nama Barang,Jumlah,Harga Satuan,Vendor\n2026-08-15,ATK,Kertas HVS A4 80gr,10,55000,CV Mitra Office\n2026-08-16,Plastik,Plastik Sampah Medis Kuning,5,45000,PT Medika Plastindo';
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `Template_Import_Pembelian.csv`;
-            link.click();
-        }
-
-        window.importPurchaseCSV = function() {
-            const fileInput = document.getElementById('import-purchase-file');
-            if (!fileInput.files.length) {
-                showModal('Peringatan', 'Pilih file CSV terlebih dahulu.', 'error');
-                return;
+        // --- PENGELUARAN / DISTRIBUSI (NEW MASSAL LOGIC) ---
+        let distRowsCount = 3;
+        window.initDistributionInputRows = function() {
+            const tbody = document.getElementById('distribution-input-tbody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            for (let i = 1; i <= distRowsCount; i++) {
+                addRowToDistributionTable(i);
             }
-            
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const text = e.target.result;
-                    const rows = text.split('\n').filter(row => row.trim() !== '');
-                    let addedCount = 0;
-                    
-                    let startIndex = 0;
-                    if (rows[0].toLowerCase().includes('tanggal')) {
-                        startIndex = 1; // Skip header row
-                    }
-                    
-                    for (let i = startIndex; i < rows.length; i++) {
-                        const cols = rows[i].split(',').map(col => col.trim());
-                        
-                        if (cols.length >= 6) {
-                            const date = cols[0];
-                            const category = cols[1];
-                            const itemName = cols[2];
-                            const qty = Number(cols[3]);
-                            const price = Number(cols[4]);
-                            const vendor = cols[5];
-
-                            if (date && category && itemName && !isNaN(qty) && qty > 0 && !isNaN(price) && price >= 0 && vendor) {
-                                window.state.purchases.push({
-                                    id: Date.now() + Math.random(),
-                                    date, category, itemName, qty, price, vendor
-                                });
-                                addedCount++;
-                            }
-                        }
-                    }
-
-                    if (addedCount > 0) {
-                        await window.saveData();
-                        logActivity('Import Pembelian', `Berhasil mengimport ${addedCount} data pembelian dari CSV.`);
-                        showModal('Berhasil!', `${addedCount} transaksi pembelian berhasil diimport.`, 'success');
-                        fileInput.value = ''; // Reset the input file
-                        
-                        if (!document.getElementById('view-database_pembelian').classList.contains('hidden')) {
-                            renderPurchasesTable();
-                        }
-                    } else {
-                        showModal('Informasi', 'Tidak ada data valid yang diimport. Pastikan format CSV sesuai template.', 'info');
-                    }
-
-                } catch (err) {
-                    console.error(err);
-                    showModal('Gagal', 'Terjadi kesalahan saat memproses file CSV.', 'error');
-                }
-            };
-            reader.readAsText(fileInput.files[0]);
         }
 
-        // --- MASTER CATEGORY & ITEMS ---
-        window.handleMasterItemSubmit = async function(e) {
-            e.preventDefault();
-            const category = document.getElementById('master-category').value;
-            const name = document.getElementById('master-item-name').value;
-            const unit = document.getElementById('master-item-unit').value;
-
-            window.state.masterItems.push({ id: Date.now(), category, name, unit });
-            await window.saveData();
-            logActivity('Master Barang', `Menambahkan master barang baru: ${name} (${category})`);
-            showModal('Berhasil', 'Item master baru berhasil ditambahkan.', 'success');
-            
-            document.getElementById('master-item-form').reset();
-            renderMasterTable();
+        window.addDistributionRow = function() {
+            distRowsCount++;
+            addRowToDistributionTable(distRowsCount);
         }
 
-        // --- INPUT MASSAL TEKS (COPY-PASTE BATCH INPUT) ---
-        window.handleBatchMasterSubmit = async function(e) {
-            e.preventDefault();
-            const category = document.getElementById('batch-master-category').value;
-            const defaultUnit = document.getElementById('batch-master-unit').value.trim() || 'Pcs';
-            const rawText = document.getElementById('batch-master-text').value;
+        function addRowToDistributionTable(index) {
+            const tbody = document.getElementById('distribution-input-tbody');
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-slate-800/50 transition';
 
-            if (!category || !rawText.trim()) {
-                showModal('Peringatan', 'Silakan pilih kategori dan masukkan daftar nama barang.', 'error');
-                return;
-            }
+            let unitOptions = '<option value="">Pilih Unit RS</option>';
+            window.state.units.forEach(u => {
+                unitOptions += `<option value="${u}">${u}</option>`;
+            });
 
-            const lines = rawText.split('\n');
+            tr.innerHTML = `
+                <td class="p-3 text-center font-mono text-slate-400">${index}</td>
+                <td class="p-3"><input type="date" class="dist-row-date w-full bg-slate-900 border border-darkBorder rounded-lg p-1.5 text-xs text-slate-100" value="${new Date().toISOString().slice(0,10)}"></td>
+                <td class="p-3">
+                    <select class="dist-row-unit w-full bg-slate-900 border border-darkBorder rounded-lg p-1.5 text-xs text-slate-100">
+                        ${unitOptions}
+                    </select>
+                </td>
+                <td class="p-3">
+                    <select class="dist-row-cat w-full bg-slate-900 border border-darkBorder rounded-lg p-1.5 text-xs text-slate-100" onchange="updateDistRowItems(this)">
+                        <option value="">Pilih Kategori</option>
+                        <option value="ATK">ATK</option>
+                        <option value="Plastik">Plastik</option>
+                        <option value="Alat Kebersihan/Chemical">Alat Kebersihan/Chemical</option>
+                        <option value="Laundry">Laundry</option>
+                        <option value="Kelistrikan">Kelistrikan</option>
+                        <option value="Bahan Kering">Bahan Kering</option>
+                        <option value="Bahan Basah">Bahan Basah</option>
+                        <option value="BHP RT">BHP RT</option>
+                    </select>
+                </td>
+                <td class="p-3">
+                    <select class="dist-row-item w-full bg-slate-900 border border-darkBorder rounded-lg p-1.5 text-xs text-slate-100">
+                        <option value="">Pilih Kategori Dulu</option>
+                    </select>
+                </td>
+                <td class="p-3"><input type="number" min="1" placeholder="0" class="dist-row-qty w-full bg-slate-900 border border-darkBorder rounded-lg p-1.5 text-xs text-slate-100"></td>
+                <td class="p-3 text-center"><button onclick="this.closest('tr').remove()" class="text-rose-400 hover:text-rose-300 p-1"><i class="fa-solid fa-trash"></i></button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        window.updateDistRowItems = function(selectElem) {
+            const cat = selectElem.value;
+            const row = selectElem.closest('tr');
+            const itemSelect = row.querySelector('.dist-row-item');
+            itemSelect.innerHTML = '<option value="">Pilih Barang</option>';
+            
+            const filtered = window.state.masterItems.filter(m => m.category === cat);
+            filtered.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.name;
+                opt.innerText = m.name + ` (${m.unit})`;
+                itemSelect.appendChild(opt);
+            });
+        }
+
+        window.saveAllDistributions = async function() {
+            const rows = document.querySelectorAll('#distribution-input-tbody tr');
             let addedCount = 0;
-            let duplicateCount = 0;
+            let errors = [];
+            
+            let requestedQtys = {};
+            let validRows = [];
 
-            lines.forEach(line => {
-                const trimmed = line.trim();
-                if (!trimmed) return;
+            // Kumpulkan request
+            rows.forEach(tr => {
+                const date = tr.querySelector('.dist-row-date').value;
+                const unit = tr.querySelector('.dist-row-unit').value;
+                const category = tr.querySelector('.dist-row-cat').value;
+                const itemName = tr.querySelector('.dist-row-item').value;
+                const qty = Number(tr.querySelector('.dist-row-qty').value);
 
-                let name = trimmed;
-                let unit = defaultUnit;
-
-                if (trimmed.includes(',')) {
-                    const parts = trimmed.split(',');
-                    name = parts[0].trim();
-                    unit = parts[1].trim() || defaultUnit;
+                if (date && unit && category && itemName && qty > 0) {
+                    if(!requestedQtys[itemName]) requestedQtys[itemName] = 0;
+                    requestedQtys[itemName] += qty;
+                    validRows.push({date, unit, category, itemName, qty});
                 }
+            });
 
-                if (name) {
-                    const exists = window.state.masterItems.some(
-                        m => m.category === category && m.name.toLowerCase() === name.toLowerCase()
-                    );
+            if (validRows.length === 0) {
+                showModal('Peringatan', 'Pastikan semua kolom terisi dengan benar minimal 1 baris (termasuk Unit Tujuan).', 'error');
+                return;
+            }
 
-                    if (!exists) {
-                        window.state.masterItems.push({
-                            id: Date.now() + Math.random(),
-                            category,
-                            name,
-                            unit
-                        });
-                        addedCount++;
-                    } else {
-                        duplicateCount++;
-                    }
+            // Validasi Stok
+            for (let itemName in requestedQtys) {
+                let totalIn = window.state.purchases.filter(p => p.itemName === itemName).reduce((sum, p) => sum + Number(p.qty), 0);
+                let totalOut = window.state.distributions.filter(d => d.itemName === itemName).reduce((sum, d) => sum + Number(d.qty), 0);
+                let currentStock = totalIn - totalOut;
+
+                if (requestedQtys[itemName] > currentStock) {
+                    errors.push(`Stok [${itemName}] tidak cukup! \nDiminta: ${requestedQtys[itemName]} \nSisa Stok: ${currentStock}`);
                 }
+            }
+
+            if (errors.length > 0) {
+                showModal('Peringatan Sisa Stok', errors.join('\n\n'), 'error');
+                return; // Stop eksekusi agar stok tidak minus
+            }
+
+            // Simpan Data
+            validRows.forEach(row => {
+                window.state.distributions.push({
+                    id: Date.now() + Math.random(),
+                    date: row.date,
+                    unit: row.unit,
+                    category: row.category,
+                    itemName: row.itemName,
+                    qty: row.qty
+                });
+                addedCount++;
             });
 
             if (addedCount > 0) {
                 await window.saveData();
-                logActivity('Input Massal Master', `Berhasil menambahkan ${addedCount} barang baru ke kategori ${category}.`);
-                showModal('Berhasil!', `Berhasil menambahkan ${addedCount} nama barang baru ke kategori ${category}.${duplicateCount > 0 ? ` (${duplicateCount} barang diabaikan karena sudah ada)` : ''}`, 'success');
-                document.getElementById('batch-master-text').value = '';
-                renderMasterTable();
-            } else {
-                showModal('Informasi', 'Tidak ada barang baru yang ditambahkan. Mungkin seluruh nama barang sudah ada di database.', 'info');
-            }
-        }
-
-        // --- IMPORT MASTER ITEMS CSV ---
-        window.downloadMasterCSVSample = function() {
-            const csv = 'ATK,Kertas HVS A4 80gr,Rim\nPlastik,Plastik Sampah Medis Kuning,Pack\nAlat Kebersihan/RT,Sapu Lidi,Pcs';
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `Template_Import_Master_Barang.csv`;
-            link.click();
-        }
-
-        window.importMasterCSV = function() {
-            const fileInput = document.getElementById('import-master-file');
-            const targetCategory = document.getElementById('import-master-category').value;
-            
-            if (!fileInput.files.length) {
-                showModal('Peringatan', 'Pilih file CSV terlebih dahulu.', 'error');
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const text = e.target.result;
-                    const rows = text.split('\n').filter(row => row.trim() !== '');
-                    let addedCount = 0;
-                    
-                    rows.forEach(row => {
-                        const cols = row.split(',').map(col => col.trim());
-                        
-                        let category, name, unit;
-
-                        if (targetCategory) {
-                            category = targetCategory;
-                            if (cols.length >= 3) {
-                                name = cols[1];
-                                unit = cols[2];
-                            } else if (cols.length === 2) {
-                                name = cols[0];
-                                unit = cols[1];
-                            } else {
-                                return;
-                            }
-                        } else {
-                            if (cols.length >= 3) {
-                                category = cols[0];
-                                name = cols[1];
-                                unit = cols[2];
-                            } else {
-                                return;
-                            }
-                        }
-
-                        if (category && name && unit) {
-                            const isDuplicate = window.state.masterItems.some(m => m.name.toLowerCase() === name.toLowerCase() && m.category === category);
-                            if (!isDuplicate) {
-                                window.state.masterItems.push({ id: Date.now() + Math.random(), category, name, unit });
-                                addedCount++;
-                            }
-                        }
-                    });
-
-                    if (addedCount > 0) {
-                        await window.saveData();
-                        logActivity('Import Master', `Berhasil mengimport ${addedCount} master barang dari CSV.`);
-                        showModal('Berhasil!', `${addedCount} item master barang berhasil diimport.`, 'success');
-                        renderMasterTable();
-                        fileInput.value = '';
-                    } else {
-                        showModal('Informasi', 'Tidak ada item baru yang ditambahkan. Mungkin format salah atau data sudah ada.', 'info');
-                    }
-
-                } catch (err) {
-                    console.error(err);
-                    showModal('Gagal', 'Terjadi kesalahan saat memproses file CSV. Pastikan format benar (tanpa koma di dalam nama barang).', 'error');
-                }
-            };
-            reader.readAsText(fileInput.files[0]);
-        }
-
-        window.renderMasterTable = function() {
-            const tbody = document.getElementById('master-table-tbody');
-            const search = document.getElementById('search-master').value.toLowerCase();
-            tbody.innerHTML = '';
-
-            const filtered = window.state.masterItems.filter(m => m.name.toLowerCase().includes(search) || m.category.toLowerCase().includes(search));
-
-            filtered.forEach((m, idx) => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-800/50 transition';
-                tr.innerHTML = `
-                    <td class="p-3 text-center font-mono text-slate-400">${idx + 1}</td>
-                    <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">${m.category}</span></td>
-                    <td class="p-3 font-medium text-white">${m.name}</td>
-                    <td class="p-3 text-slate-300">${m.unit}</td>
-                    <td class="p-3 text-center">
-                        <button onclick="deleteMasterItem(${m.id})" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        window.deleteMasterItem = async function(id) {
-            window.state.masterItems = window.state.masterItems.filter(m => m.id !== id);
-            await window.saveData();
-            renderMasterTable();
-            showModal('Terhapus', 'Item master berhasil dihapus.', 'success');
-        }
-
-        // --- MASTER UNIT / RUANGAN ---
-        window.handleMasterUnitSubmit = async function(e) {
-            e.preventDefault();
-            const val = document.getElementById('new-unit-name').value.trim();
-            if (val && !window.state.units.includes(val)) {
-                window.state.units.push(val);
-                await window.saveData();
-                logActivity('Master Unit', `Menambahkan unit/ruangan baru: ${val}`);
-                showModal('Berhasil', 'Unit / ruangan baru berhasil ditambahkan.', 'success');
-                document.getElementById('master-unit-form').reset();
-                renderUnitTable();
-            } else {
-                showModal('Peringatan', 'Unit / ruangan sudah ada atau nama kosong.', 'error');
-            }
-        }
-
-        window.renderUnitTable = function() {
-            const tbody = document.getElementById('unit-table-tbody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            window.state.units.forEach((u, idx) => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-800/50 transition';
-                tr.innerHTML = `
-                    <td class="p-3 text-center font-mono text-slate-400">${idx + 1}</td>
-                    <td class="p-3 font-medium text-white">${u}</td>
-                    <td class="p-3 text-center">
-                        <button onclick="deleteUnit('${u}')" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        window.deleteUnit = async function(unitName) {
-            window.state.units = window.state.units.filter(u => u !== unitName);
-            await window.saveData();
-            renderUnitTable();
-            showModal('Terhapus', 'Unit / ruangan berhasil dihapus.', 'success');
-        }
-
-        // --- DATABASE PEMBELIAN ---
-        window.renderPurchasesTable = function() {
-            const tbody = document.getElementById('purchases-table-tbody');
-            const catFilter = document.getElementById('filter-purchases-category').value;
-            const search = document.getElementById('search-purchases').value.toLowerCase();
-            tbody.innerHTML = '';
-
-            let filtered = window.state.purchases.filter(p => {
-                const matchCat = catFilter ? p.category === catFilter : true;
-                const matchSearch = p.itemName.toLowerCase().includes(search) || p.vendor.toLowerCase().includes(search);
-                return matchCat && matchSearch;
-            });
-
-            filtered.forEach((p, idx) => {
-                const total = p.qty * p.price;
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-800/50 transition';
-                tr.innerHTML = `
-                    <td class="p-3 text-center font-mono text-slate-400">${idx + 1}</td>
-                    <td class="p-3 text-slate-300">${p.date}</td>
-                    <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">${p.category}</span></td>
-                    <td class="p-3 font-medium text-white">${p.itemName}</td>
-                    <td class="p-3 text-right font-mono">${p.qty}</td>
-                    <td class="p-3 text-right font-mono">Rp ${p.price.toLocaleString('id-ID')}</td>
-                    <td class="p-3 text-right font-mono font-semibold text-emerald-400">Rp ${total.toLocaleString('id-ID')}</td>
-                    <td class="p-3 text-slate-300">${p.vendor}</td>
-                    <td class="p-3 text-center space-x-2">
-                        <button onclick="deletePurchase(${p.id})" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        window.deletePurchase = async function(id) {
-            window.state.purchases = window.state.purchases.filter(p => p.id !== id);
-            await window.saveData();
-            renderPurchasesTable();
-            showModal('Terhapus', 'Data pembelian berhasil dihapus.', 'success');
-        }
-
-        // --- TREN HARGA ---
-        window.initTrendItems = function() {
-            const select = document.getElementById('select-trend-item');
-            select.innerHTML = '<option value="">Pilih Nama Barang...</option>';
-            const uniqueNames = [...new Set(window.state.purchases.map(p => p.itemName))];
-            uniqueNames.forEach(name => {
-                const opt = document.createElement('option');
-                opt.value = name;
-                opt.innerText = name;
-                select.appendChild(opt);
-            });
-            if (uniqueNames.length > 0) {
-                select.value = uniqueNames[0];
-                updateTrendChart();
-            }
-        }
-
-        window.updateTrendChart = function() {
-            const itemName = document.getElementById('select-trend-item').value;
-            const ctx = document.getElementById('trendPriceChart').getContext('2d');
-            if (window.charts.trend) window.charts.trend.destroy();
-
-            const items = window.state.purchases.filter(p => p.itemName === itemName).sort((a,b) => new Date(a.date) - new Date(b.date));
-            const labels = items.map(i => i.date);
-            const prices = items.map(i => i.price);
-
-            window.charts.trend = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: `Harga Satuan ${itemName} (Rp)`,
-                        data: prices,
-                        borderColor: '#f59e0b',
-                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#fff' } } },
-                    scales: {
-                        y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
-                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-                    }
-                }
-            });
-        }
-
-        // --- EXPORT & IMPORT ---
-        window.exportToCSV = function() {
-            let csv = 'No,Tanggal,Kategori,Nama Barang,Jumlah,Harga Satuan,Total Harga,Vendor\n';
-            window.state.purchases.forEach((p, i) => {
-                csv += `${i+1},${p.date},"${p.category}","${p.itemName}",${p.qty},${p.price},${p.qty * p.price},"${p.vendor}"\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `Rekap_Pembelian_Logistik_RS_${new Date().toISOString().slice(0,10)}.csv`;
-            link.click();
-        }
-
-        window.exportToJSON = function() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(window.state, null, 2));
-            const dlAnchor = document.createElement('a');
-            dlAnchor.setAttribute("href", dataStr);
-            dlAnchor.setAttribute("download", `Backup_Logistik_RS_${new Date().toISOString().slice(0,10)}.json`);
-            dlAnchor.click();
-        }
-
-        window.importJSONData = function() {
-            const fileInput = document.getElementById('import-json-file');
-            if (!fileInput.files.length) {
-                showModal('Peringatan', 'Pilih file JSON backup terlebih dahulu.', 'error');
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const parsed = JSON.parse(e.target.result);
-                    if (parsed.purchases && parsed.masterItems) {
-                        window.state = parsed;
-                        await window.saveData();
-                        showModal('Berhasil!', 'Data transaksi berhasil dipulihkan dari backup.', 'success');
-                        updateDashboard();
-                    } else {
-                        throw new Error('Format tidak valid');
-                    }
-                } catch (err) {
-                    showModal('Gagal', 'File JSON tidak valid.', 'error');
-                }
-            };
-            reader.readAsText(fileInput.files[0]);
-        }
-
-        // --- LAPORAN BULANAN & PDF ---
-        window.renderMonthlyReport = function() {
-            const monthVal = document.getElementById('report-month-select').value;
-            const container = document.getElementById('monthly-report-content');
-            
-            const filtered = window.state.purchases.filter(p => p.date.startsWith(monthVal));
-            let total = 0;
-
-            let html = `
-                <div class="overflow-x-auto rounded-xl border border-darkBorder print:border-slate-300">
-                    <table class="w-full text-left text-xs border-collapse print:text-black">
-                        <thead class="bg-slate-900 text-slate-300 print:bg-slate-200 print:text-black uppercase font-semibold border-b border-darkBorder print:border-slate-300">
-                            <tr>
-                                <th class="p-3 w-12 text-center">No</th>
-                                <th class="p-3">Tanggal</th>
-                                <th class="p-3">Kategori</th>
-                                <th class="p-3">Nama Barang</th>
-                                <th class="p-3 text-right">Jml</th>
-                                <th class="p-3 text-right">Harga Satuan</th>
-                                <th class="p-3 text-right">Total</th>
-                                <th class="p-3">Vendor</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-darkBorder print:divide-slate-300 bg-darkCard/50 print:bg-white">
-            `;
-
-            if (filtered.length === 0) {
-                html += `<tr><td colspan="8" class="p-6 text-center text-slate-400">Tidak ada transaksi pada bulan ${monthVal}</td></tr>`;
-            } else {
-                filtered.forEach((p, idx) => {
-                    const subtotal = p.qty * p.price;
-                    total += subtotal;
-                    html += `
-                        <tr>
-                            <td class="p-3 text-center font-mono">${idx + 1}</td>
-                            <td class="p-3">${p.date}</td>
-                            <td class="p-3">${p.category}</td>
-                            <td class="p-3 font-medium">${p.itemName}</td>
-                            <td class="p-3 text-right font-mono">${p.qty}</td>
-                            <td class="p-3 text-right font-mono">Rp ${p.price.toLocaleString('id-ID')}</td>
-                            <td class="p-3 text-right font-mono font-semibold">Rp ${subtotal.toLocaleString('id-ID')}</td>
-                            <td class="p-3">${p.vendor}</td>
-                        </tr>
-                    `;
-                });
-            }
-
-            html += `
-                        </tbody>
-                    </table>
-                </div>
-                <div class="flex justify-end pt-4">
-                    <div class="bg-slate-900 print:bg-slate-100 border border-darkBorder print:border-slate-300 rounded-xl p-4 text-right">
-                        <p class="text-xs text-slate-400 print:text-slate-600">Total Pengeluaran Bulan Ini:</p>
-                        <h3 class="text-lg font-bold text-emerald-400 print:text-black">Rp ${total.toLocaleString('id-ID')}</h3>
-                    </div>
-                </div>
-            `;
-            container.innerHTML = html;
-        }
-
-        // --- PENGELUARAN / DISTRIBUSI ---
-        window.initDistributionForm = function() {
-            const unitSelect = document.getElementById('dest-unit');
-            unitSelect.innerHTML = '<option value="">-- Pilih Unit RS --</option>';
-            window.state.units.forEach(u => {
-                const opt = document.createElement('option');
-                opt.value = u;
-                opt.innerText = u;
-                unitSelect.appendChild(opt);
-            });
-
-            const select = document.getElementById('dest-item-id');
-            select.innerHTML = '<option value="">Pilih Barang dari Pembelian</option>';
-            
-            // Mengambil stok unik dari master item atau pembelian
-            const uniqueItems = [...new Set(window.state.purchases.map(p => p.itemName))];
-            uniqueItems.forEach(item => {
-                const opt = document.createElement('option');
-                opt.value = item;
-                opt.innerText = item;
-                select.appendChild(opt);
-            });
-            document.getElementById('dest-date').value = new Date().toISOString().slice(0,10);
-            renderDistributionTable();
-        }
-
-        window.handleDistributionSubmit = async function(e) {
-            e.preventDefault();
-            const unit = document.getElementById('dest-unit').value;
-            const itemName = document.getElementById('dest-item-id').value;
-            const qty = Number(document.getElementById('dest-qty').value);
-            const date = document.getElementById('dest-date').value;
-
-            if (unit && itemName && qty > 0 && date) {
-                window.state.distributions.push({
-                    id: Date.now(),
-                    date, unit, itemName, qty
-                });
-                await window.saveData();
-                logActivity('Distribusi', `Distribusi ${qty} ${itemName} ke ${unit}.`);
-                showModal('Berhasil', 'Data distribusi berhasil dicatat.', 'success');
-                document.getElementById('distribution-form').reset();
-                document.getElementById('dest-date').value = new Date().toISOString().slice(0,10);
+                logActivity('Distribusi Massal', `Berhasil mendistribusikan ${addedCount} data barang ke unit dan memotong stok.`);
+                showModal('Distribusi Sukses!', `${addedCount} data distribusi berhasil dicatat ke Kartu Stok dan Database.`, 'success');
+                initDistributionInputRows(); 
                 renderDistributionTable();
-                updateDashboard();
             }
         }
 
@@ -1893,7 +1453,6 @@
             if(!tbody) return;
             tbody.innerHTML = '';
             
-            // Sort by latest date
             const sortedDist = [...window.state.distributions].sort((a,b) => new Date(b.date) - new Date(a.date));
 
             sortedDist.forEach((d, idx) => {
@@ -1902,10 +1461,10 @@
                 tr.innerHTML = `
                     <td class="p-3 text-center font-mono text-slate-400">${idx + 1}</td>
                     <td class="p-3 text-slate-300">${d.date}</td>
-                    <td class="p-3 font-medium text-white">${d.unit}</td>
+                    <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">${d.unit}</span></td>
                     <td class="p-3 font-medium text-white">${d.itemName}</td>
-                    <td class="p-3 text-right font-mono text-rose-400">${d.qty}</td>
-                    <td class="p-3 text-center">
+                    <td class="p-3 text-right font-mono font-bold text-rose-400">- ${d.qty}</td>
+                    <td class="p-3 text-center space-x-2">
                         <button onclick="deleteDistribution(${d.id})" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 `;
@@ -1917,23 +1476,113 @@
             window.state.distributions = window.state.distributions.filter(d => d.id !== id);
             await window.saveData();
             renderDistributionTable();
-            updateDashboard();
-            showModal('Terhapus', 'Data distribusi berhasil dihapus.', 'success');
+            showModal('Terhapus', 'Data distribusi berhasil dihapus dan stok telah dikembalikan.', 'success');
         }
 
-        // --- FITUR BARU: KARTU STOK BARANG ---
-        window.initKartuStok = function() {
-            const catSelect = document.getElementById('filter-stok-category');
-            catSelect.innerHTML = '<option value="">-- Pilih Kategori --</option>';
-            const categories = [...new Set(window.state.masterItems.map(m => m.category))];
-            categories.forEach(cat => {
-                const opt = document.createElement('option');
-                opt.value = cat;
-                opt.innerText = cat;
-                catSelect.appendChild(opt);
+        // --- ALL OTHER RECONSTRUCTED FUNCTIONS ---
+
+        window.exportToCSV = function() {
+            let csv = 'No,Tanggal,Kategori,Nama Barang,Jumlah,Harga Satuan,Total Harga,Vendor\n';
+            window.state.purchases.forEach((p, i) => {
+                csv += `${i+1},${p.date},"${p.category}","${p.itemName}",${p.qty},${p.price},${p.qty * p.price},"${p.vendor}"\n`;
             });
-            document.getElementById('filter-stok-item').innerHTML = '<option value="">-- Pilih Barang --</option>';
-            renderKartuStok();
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Rekapitulasi_Belanja.csv`;
+            link.click();
+        }
+
+        window.exportToJSON = function() {
+            const dataStr = JSON.stringify(window.state, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'Backup_Database_Logistik.json';
+            link.click();
+        }
+
+        window.importJSONData = function() {
+            const fileInput = document.getElementById('import-json-file');
+            if (!fileInput.files.length) {
+                showModal('Peringatan', 'Pilih file JSON terlebih dahulu.', 'error');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const importedState = JSON.parse(e.target.result);
+                    if (importedState.purchases && importedState.masterItems) {
+                        window.state = importedState;
+                        await window.saveData();
+                        showModal('Berhasil', 'Database berhasil dipulihkan dari file JSON.', 'success');
+                        refreshActiveView();
+                    } else {
+                        showModal('Error', 'Format JSON tidak valid.', 'error');
+                    }
+                } catch(err) {
+                    showModal('Error', 'Gagal memproses JSON.', 'error');
+                }
+            };
+            reader.readAsText(fileInput.files[0]);
+        }
+
+        window.renderMonthlyReport = function() {
+            const month = document.getElementById('report-month-select').value;
+            const content = document.getElementById('monthly-report-content');
+            if(!content) return;
+
+            const filteredPurchases = window.state.purchases.filter(p => p.date.startsWith(month));
+            
+            if (filteredPurchases.length === 0) {
+                content.innerHTML = '<p class="text-center text-slate-400 py-10">Tidak ada transaksi pada bulan ini.</p>';
+                return;
+            }
+
+            let tableHTML = `
+                <table class="w-full text-left text-xs border-collapse print:text-black">
+                    <thead class="bg-slate-800 print:bg-slate-200 uppercase font-semibold">
+                        <tr>
+                            <th class="p-2 border border-slate-700 print:border-slate-400 text-center w-8">No</th>
+                            <th class="p-2 border border-slate-700 print:border-slate-400">Tanggal</th>
+                            <th class="p-2 border border-slate-700 print:border-slate-400">Nama Barang</th>
+                            <th class="p-2 border border-slate-700 print:border-slate-400 text-right">Jumlah</th>
+                            <th class="p-2 border border-slate-700 print:border-slate-400 text-right">Harga</th>
+                            <th class="p-2 border border-slate-700 print:border-slate-400 text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            let grandTotal = 0;
+            filteredPurchases.forEach((p, idx) => {
+                const total = p.qty * p.price;
+                grandTotal += total;
+                tableHTML += `
+                    <tr>
+                        <td class="p-2 border border-slate-700 print:border-slate-400 text-center">${idx + 1}</td>
+                        <td class="p-2 border border-slate-700 print:border-slate-400">${p.date}</td>
+                        <td class="p-2 border border-slate-700 print:border-slate-400">${p.itemName}</td>
+                        <td class="p-2 border border-slate-700 print:border-slate-400 text-right">${p.qty}</td>
+                        <td class="p-2 border border-slate-700 print:border-slate-400 text-right">Rp ${p.price.toLocaleString('id-ID')}</td>
+                        <td class="p-2 border border-slate-700 print:border-slate-400 text-right font-semibold">Rp ${total.toLocaleString('id-ID')}</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                    <tfoot class="bg-slate-800/50 print:bg-slate-100 font-bold">
+                        <tr>
+                            <td colspan="5" class="p-2 border border-slate-700 print:border-slate-400 text-right">TOTAL BELANJA</td>
+                            <td class="p-2 border border-slate-700 print:border-slate-400 text-right text-blue-400 print:text-black">Rp ${grandTotal.toLocaleString('id-ID')}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            `;
+
+            content.innerHTML = tableHTML;
         }
 
         window.updateKartuStokItems = function() {
@@ -1941,255 +1590,254 @@
             const itemSelect = document.getElementById('filter-stok-item');
             itemSelect.innerHTML = '<option value="">-- Pilih Barang --</option>';
             
-            if (cat) {
-                const items = window.state.masterItems.filter(m => m.category === cat);
-                items.forEach(m => {
-                    const opt = document.createElement('option');
-                    opt.value = m.name;
-                    opt.innerText = m.name;
-                    itemSelect.appendChild(opt);
-                });
-            }
-            renderKartuStok();
+            const items = window.state.masterItems.filter(m => m.category === cat);
+            items.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.name;
+                opt.innerText = m.name;
+                itemSelect.appendChild(opt);
+            });
         }
 
         window.renderKartuStok = function() {
-            const tbody = document.getElementById('kartu-stok-tbody');
             const itemName = document.getElementById('filter-stok-item').value;
-            const printItemName = document.getElementById('print-stok-item-name');
+            const tbody = document.getElementById('kartu-stok-tbody');
+            const printTitle = document.getElementById('print-stok-item-name');
             
+            if(!tbody) return;
+
             if (!itemName) {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400">Silakan pilih kategori dan barang pada filter di atas terlebih dahulu.</td></tr>';
-                printItemName.innerText = 'NAMA BARANG: -';
+                tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400">Silakan pilih barang.</td></tr>';
+                printTitle.innerText = "NAMA BARANG: -";
                 return;
             }
 
-            printItemName.innerText = `NAMA BARANG: ${itemName}`;
-
-            // Ambil data barang masuk (Pembelian)
-            const purchases = window.state.purchases.filter(p => p.itemName === itemName).map(p => ({
+            printTitle.innerText = `NAMA BARANG: ${itemName}`;
+            
+            const masuks = window.state.purchases.filter(p => p.itemName === itemName).map(p => ({
                 date: p.date,
-                type: 'in',
-                qty: Number(p.qty),
-                desc: `Barang Masuk (Vendor: ${p.vendor})`
+                desc: `Pembelian dari ${p.vendor}`,
+                in: p.qty,
+                out: 0
             }));
 
-            // Ambil data barang keluar (Distribusi)
-            const distributions = window.state.distributions.filter(d => d.itemName === itemName).map(d => ({
+            const keluars = window.state.distributions.filter(d => d.itemName === itemName).map(d => ({
                 date: d.date,
-                type: 'out',
-                qty: Number(d.qty),
-                desc: `Barang Keluar (Unit Tujuan: ${d.unit})`
+                desc: `Distribusi ke ${d.unit}`,
+                in: 0,
+                out: d.qty
             }));
 
-            // Gabungkan dan urutkan berdasarkan tanggal (Tertua ke Terbaru)
-            const transactions = [...purchases, ...distributions].sort((a, b) => new Date(a.date) - new Date(b.date));
-
+            const combined = [...masuks, ...keluars].sort((a,b) => new Date(a.date) - new Date(b.date));
             tbody.innerHTML = '';
-            let balance = 0;
 
-            if (transactions.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada histori transaksi untuk barang ini.</td></tr>';
+            let currentStock = 0;
+            if (combined.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada pergerakan stok untuk barang ini.</td></tr>';
                 return;
             }
 
-            transactions.forEach((t, idx) => {
-                if (t.type === 'in') {
-                    balance += t.qty;
-                } else {
-                    balance -= t.qty;
-                }
-
-                const inQty = t.type === 'in' ? t.qty : '-';
-                const outQty = t.type === 'out' ? t.qty : '-';
+            combined.forEach((trx, idx) => {
+                currentStock += trx.in;
+                currentStock -= trx.out;
 
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-800/50 transition';
                 tr.innerHTML = `
-                    <td class="p-3 text-center font-mono text-slate-400 print:text-black">${idx + 1}</td>
-                    <td class="p-3 text-slate-300 print:text-black">${t.date}</td>
-                    <td class="p-3 font-medium text-white print:text-black">${t.desc}</td>
-                    <td class="p-3 text-right font-mono font-medium text-emerald-400 print:text-emerald-700">${inQty}</td>
-                    <td class="p-3 text-right font-mono font-medium text-rose-400 print:text-rose-700">${outQty}</td>
-                    <td class="p-3 text-right font-mono font-bold text-blue-400 print:text-blue-700 bg-blue-500/5 print:bg-transparent">${balance}</td>
+                    <td class="p-3 text-center print:border-slate-300 border-darkBorder border-b font-mono">${idx + 1}</td>
+                    <td class="p-3 print:border-slate-300 border-darkBorder border-b">${trx.date}</td>
+                    <td class="p-3 print:border-slate-300 border-darkBorder border-b">${trx.desc}</td>
+                    <td class="p-3 text-right text-emerald-400 print:text-emerald-700 print:border-slate-300 border-darkBorder border-b font-mono">${trx.in > 0 ? '+'+trx.in : '-'}</td>
+                    <td class="p-3 text-right text-rose-400 print:text-rose-700 print:border-slate-300 border-darkBorder border-b font-mono">${trx.out > 0 ? '-'+trx.out : '-'}</td>
+                    <td class="p-3 text-right font-bold text-blue-400 print:text-blue-700 print:border-slate-300 border-darkBorder border-b font-mono">${currentStock}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // --- HISTORI & LAINNYA ---
         window.renderHistoryTable = function() {
             const tbody = document.getElementById('history-table-tbody');
             if(!tbody) return;
             tbody.innerHTML = '';
             window.state.history.forEach((h, idx) => {
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-800/50 transition';
                 tr.innerHTML = `
-                    <td class="p-3 text-center font-mono text-slate-400">${idx + 1}</td>
-                    <td class="p-3 text-slate-300">${h.time}</td>
-                    <td class="p-3 font-medium text-indigo-400">${h.activity}</td>
-                    <td class="p-3 text-slate-300">${h.detail}</td>
+                    <td class="p-3 text-center text-slate-500">${idx + 1}</td>
+                    <td class="p-3 text-slate-300 font-mono text-[10px]">${h.time}</td>
+                    <td class="p-3 text-blue-400 font-medium">${h.activity}</td>
+                    <td class="p-3 text-slate-400">${h.detail}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
         window.clearHistory = async function() {
-            window.state.history = [{ id: Date.now(), time: new Date().toISOString().slice(0,10), activity: 'Sistem', detail: 'Log dibersihkan oleh pengguna.' }];
+            window.state.history = [{ id: Date.now(), time: new Date().toISOString().slice(0, 16).replace('T',' '), activity: 'Sistem', detail: 'Log dibersihkan oleh pengguna.' }];
             await window.saveData();
             renderHistoryTable();
+            showModal('Berhasil', 'Log histori telah dibersihkan.', 'success');
         }
 
         window.renderRestockAnalysis = function() {
             const container = document.getElementById('restock-cards-container');
             if(!container) return;
             container.innerHTML = '';
+
+            let stockMap = {};
             
-            // Hitung total saldo (balance) tiap item
-            const balances = {};
             window.state.purchases.forEach(p => {
-                if(!balances[p.itemName]) balances[p.itemName] = 0;
-                balances[p.itemName] += Number(p.qty);
-            });
-            window.state.distributions.forEach(d => {
-                if(balances[d.itemName] !== undefined) balances[d.itemName] -= Number(d.qty);
+                if(!stockMap[p.itemName]) stockMap[p.itemName] = { in: 0, out: 0, cat: p.category };
+                stockMap[p.itemName].in += p.qty;
             });
 
-            Object.keys(balances).forEach(item => {
-                const stock = balances[item];
-                if(stock <= 5) {
-                    container.innerHTML += `
-                        <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex flex-col justify-between">
-                            <div>
-                                <h4 class="font-bold text-red-400 text-sm mb-1">${item}</h4>
-                                <p class="text-[10px] text-red-300">Stok sangat kritis! Segera lakukan pengadaan.</p>
-                            </div>
-                            <div class="mt-3 flex items-center justify-between border-t border-red-500/20 pt-2">
-                                <span class="text-xs text-slate-400">Sisa Tersedia:</span>
-                                <span class="text-lg font-bold text-red-400 bg-red-500/20 px-2 rounded">${stock}</span>
-                            </div>
-                        </div>
-                    `;
-                } else if(stock <= 15) {
-                     container.innerHTML += `
-                        <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 flex flex-col justify-between">
-                            <div>
-                                <h4 class="font-bold text-amber-400 text-sm mb-1">${item}</h4>
-                                <p class="text-[10px] text-amber-300">Stok mulai menipis, pertimbangkan untuk restock.</p>
-                            </div>
-                            <div class="mt-3 flex items-center justify-between border-t border-amber-500/20 pt-2">
-                                <span class="text-xs text-slate-400">Sisa Tersedia:</span>
-                                <span class="text-lg font-bold text-amber-400 bg-amber-500/20 px-2 rounded">${stock}</span>
-                            </div>
-                        </div>
-                    `;
-                }
+            window.state.distributions.forEach(d => {
+                if(!stockMap[d.itemName]) stockMap[d.itemName] = { in: 0, out: 0, cat: d.category };
+                stockMap[d.itemName].out += d.qty;
             });
-            
-            if(container.innerHTML === '') {
-                container.innerHTML = '<div class="col-span-1 md:col-span-3 text-center p-8 border border-dashed border-darkBorder rounded-xl text-slate-400 text-sm"><i class="fa-solid fa-check-circle text-emerald-400 text-3xl mb-3 block"></i>Semua stok barang terpantau aman dan tercukupi.</div>';
+
+            let lowStockItems = [];
+            for (let name in stockMap) {
+                let sisa = stockMap[name].in - stockMap[name].out;
+                if (sisa <= 5 && stockMap[name].in > 0) { // threshold
+                    lowStockItems.push({ name, sisa, cat: stockMap[name].cat });
+                }
             }
+
+            if (lowStockItems.length === 0) {
+                container.innerHTML = `<div class="col-span-full p-6 text-center text-slate-400 border border-darkBorder border-dashed rounded-xl">Semua stok terpantau aman. Tidak ada rekomendasi restock saat ini.</div>`;
+                return;
+            }
+
+            lowStockItems.forEach(item => {
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-xl border ${item.sisa <= 2 ? 'bg-red-500/10 border-red-500/30' : 'bg-amber-500/10 border-amber-500/30'}`;
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] px-2 py-0.5 rounded bg-slate-900 text-slate-300 border border-slate-700">${item.cat}</span>
+                        <i class="fa-solid fa-triangle-exclamation ${item.sisa <= 2 ? 'text-red-400' : 'text-amber-400'}"></i>
+                    </div>
+                    <h4 class="font-bold text-white text-sm mb-1">${item.name}</h4>
+                    <p class="text-xs ${item.sisa <= 2 ? 'text-red-400 font-bold' : 'text-amber-400'}">Sisa Stok: ${item.sisa}</p>
+                    <button onclick="switchTab('input_barang')" class="mt-3 w-full py-1.5 rounded-lg text-[10px] font-semibold bg-slate-800 text-white hover:bg-slate-700 transition">Beli Sekarang</button>
+                `;
+                container.appendChild(card);
+            });
         }
 
         window.renderComprehensiveCharts = function() {
-            const catMonth = document.getElementById('chart-month-filter').value;
-            const catYear = document.getElementById('chart-year-filter').value;
-            
-            let filteredPurchases = window.state.purchases;
-            if(catMonth !== 'all') {
-                filteredPurchases = filteredPurchases.filter(p => p.date.split('-')[1] === catMonth);
+            const month = document.getElementById('chart-month-filter').value;
+            const year = document.getElementById('chart-year-filter').value;
+
+            let filtered = window.state.purchases;
+            if (month !== 'all') {
+                filtered = filtered.filter(p => p.date.split('-')[1] === month);
             }
-            if(catYear !== 'all') {
-                filteredPurchases = filteredPurchases.filter(p => p.date.split('-')[0] === catYear);
+            if (year !== 'all') {
+                filtered = filtered.filter(p => p.date.split('-')[0] === year);
             }
 
             const categories = ['ATK', 'Plastik', 'Alat Kebersihan/Chemical', 'Laundry', 'Kelistrikan', 'Bahan Kering', 'Bahan Basah', 'BHP RT'];
-            
-            let totalAll = 0;
-            const catTotals = categories.map(cat => {
-                const total = filteredPurchases.filter(p => p.category === cat).reduce((acc, curr) => acc + (curr.qty * curr.price), 0);
-                totalAll += total;
-                return total;
+            const dataTotals = categories.map(cat => {
+                return filtered.filter(p => p.category === cat).reduce((sum, p) => sum + (p.qty * p.price), 0);
             });
-            
-            const catQty = categories.map(cat => {
-                return filteredPurchases.filter(p => p.category === cat).reduce((acc, curr) => acc + Number(curr.qty), 0);
+            const dataVolumes = categories.map(cat => {
+                return filtered.filter(p => p.category === cat).reduce((sum, p) => sum + Number(p.qty), 0);
             });
 
-            // Update Pie Chart
-            const pieCtx = document.getElementById('compPieChart');
-            if(pieCtx) {
-                if (window.charts.compPie) window.charts.compPie.destroy();
-                window.charts.compPie = new Chart(pieCtx.getContext('2d'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: categories,
-                        datasets: [{
-                            data: catTotals,
-                            backgroundColor: ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899', '#ef4444', '#06b6d4', '#64748b'],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: {color: '#fff', font:{size: 10}} } } }
-                });
-            }
-
-            // Update Bar Chart
-            const barCtx = document.getElementById('compBarChart');
-            if(barCtx) {
-                if (window.charts.compBar) window.charts.compBar.destroy();
-                window.charts.compBar = new Chart(barCtx.getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: categories,
-                        datasets: [{
-                            label: 'Volume Barang (Item)',
-                            data: catQty,
-                            backgroundColor: '#3b82f6',
-                            borderRadius: 4
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', font:{size:9} } } } }
-                });
-            }
+            const grandTotal = dataTotals.reduce((a,b)=>a+b, 0);
 
             // Update Table
             const tbody = document.getElementById('chart-data-table-tbody');
             if(tbody) {
                 tbody.innerHTML = '';
-                categories.forEach((cat, i) => {
-                    if(catTotals[i] > 0) {
-                        const pct = totalAll > 0 ? ((catTotals[i] / totalAll) * 100).toFixed(2) : 0;
+                categories.forEach((cat, idx) => {
+                    if (dataTotals[idx] > 0) {
+                        const pct = grandTotal > 0 ? ((dataTotals[idx]/grandTotal)*100).toFixed(1) : 0;
                         tbody.innerHTML += `
-                            <tr class="hover:bg-slate-800/50 transition">
-                                <td class="p-3 text-center font-mono text-slate-400">${i+1}</td>
-                                <td class="p-3 font-medium text-white">${cat}</td>
-                                <td class="p-3 text-right font-mono">Rp ${catTotals[i].toLocaleString('id-ID')}</td>
-                                <td class="p-3 text-right font-bold text-teal-400">${pct}%</td>
+                            <tr>
+                                <td class="p-3 text-center">${idx+1}</td>
+                                <td class="p-3">${cat}</td>
+                                <td class="p-3 text-right">Rp ${dataTotals[idx].toLocaleString('id-ID')}</td>
+                                <td class="p-3 text-right">${pct}%</td>
                             </tr>
                         `;
                     }
                 });
-                document.getElementById('chart-data-total-rp').innerText = `Rp ${totalAll.toLocaleString('id-ID')}`;
+                document.getElementById('chart-data-total-rp').innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+            }
+
+            // Pie Chart
+            const ctxPie = document.getElementById('compPieChart');
+            if(ctxPie) {
+                if (window.charts.compPie) window.charts.compPie.destroy();
+                window.charts.compPie = new Chart(ctxPie.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: categories,
+                        datasets: [{
+                            data: dataTotals,
+                            backgroundColor: ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899', '#ef4444', '#06b6d4', '#64748b'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { position: 'right', labels: { color: '#fff', font: { size: 10 } } } }
+                    }
+                });
+            }
+
+            // Bar Chart
+            const ctxBar = document.getElementById('compBarChart');
+            if(ctxBar) {
+                if (window.charts.compBar) window.charts.compBar.destroy();
+                window.charts.compBar = new Chart(ctxBar.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: categories,
+                        datasets: [{
+                            label: 'Volume (Qty)',
+                            data: dataVolumes,
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
+                            x: { grid: { display: false }, ticks: { color: '#94a3b8', font:{size:9} } }
+                        }
+                    }
+                });
             }
         }
 
         window.downloadChartDataAsImage = function() {
-            const container = document.getElementById('chart-data-table-container');
-            html2canvas(container, {backgroundColor: '#1e293b'}).then(canvas => {
+            const tableContainer = document.getElementById('chart-data-table-container');
+            html2canvas(tableContainer, {
+                backgroundColor: '#1e293b'
+            }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `Persentase_Belanja_${new Date().toISOString().slice(0,10)}.jpg`;
+                link.download = 'Persentase_Belanja_Logistik.jpg';
                 link.href = canvas.toDataURL('image/jpeg', 0.9);
                 link.click();
             });
         }
 
-        // Initialize App
-        window.onload = function() {
+        document.addEventListener('DOMContentLoaded', () => {
             initFirebase();
-            updateDashboard();
-        };
+            
+            // Populasikan Dropdown Master Kategori untuk Stock
+            const stokCatSelect = document.getElementById('filter-stok-category');
+            if(stokCatSelect && stokCatSelect.options.length <= 1) {
+                ['ATK', 'Plastik', 'Alat Kebersihan/Chemical', 'Laundry', 'Kelistrikan', 'Bahan Kering', 'Bahan Basah', 'BHP RT'].forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c; opt.innerText = c;
+                    stokCatSelect.appendChild(opt);
+                });
+            }
+        });
     </script>
 </body>
 </html>
