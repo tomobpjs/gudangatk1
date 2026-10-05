@@ -74,7 +74,7 @@
 </head>
 <body class="bg-darkBg text-slate-100 min-h-screen flex flex-col relative overflow-x-hidden selection:bg-blue-600 selection:text-white">
 
-    <div class="watermark">developed by:TOMOSJR2026</div>
+    <div class="watermark">TOMOSJR2026</div>
 
     <div class="bg-slate-900/90 border-b border-darkBorder text-xs py-1.5 px-4 overflow-hidden whitespace-nowrap z-20 flex items-center shadow-md no-print">
         <div class="flex items-center text-blue-400 font-semibold mr-3 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">
@@ -182,6 +182,12 @@
                 </div>
                 <div class="text-[10px] text-blue-400 font-mono bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">v3.6 Cloud</div>
             </div>
+            
+            <!-- Copyright / App Info Text (Small) -->
+            <div class="p-2 border-t border-darkBorder text-center">
+                <p class="text-[10px] text-slate-500">© 2026 SIM-RT TOMOS'Jr. All Rights Reserved.</p>
+            </div>
+            
         </aside>
 
         <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
@@ -1682,76 +1688,66 @@
                 document.getElementById('master-unit-form').reset();
                 renderUnitTable();
             } else {
-                showModal('Peringatan', 'Nama unit sudah ada atau kosong.', 'error');
+                showModal('Peringatan', 'Nama unit kosong atau sudah ada dalam database.', 'error');
             }
         }
 
         window.renderUnitTable = function() {
             const tbody = document.getElementById('unit-table-tbody');
-            if (!tbody) return;
             tbody.innerHTML = '';
-            window.state.units.forEach((unit, idx) => {
+            window.state.units.forEach((u, idx) => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-800/50 transition';
                 tr.innerHTML = `
                     <td class="p-3 text-center font-mono text-slate-400">${idx + 1}</td>
-                    <td class="p-3 font-medium text-white">${unit}</td>
+                    <td class="p-3 font-medium text-white">${u}</td>
                     <td class="p-3 text-center">
-                        <button onclick="deleteUnit('${unit.replace(/'/g, "\\'")}')" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="deleteUnit('${u}')" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        window.deleteUnit = async function(unitName) {
-            if (confirm(`Apakah Anda yakin ingin menghapus unit "${unitName}"?`)) {
-                window.state.units = window.state.units.filter(u => u !== unitName);
-                await window.saveData();
-                logActivity('Hapus Unit', `Menghapus unit/ruangan: ${unitName}`);
-                renderUnitTable();
-                showModal('Terhapus', 'Unit / ruangan berhasil dihapus.', 'success');
-            }
+        window.deleteUnit = async function(name) {
+            window.state.units = window.state.units.filter(u => u !== name);
+            await window.saveData();
+            renderUnitTable();
+            showModal('Terhapus', 'Unit / Ruangan berhasil dihapus.', 'success');
         }
 
         // --- DATABASE PEMBELIAN ---
         window.renderPurchasesTable = function() {
             const tbody = document.getElementById('purchases-table-tbody');
-            if (!tbody) return;
-            const catFilter = document.getElementById('filter-purchases-category')?.value || '';
-            const search = (document.getElementById('search-purchases')?.value || '').toLowerCase();
-            
+            const search = document.getElementById('search-purchases').value.toLowerCase();
+            const catFilter = document.getElementById('filter-purchases-category').value;
             tbody.innerHTML = '';
+
             let filtered = window.state.purchases.filter(p => {
-                const matchesCat = !catFilter || p.category === catFilter;
-                const matchesSearch = !search || 
-                    (p.itemName || '').toLowerCase().includes(search) || 
-                    (p.vendor || '').toLowerCase().includes(search);
-                return matchesCat && matchesSearch;
+                const s = (p.itemName || '').toLowerCase().includes(search) || (p.vendor || '').toLowerCase().includes(search);
+                const c = catFilter ? p.category === catFilter : true;
+                return s && c;
             });
 
-            filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-400">Tidak ada data pembelian.</td></tr>`;
-                return;
-            }
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             filtered.forEach((p, idx) => {
-                const total = (Number(p.qty) || 0) * (Number(p.price) || 0);
+                const unit = window.state.masterItems.find(m => m.name === p.itemName)?.unit || '-';
+                const total = p.qty * p.price;
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-800/50 transition';
                 tr.innerHTML = `
                     <td class="p-3 text-center font-mono text-slate-400">${idx + 1}</td>
-                    <td class="p-3 whitespace-nowrap">${p.date}</td>
-                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">${p.category}</span></td>
+                    <td class="p-3 text-slate-300">${p.date}</td>
+                    <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">${p.category}</span></td>
                     <td class="p-3 font-medium text-white">${p.itemName}</td>
-                    <td class="p-3 text-right font-mono">${Number(p.qty).toLocaleString('id-ID')}</td>
-                    <td class="p-3 text-right font-mono">Rp ${Number(p.price).toLocaleString('id-ID')}</td>
-                    <td class="p-3 text-right font-mono font-semibold text-emerald-400">Rp ${total.toLocaleString('id-ID')}</td>
-                    <td class="p-3 text-slate-300">${p.vendor || '-'}</td>
-                    <td class="p-3 text-center">
-                        <button onclick="deletePurchase(${p.id})" class="text-rose-400 hover:text-rose-300 p-1" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+                    <td class="p-3 text-right text-emerald-400 font-semibold">${p.qty} <span class="text-[10px] font-normal text-slate-400">${unit}</span></td>
+                    <td class="p-3 text-right">Rp ${p.price.toLocaleString('id-ID')}</td>
+                    <td class="p-3 text-right font-medium text-blue-400">Rp ${total.toLocaleString('id-ID')}</td>
+                    <td class="p-3 text-slate-300">${p.vendor}</td>
+                    <td class="p-3 text-center space-x-2">
+                        <button onclick="editPurchase(${p.id})" class="text-amber-400 hover:text-amber-300"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deletePurchase(${p.id})" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -1759,233 +1755,65 @@
         }
 
         window.deletePurchase = async function(id) {
-            if (confirm('Apakah Anda yakin ingin menghapus data pembelian ini?')) {
-                const target = window.state.purchases.find(p => p.id === id);
+            if(confirm('Yakin ingin menghapus data pembelian ini?')) {
                 window.state.purchases = window.state.purchases.filter(p => p.id !== id);
                 await window.saveData();
-                if (target) logActivity('Hapus Pembelian', `Menghapus data pembelian: ${target.itemName}`);
+                logActivity('Hapus Pembelian', 'Menghapus 1 riwayat transaksi pembelian.');
                 renderPurchasesTable();
                 showModal('Terhapus', 'Data pembelian berhasil dihapus.', 'success');
             }
         }
 
-        // --- TREN HARGA BARANG ---
-        window.initTrendItems = function() {
-            const select = document.getElementById('select-trend-item');
-            if (!select) return;
-            select.innerHTML = '<option value="">Pilih Nama Barang...</option>';
-            const uniqueItems = [...new Set(window.state.purchases.map(p => p.itemName))].sort();
-            uniqueItems.forEach(item => {
-                const opt = document.createElement('option');
-                opt.value = item;
-                opt.innerText = item;
-                select.appendChild(opt);
-            });
-            if (uniqueItems.length > 0) {
-                select.value = uniqueItems[0];
-                updateTrendChart();
+        window.editPurchase = async function(id) {
+            const p = window.state.purchases.find(x => x.id === id);
+            if (!p) return;
+            const newQty = prompt(`Edit Jumlah Barang (sebelumnya ${p.qty}):`, p.qty);
+            const newPrice = prompt(`Edit Harga Satuan (sebelumnya ${p.price}):`, p.price);
+            if (newQty && newPrice) {
+                p.qty = Number(newQty);
+                p.price = Number(newPrice);
+                await window.saveData();
+                logActivity('Edit Pembelian', `Mengubah data transaksi pembelian: ${p.itemName}`);
+                renderPurchasesTable();
             }
         }
 
-        window.updateTrendChart = function() {
-            const selectedItem = document.getElementById('select-trend-item')?.value;
-            const ctx = document.getElementById('trendPriceChart')?.getContext('2d');
-            if (!ctx) return;
-
-            if (window.charts.trend) window.charts.trend.destroy();
-
-            if (!selectedItem) return;
-
-            const itemPurchases = window.state.purchases
-                .filter(p => p.itemName === selectedItem)
-                .sort((a, b) => new Date(a.date) - new Date(b.date));
-
-            const labels = itemPurchases.map(p => p.date + ` (${p.vendor || 'Vendor'})`);
-            const prices = itemPurchases.map(p => Number(p.price));
-
-            window.charts.trend = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels,
-                    datasets: [{
-                        label: `Harga Satuan (Rp) - ${selectedItem}`,
-                        data: prices,
-                        borderColor: '#f59e0b',
-                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.3,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#f59e0b'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { labels: { color: '#f1f5f9' } }
-                    },
-                    scales: {
-                        y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
-                        x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }
-                    }
-                }
-            });
-        }
-
-        // --- EXPORT & IMPORT TRANSAKSI ---
-        window.exportToCSV = function() {
-            let csv = 'ID,Tanggal,Kategori,Nama Barang,Jumlah,Harga Satuan,Total,Vendor\n';
-            window.state.purchases.forEach(p => {
-                const total = (Number(p.qty) || 0) * (Number(p.price) || 0);
-                csv += `"${p.id}","${p.date}","${p.category}","${p.itemName.replace(/"/g, '""')}","${p.qty}","${p.price}","${total}","${(p.vendor||'').replace(/"/g, '""')}"\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `Rekap_Pembelian_RS_${new Date().toISOString().slice(0,10)}.csv`;
-            link.click();
-        }
-
-        window.exportToJSON = function() {
-            const jsonStr = JSON.stringify(window.state, null, 2);
-            const blob = new Blob([jsonStr], { type: 'application/json' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `Backup_Database_RS_${new Date().toISOString().slice(0,10)}.json`;
-            link.click();
-        }
-
-        window.importJSONData = function() {
-            const fileInput = document.getElementById('import-json-file');
-            if (!fileInput.files.length) {
-                showModal('Peringatan', 'Pilih file JSON backup terlebih dahulu.', 'error');
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if (imported && (imported.purchases || imported.masterItems)) {
-                        window.state = { ...window.state, ...imported };
-                        await window.saveData();
-                        logActivity('Import Backup', 'Memulihkan data dari backup JSON.');
-                        showModal('Berhasil!', 'Data database berhasil dipulihkan dari file JSON.', 'success');
-                        refreshActiveView();
-                    } else {
-                        showModal('Gagal', 'Format file JSON tidak valid.', 'error');
-                    }
-                } catch (err) {
-                    showModal('Gagal', 'Terjadi kesalahan membaca file JSON.', 'error');
-                }
-            };
-            reader.readAsText(fileInput.files[0]);
-        }
-
-        // --- LAPORAN BULANAN & PDF ---
-        window.renderMonthlyReport = function() {
-            const container = document.getElementById('monthly-report-content');
-            const selectedMonth = document.getElementById('report-month-select')?.value || '2026-08';
-            if (!container) return;
-
-            const filtered = window.state.purchases.filter(p => (p.date || '').startsWith(selectedMonth));
-
-            let html = `
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs border-collapse font-sans">
-                        <thead class="bg-slate-800 text-white print:bg-slate-200 print:text-black">
-                            <tr>
-                                <th class="p-2 border border-slate-700 print:border-slate-300 text-center">No</th>
-                                <th class="p-2 border border-slate-700 print:border-slate-300">Tanggal</th>
-                                <th class="p-2 border border-slate-700 print:border-slate-300">Kategori</th>
-                                <th class="p-2 border border-slate-700 print:border-slate-300">Nama Barang</th>
-                                <th class="p-2 border border-slate-700 print:border-slate-300 text-right">Vol</th>
-                                <th class="p-2 border border-slate-700 print:border-slate-300 text-right">Harga Satuan</th>
-                                <th class="p-2 border border-slate-700 print:border-slate-300 text-right">Total (Rp)</th>
-                                <th class="p-2 border border-slate-700 print:border-slate-300">Supplier/Vendor</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            let grandTotal = 0;
-            if (filtered.length === 0) {
-                html += `<tr><td colspan="8" class="p-4 text-center text-slate-400 print:text-slate-600">Tidak ada data transaksi untuk bulan ini.</td></tr>`;
-            } else {
-                filtered.forEach((p, idx) => {
-                    const total = (Number(p.qty) || 0) * (Number(p.price) || 0);
-                    grandTotal += total;
-                    html += `
-                        <tr class="print:text-black">
-                            <td class="p-2 border border-slate-700 print:border-slate-300 text-center">${idx + 1}</td>
-                            <td class="p-2 border border-slate-700 print:border-slate-300">${p.date}</td>
-                            <td class="p-2 border border-slate-700 print:border-slate-300">${p.category}</td>
-                            <td class="p-2 border border-slate-700 print:border-slate-300 font-medium">${p.itemName}</td>
-                            <td class="p-2 border border-slate-700 print:border-slate-300 text-right font-mono">${Number(p.qty).toLocaleString('id-ID')}</td>
-                            <td class="p-2 border border-slate-700 print:border-slate-300 text-right font-mono">Rp ${Number(p.price).toLocaleString('id-ID')}</td>
-                            <td class="p-2 border border-slate-700 print:border-slate-300 text-right font-mono font-semibold">Rp ${total.toLocaleString('id-ID')}</td>
-                            <td class="p-2 border border-slate-700 print:border-slate-300">${p.vendor || '-'}</td>
-                        </tr>
-                    `;
-                });
-            }
-
-            html += `
-                        </tbody>
-                        <tfoot class="bg-slate-800/80 font-bold print:bg-slate-100 print:text-black">
-                            <tr>
-                                <td colspan="6" class="p-2.5 border border-slate-700 print:border-slate-300 text-right uppercase">Total Rekapitulasi:</td>
-                                <td class="p-2.5 border border-slate-700 print:border-slate-300 text-right font-mono text-emerald-400 print:text-emerald-700">Rp ${grandTotal.toLocaleString('id-ID')}</td>
-                                <td class="p-2.5 border border-slate-700 print:border-slate-300"></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            `;
-
-            container.innerHTML = html;
-        }
-
-        // --- PENGELUARAN / DISTRIBUSI (MULTI BARIS INPUT) ---
-        let distRowsCount = 3;
-
+        // --- PENGELUARAN / DISTRIBUSI (MULTI BARIS) ---
+        let distRowsCount = 2;
         window.initDistributionForm = function() {
             const tbody = document.getElementById('distribution-input-tbody');
-            if (!tbody) return;
             tbody.innerHTML = '';
-            distRowsCount = 3;
             for (let i = 1; i <= distRowsCount; i++) {
-                addDistRowToTable(i);
+                addDistRowTable(i);
             }
             renderDistributionTable();
         }
 
         window.addDistRow = function() {
             distRowsCount++;
-            addDistRowToTable(distRowsCount);
+            addDistRowTable(distRowsCount);
         }
 
-        function addDistRowToTable(index) {
+        function addDistRowTable(index) {
             const tbody = document.getElementById('distribution-input-tbody');
-            if (!tbody) return;
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-slate-800/50 transition';
-
-            let unitOpts = '<option value="">Pilih Unit RS</option>';
-            (window.state.units || []).forEach(u => {
-                unitOpts += `<option value="${u}">${u}</option>`;
+            
+            let unitOptions = '<option value="">Pilih Unit...</option>';
+            window.state.units.forEach(u => {
+                unitOptions += `<option value="${u}">${u}</option>`;
             });
 
             tr.innerHTML = `
                 <td class="p-3 text-center font-mono text-slate-400">${index}</td>
-                <td class="p-3"><input type="date" class="dist-row-date w-full bg-slate-900 border border-darkBorder rounded-lg p-1.5 text-xs text-slate-100" value="${new Date().toISOString().slice(0,10)}"></td>
+                <td class="p-3"><input type="date" class="dist-date w-full bg-slate-900 border border-darkBorder rounded-lg p-1.5 text-xs text-slate-100" value="${new Date().toISOString().slice(0,10)}"></td>
                 <td class="p-3">
-                    <select class="dist-row-unit w-full bg-slate-900 border border-darkBorder rounded-lg p-1.5 text-xs text-slate-100">
-                        ${unitOpts}
+                    <select class="dist-unit w-full bg-slate-900 border border-darkBorder rounded-lg p-1.5 text-xs text-slate-100">
+                        ${unitOptions}
                     </select>
                 </td>
                 <td class="p-3">
-                    <select class="dist-row-cat w-full bg-slate-900 border border-darkBorder rounded-lg p-1.5 text-xs text-slate-100" onchange="updateDistRowItems(this)">
+                    <select class="dist-cat w-full bg-slate-900 border border-darkBorder rounded-lg p-1.5 text-xs text-slate-100" onchange="updateDistRowItems(this)">
                         <option value="">Pilih Kategori</option>
                         <option value="ATK">ATK</option>
                         <option value="Plastik">Plastik</option>
@@ -1998,11 +1826,11 @@
                     </select>
                 </td>
                 <td class="p-3">
-                    <select class="dist-row-item w-full bg-slate-900 border border-darkBorder rounded-lg p-1.5 text-xs text-slate-100">
+                    <select class="dist-item w-full bg-slate-900 border border-darkBorder rounded-lg p-1.5 text-xs text-slate-100">
                         <option value="">Pilih Kategori Dulu</option>
                     </select>
                 </td>
-                <td class="p-3"><input type="number" min="1" placeholder="0" class="dist-row-qty w-full bg-slate-900 border border-darkBorder rounded-lg p-1.5 text-xs text-slate-100"></td>
+                <td class="p-3"><input type="number" min="1" placeholder="0" class="dist-qty w-full bg-slate-900 border border-darkBorder rounded-lg p-1.5 text-xs text-slate-100"></td>
                 <td class="p-3 text-center"><button onclick="this.closest('tr').remove()" class="text-rose-400 hover:text-rose-300 p-1"><i class="fa-solid fa-trash"></i></button></td>
             `;
             tbody.appendChild(tr);
@@ -2011,21 +1839,14 @@
         window.updateDistRowItems = function(selectElem) {
             const cat = selectElem.value;
             const row = selectElem.closest('tr');
-            const itemSelect = row.querySelector('.dist-row-item');
+            const itemSelect = row.querySelector('.dist-item');
             itemSelect.innerHTML = '<option value="">Pilih Barang</option>';
             
-            const masterFiltered = (window.state.masterItems || []).filter(m => m.category === cat);
-            const purchaseFiltered = (window.state.purchases || []).filter(p => p.category === cat);
-            
-            const itemNames = [...new Set([
-                ...masterFiltered.map(m => m.name),
-                ...purchaseFiltered.map(p => p.itemName)
-            ])].sort();
-
-            itemNames.forEach(name => {
+            const filtered = window.state.masterItems.filter(m => m.category === cat);
+            filtered.forEach(m => {
                 const opt = document.createElement('option');
-                opt.value = name;
-                opt.innerText = name;
+                opt.value = m.name;
+                opt.innerText = m.name + ` (${m.unit})`;
                 itemSelect.appendChild(opt);
             });
         }
@@ -2035,11 +1856,10 @@
             let addedCount = 0;
 
             rows.forEach(tr => {
-                const date = tr.querySelector('.dist-row-date')?.value;
-                const unit = tr.querySelector('.dist-row-unit')?.value;
-                const category = tr.querySelector('.dist-row-cat')?.value;
-                const itemName = tr.querySelector('.dist-row-item')?.value;
-                const qty = Number(tr.querySelector('.dist-row-qty')?.value);
+                const date = tr.querySelector('.dist-date').value;
+                const unit = tr.querySelector('.dist-unit').value;
+                const itemName = tr.querySelector('.dist-item').value;
+                const qty = Number(tr.querySelector('.dist-qty').value);
 
                 if (date && unit && itemName && qty > 0) {
                     window.state.distributions.push({
@@ -2052,43 +1872,37 @@
 
             if (addedCount > 0) {
                 await window.saveData();
-                logActivity('Distribusi Barang', `Berhasil mencatat ${addedCount} distribusi barang ke unit RS.`);
-                showModal('Berhasil!', `${addedCount} transaksi pengeluaran/distribusi barang berhasil disimpan ke cloud.`, 'success');
-                initDistributionForm();
+                logActivity('Distribusi Multi', `Berhasil mengeluarkan ${addedCount} item barang ke unit RS.`);
+                showModal('Berhasil!', `${addedCount} data distribusi barang berhasil disimpan ke cloud Firebase.`, 'success');
+                initDistributionForm(); // Reset input table
             } else {
-                showModal('Peringatan', 'Pastikan Tanggal, Unit, Barang, dan Jumlah terisi valid minimal 1 baris.', 'error');
+                showModal('Peringatan', 'Pastikan semua kolom terisi dengan benar minimal 1 baris (termasuk Unit dan Barang).', 'error');
             }
         }
 
         window.renderDistributionTable = function() {
             const tbody = document.getElementById('distribution-table-tbody');
-            if (!tbody) return;
-            const search = (document.getElementById('search-distribution')?.value || '').toLowerCase();
+            const search = document.getElementById('search-distribution').value.toLowerCase();
             tbody.innerHTML = '';
 
-            const filtered = (window.state.distributions || []).filter(d => 
-                (d.unit || '').toLowerCase().includes(search) || 
-                (d.itemName || '').toLowerCase().includes(search)
-            );
+            let filtered = window.state.distributions.filter(d => {
+                return (d.itemName || '').toLowerCase().includes(search) || (d.unit || '').toLowerCase().includes(search);
+            });
 
-            filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">Belum ada riwayat distribusi barang.</td></tr>`;
-                return;
-            }
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             filtered.forEach((d, idx) => {
+                const unitStr = window.state.masterItems.find(m => m.name === d.itemName)?.unit || '-';
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-800/50 transition';
                 tr.innerHTML = `
                     <td class="p-3 text-center font-mono text-slate-400">${idx + 1}</td>
-                    <td class="p-3 whitespace-nowrap">${d.date}</td>
-                    <td class="p-3 font-semibold text-teal-400">${d.unit}</td>
+                    <td class="p-3 text-slate-300">${d.date}</td>
+                    <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">${d.unit}</span></td>
                     <td class="p-3 font-medium text-white">${d.itemName}</td>
-                    <td class="p-3 text-right font-mono font-semibold text-rose-400">${Number(d.qty).toLocaleString('id-ID')}</td>
+                    <td class="p-3 text-right text-rose-400 font-semibold">${d.qty} <span class="text-[10px] font-normal text-slate-400">${unitStr}</span></td>
                     <td class="p-3 text-center">
-                        <button onclick="deleteDistribution(${d.id})" class="text-rose-400 hover:text-rose-300 p-1" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="deleteDistribution(${d.id})" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -2096,429 +1910,579 @@
         }
 
         window.deleteDistribution = async function(id) {
-            if (confirm('Apakah Anda yakin ingin menghapus catatan distribusi ini?')) {
-                const target = window.state.distributions.find(d => d.id === id);
-                window.state.distributions = window.state.distributions.filter(d => d.id !== id);
-                await window.saveData();
-                if (target) logActivity('Hapus Distribusi', `Menghapus data distribusi: ${target.itemName} to ${target.unit}`);
-                renderDistributionTable();
-                if (!document.getElementById('view-riwayat_unit').classList.contains('hidden')) {
-                    renderRiwayatUnitTable();
-                }
-                showModal('Terhapus', 'Catatan distribusi berhasil dihapus.', 'success');
-            }
+            window.state.distributions = window.state.distributions.filter(d => d.id !== id);
+            await window.saveData();
+            renderDistributionTable();
+            showModal('Terhapus', 'Data distribusi berhasil dihapus.', 'success');
         }
 
         // --- RIWAYAT UNIT RS ---
         window.initRiwayatUnitView = function() {
             const select = document.getElementById('filter-riwayat-unit');
-            if (!select) return;
             select.innerHTML = '<option value="">-- Semua Unit RS --</option>';
-            (window.state.units || []).forEach(u => {
-                const opt = document.createElement('option');
-                opt.value = u;
-                opt.innerText = u;
-                select.appendChild(opt);
+            window.state.units.forEach(u => {
+                select.innerHTML += `<option value="${u}">${u}</option>`;
             });
             renderRiwayatUnitTable();
         }
 
         window.renderRiwayatUnitTable = function() {
+            const unitFilter = document.getElementById('filter-riwayat-unit').value;
+            const searchStr = document.getElementById('search-riwayat-unit').value.toLowerCase();
             const tbody = document.getElementById('riwayat-unit-table-tbody');
-            if (!tbody) return;
-            const selectedUnit = document.getElementById('filter-riwayat-unit')?.value || '';
-            const search = (document.getElementById('search-riwayat-unit')?.value || '').toLowerCase();
-
-            const filtered = (window.state.distributions || []).filter(d => {
-                const matchesUnit = !selectedUnit || d.unit === selectedUnit;
-                const matchesSearch = !search || (d.itemName || '').toLowerCase().includes(search);
-                return matchesUnit && matchesSearch;
-            });
-
-            filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
-
-            let totalQty = filtered.reduce((acc, curr) => acc + Number(curr.qty || 0), 0);
-            let totalTx = filtered.length;
-
-            let itemMap = {};
-            filtered.forEach(d => {
-                itemMap[d.itemName] = (itemMap[d.itemName] || 0) + Number(d.qty || 0);
-            });
-            let topItem = '-';
-            let maxQty = 0;
-            for (let key in itemMap) {
-                if (itemMap[key] > maxQty) {
-                    maxQty = itemMap[key];
-                    topItem = key + ` (${maxQty})`;
-                }
-            }
-
-            document.getElementById('unit-stat-total-qty').innerText = totalQty.toLocaleString('id-ID') + ' Item';
-            document.getElementById('unit-stat-total-tx').innerText = totalTx.toLocaleString('id-ID') + ' Kali';
-            document.getElementById('unit-stat-top-item').innerText = topItem;
-
-            const printTitle = document.getElementById('print-unit-title');
-            if (printTitle) printTitle.innerText = selectedUnit ? `UNIT: ${selectedUnit.toUpperCase()}` : 'UNIT: SEMUA UNIT RS';
-
             tbody.innerHTML = '';
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Tidak ada riwayat pengeluaran barang untuk unit ini.</td></tr>`;
-                return;
-            }
+
+            document.getElementById('print-unit-title').innerText = `UNIT: ${unitFilter ? unitFilter.toUpperCase() : 'SEMUA UNIT RS'}`;
+
+            let filtered = window.state.distributions.filter(d => {
+                const matchUnit = unitFilter ? d.unit === unitFilter : true;
+                const matchSearch = (d.itemName || '').toLowerCase().includes(searchStr);
+                return matchUnit && matchSearch;
+            });
+
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            let totalQty = 0;
+            let totalTx = filtered.length;
+            let itemCounts = {};
 
             filtered.forEach((d, idx) => {
+                totalQty += Number(d.qty);
+                itemCounts[d.itemName] = (itemCounts[d.itemName] || 0) + Number(d.qty);
+
+                const unitStr = window.state.masterItems.find(m => m.name === d.itemName)?.unit || '-';
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-800/50 transition';
+                tr.className = 'hover:bg-slate-800/50 transition print:hover:bg-transparent';
                 tr.innerHTML = `
-                    <td class="p-3 text-center font-mono text-slate-400">${idx + 1}</td>
-                    <td class="p-3 whitespace-nowrap">${d.date}</td>
-                    <td class="p-3 font-semibold text-teal-400 print:text-teal-700">${d.unit}</td>
+                    <td class="p-3 text-center font-mono text-slate-400 print:text-black">${idx + 1}</td>
+                    <td class="p-3 text-slate-300 print:text-black">${d.date}</td>
+                    <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-teal-500/10 text-teal-400 border border-teal-500/20 print:bg-transparent print:border-none print:text-black print:p-0 print:font-normal">${d.unit}</span></td>
                     <td class="p-3 font-medium text-white print:text-black">${d.itemName}</td>
-                    <td class="p-3 text-right font-mono font-semibold text-rose-400 print:text-rose-700">${Number(d.qty).toLocaleString('id-ID')}</td>
+                    <td class="p-3 text-right text-rose-400 font-semibold print:text-black">${d.qty} <span class="text-[10px] font-normal text-slate-400 print:text-black">${unitStr}</span></td>
                     <td class="p-3 text-center no-print">
-                        <button onclick="deleteDistribution(${d.id})" class="text-rose-400 hover:text-rose-300 p-1"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="deleteDistribution(${d.id}); setTimeout(renderRiwayatUnitTable, 500);" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 print:text-black">Tidak ada data riwayat distribusi untuk filter ini.</td></tr>`;
+            }
+
+            let topItem = '-';
+            let maxCount = 0;
+            for (const [item, count] of Object.entries(itemCounts)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    topItem = item;
+                }
+            }
+
+            document.getElementById('unit-stat-total-qty').innerText = `${totalQty} Item`;
+            document.getElementById('unit-stat-total-tx').innerText = `${totalTx} Kali`;
+            document.getElementById('unit-stat-top-item').innerText = topItem;
         }
 
         // --- KARTU STOK BARANG ---
         window.initKartuStok = function() {
             const catSelect = document.getElementById('filter-stok-category');
-            if (!catSelect) return;
+            const categories = [...new Set(window.state.masterItems.map(m => m.category))];
+            
             catSelect.innerHTML = '<option value="">-- Pilih Kategori --</option>';
-            const categories = ['ATK', 'Plastik', 'Alat Kebersihan/Chemical', 'Laundry', 'Kelistrikan', 'Bahan Kering', 'Bahan Basah', 'BHP RT'];
-            categories.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c;
-                opt.innerText = c;
-                catSelect.appendChild(opt);
+            categories.forEach(cat => {
+                catSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
             });
-            updateKartuStokItems();
+            document.getElementById('filter-stok-item').innerHTML = '<option value="">-- Pilih Barang --</option>';
+            document.getElementById('kartu-stok-tbody').innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400">Silakan pilih kategori dan barang pada filter di atas terlebih dahulu.</td></tr>';
         }
 
         window.updateKartuStokItems = function() {
-            const cat = document.getElementById('filter-stok-category')?.value || '';
+            const cat = document.getElementById('filter-stok-category').value;
             const itemSelect = document.getElementById('filter-stok-item');
-            if (!itemSelect) return;
+            
             itemSelect.innerHTML = '<option value="">-- Pilih Barang --</option>';
-
-            let items = [];
             if (cat) {
-                items = (window.state.masterItems || []).filter(m => m.category === cat).map(m => m.name);
-                const purchaseItems = (window.state.purchases || []).filter(p => p.category === cat).map(p => p.itemName);
-                items = [...new Set([...items, ...purchaseItems])].sort();
-            } else {
-                const masterItems = (window.state.masterItems || []).map(m => m.name);
-                const purchaseItems = (window.state.purchases || []).map(p => p.itemName);
-                items = [...new Set([...masterItems, ...purchaseItems])].sort();
+                const items = window.state.masterItems.filter(m => m.category === cat);
+                items.forEach(m => {
+                    itemSelect.innerHTML += `<option value="${m.name}">${m.name}</option>`;
+                });
             }
-
-            items.forEach(name => {
-                const opt = document.createElement('option');
-                opt.value = name;
-                opt.innerText = name;
-                itemSelect.appendChild(opt);
-            });
-
             renderKartuStok();
         }
 
         window.renderKartuStok = function() {
-            const selectedItem = document.getElementById('filter-stok-item')?.value || '';
+            const itemName = document.getElementById('filter-stok-item').value;
             const tbody = document.getElementById('kartu-stok-tbody');
-            const printItemName = document.getElementById('print-stok-item-name');
-            if (!tbody) return;
-
-            if (printItemName) printItemName.innerText = selectedItem ? `NAMA BARANG: ${selectedItem.toUpperCase()}` : 'NAMA BARANG: -';
-
-            if (!selectedItem) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Silakan pilih kategori dan barang pada filter di atas terlebih dahulu.</td></tr>`;
+            
+            if (!itemName) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400 print:text-black">Silakan pilih kategori dan barang pada filter di atas terlebih dahulu.</td></tr>';
+                document.getElementById('print-stok-item-name').innerText = 'NAMA BARANG: -';
                 return;
             }
 
-            let movements = [];
+            document.getElementById('print-stok-item-name').innerText = `NAMA BARANG: ${itemName.toUpperCase()}`;
+            const unit = window.state.masterItems.find(m => m.name === itemName)?.unit || '-';
 
-            (window.state.purchases || []).forEach(p => {
-                if (p.itemName === selectedItem) {
-                    movements.push({
+            let transactions = [];
+
+            // Get Purchases (Masuk)
+            window.state.purchases.forEach(p => {
+                if (p.itemName === itemName) {
+                    transactions.push({
                         date: p.date,
-                        type: 'IN',
-                        desc: `Pembelian dari ${p.vendor || 'Vendor'}`,
-                        qtyIn: Number(p.qty || 0),
-                        qtyOut: 0
+                        desc: `Pembelian dari ${p.vendor}`,
+                        in: Number(p.qty),
+                        out: 0
                     });
                 }
             });
 
-            (window.state.distributions || []).forEach(d => {
-                if (d.itemName === selectedItem) {
-                    movements.push({
+            // Get Distributions (Keluar)
+            window.state.distributions.forEach(d => {
+                if (d.itemName === itemName) {
+                    transactions.push({
                         date: d.date,
-                        type: 'OUT',
                         desc: `Distribusi ke ${d.unit}`,
-                        qtyIn: 0,
-                        qtyOut: Number(d.qty || 0)
+                        in: 0,
+                        out: Number(d.qty)
                     });
                 }
             });
 
-            movements.sort((a,b) => new Date(a.date) - new Date(b.date));
+            // Sort by Date (Chronological)
+            transactions.sort((a, b) => new Date(a.date) - new Date(b.date));
 
             tbody.innerHTML = '';
-            if (movements.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada riwayat transaksi masuk atau keluar untuk barang ini.</td></tr>`;
-                return;
+            let currentStok = 0;
+
+            if (transactions.length === 0) {
+                 tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400 print:text-black">Belum ada riwayat transaksi (masuk/keluar) untuk barang ini.</td></tr>';
+                 return;
             }
 
-            let balance = 0;
-            movements.forEach((m, idx) => {
-                balance += (m.qtyIn - m.qtyOut);
+            transactions.forEach((t, idx) => {
+                currentStok += t.in;
+                currentStok -= t.out;
+
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-800/50 transition';
+                tr.className = 'hover:bg-slate-800/50 transition print:hover:bg-transparent';
                 tr.innerHTML = `
-                    <td class="p-3 text-center font-mono text-slate-400">${idx + 1}</td>
-                    <td class="p-3 whitespace-nowrap">${m.date}</td>
-                    <td class="p-3 font-medium text-white print:text-black">${m.desc}</td>
-                    <td class="p-3 text-right font-mono font-semibold text-emerald-400 print:text-emerald-700">${m.qtyIn > 0 ? '+' + m.qtyIn.toLocaleString('id-ID') : '-'}</td>
-                    <td class="p-3 text-right font-mono font-semibold text-rose-400 print:text-rose-700">${m.qtyOut > 0 ? '-' + m.qtyOut.toLocaleString('id-ID') : '-'}</td>
-                    <td class="p-3 text-right font-mono font-bold text-blue-400 print:text-blue-700">${balance.toLocaleString('id-ID')}</td>
+                    <td class="p-3 text-center font-mono text-slate-400 print:text-black">${idx + 1}</td>
+                    <td class="p-3 text-slate-300 print:text-black">${t.date}</td>
+                    <td class="p-3 font-medium text-white print:text-black">${t.desc}</td>
+                    <td class="p-3 text-right text-emerald-400 print:text-emerald-700 font-semibold">${t.in > 0 ? `+${t.in}` : '-'}</td>
+                    <td class="p-3 text-right text-rose-400 print:text-rose-700 font-semibold">${t.out > 0 ? `-${t.out}` : '-'}</td>
+                    <td class="p-3 text-right text-blue-400 print:text-blue-700 font-bold">${currentStok} <span class="text-[10px] font-normal text-slate-400 print:text-black">${unit}</span></td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // --- HISTORI BARANG ---
+        // --- TREND CHARTS ---
+        window.initTrendItems = function() {
+            const select = document.getElementById('select-trend-item');
+            select.innerHTML = '<option value="">Pilih Nama Barang...</option>';
+            
+            const uniqueItems = [...new Set(window.state.purchases.map(p => p.itemName))];
+            uniqueItems.forEach(item => {
+                select.innerHTML += `<option value="${item}">${item}</option>`;
+            });
+            
+            if (uniqueItems.length > 0) {
+                select.value = uniqueItems[0];
+                updateTrendChart();
+            }
+        }
+
+        window.updateTrendChart = function() {
+            const itemName = document.getElementById('select-trend-item').value;
+            const ctx = document.getElementById('trendPriceChart').getContext('2d');
+            
+            if (window.charts.trend) window.charts.trend.destroy();
+
+            const dataPoints = window.state.purchases
+                .filter(p => p.itemName === itemName)
+                .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            if (dataPoints.length === 0) return;
+
+            window.charts.trend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dataPoints.map(p => p.date),
+                    datasets: [{
+                        label: `Harga: ${itemName}`,
+                        data: dataPoints.map(p => p.price),
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#f59e0b',
+                        pointRadius: 5,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // --- HISTORY & ACTIVITY LOG ---
         window.renderHistoryTable = function() {
             const tbody = document.getElementById('history-table-tbody');
-            if (!tbody) return;
             tbody.innerHTML = '';
-            const historyList = window.state.history || [];
-
-            if (historyList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">Tidak ada log histori.</td></tr>`;
-                return;
-            }
-
-            historyList.forEach((h, idx) => {
+            
+            window.state.history.forEach((h, idx) => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-800/50 transition';
                 tr.innerHTML = `
                     <td class="p-3 text-center font-mono text-slate-400">${idx + 1}</td>
-                    <td class="p-3 whitespace-nowrap text-slate-400 font-mono text-[11px]">${h.time}</td>
-                    <td class="p-3 font-semibold text-indigo-400">${h.activity}</td>
-                    <td class="p-3 text-slate-200">${h.detail}</td>
+                    <td class="p-3 text-slate-300 text-[10px] whitespace-nowrap">${h.time}</td>
+                    <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">${h.activity}</span></td>
+                    <td class="p-3 text-slate-300 text-xs">${h.detail}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
         window.clearHistory = async function() {
-            if (confirm('Apakah Anda yakin ingin membersihkan log histori?')) {
+            if(confirm('Yakin ingin membersihkan semua log histori?')) {
                 window.state.history = [];
+                logActivity('Sistem', 'Log histori dibersihkan manual oleh user.');
                 await window.saveData();
                 renderHistoryTable();
-                showModal('Bersih', 'Log histori telah dibersihkan.', 'success');
             }
         }
 
-        // --- ANALISA KEBUTUHAN ---
-        window.renderRestockAnalysis = function() {
-            const container = document.getElementById('restock-cards-container');
-            if (!container) return;
-
-            let stockMap = {};
-
-            (window.state.purchases || []).forEach(p => {
-                if (!stockMap[p.itemName]) {
-                    stockMap[p.itemName] = { category: p.category, in: 0, out: 0 };
-                }
-                stockMap[p.itemName].in += Number(p.qty || 0);
-            });
-
-            (window.state.distributions || []).forEach(d => {
-                if (!stockMap[d.itemName]) {
-                    stockMap[d.itemName] = { category: 'Logistik', in: 0, out: 0 };
-                }
-                stockMap[d.itemName].out += Number(d.qty || 0);
-            });
-
+        // --- MONTHLY REPORT ---
+        window.renderMonthlyReport = function() {
+            const monthVal = document.getElementById('report-month-select').value;
+            const container = document.getElementById('monthly-report-content');
             container.innerHTML = '';
 
-            const itemKeys = Object.keys(stockMap);
-            if (itemKeys.length === 0) {
-                container.innerHTML = `<div class="col-span-3 p-6 text-center text-slate-400">Belum ada data barang untuk dianalisa.</div>`;
+            const filteredData = window.state.purchases.filter(p => p.date.startsWith(monthVal));
+
+            if (filteredData.length === 0) {
+                container.innerHTML = '<p class="text-center text-slate-400 print:text-black py-10">Tidak ada data transaksi pembelian untuk bulan ini.</p>';
                 return;
             }
 
-            itemKeys.forEach(name => {
-                const data = stockMap[name];
-                const sisa = data.in - data.out;
-                const ratio = data.in > 0 ? (sisa / data.in) * 100 : 0;
+            const categories = [...new Set(filteredData.map(p => p.category))];
+            let grandTotal = 0;
 
-                let statusColor = 'border-emerald-500/30 bg-emerald-500/5 text-emerald-400';
-                let statusText = 'Stok Aman';
-                let badge = '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Aman</span>';
+            categories.forEach(cat => {
+                const itemsInCat = filteredData.filter(p => p.category === cat);
+                let catTotal = 0;
 
-                if (sisa <= 5 || ratio < 20) {
-                    statusColor = 'border-rose-500/40 bg-rose-500/5 text-rose-400';
-                    statusText = 'Segera Restock!';
-                    badge = '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20 animate-pulse">Menipis</span>';
-                } else if (ratio < 40) {
-                    statusColor = 'border-amber-500/30 bg-amber-500/5 text-amber-400';
-                    statusText = 'Perlu Perhatian';
-                    badge = '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">Waspada</span>';
-                }
+                let tableHTML = `
+                    <div class="mb-6 break-inside-avoid">
+                        <h4 class="font-bold text-sm text-white print:text-black mb-2 bg-slate-800 print:bg-slate-200 px-3 py-1.5 rounded-lg border border-darkBorder print:border-slate-300">${cat.toUpperCase()}</h4>
+                        <table class="w-full text-left text-xs border-collapse print:border-slate-400">
+                            <thead class="bg-slate-900 print:bg-white text-slate-300 print:text-black font-semibold border-b border-darkBorder print:border-slate-400">
+                                <tr>
+                                    <th class="p-2 w-10 text-center print:border print:border-slate-300">No</th>
+                                    <th class="p-2 w-24 print:border print:border-slate-300">Tanggal</th>
+                                    <th class="p-2 print:border print:border-slate-300">Nama Barang</th>
+                                    <th class="p-2 text-right print:border print:border-slate-300">Vol</th>
+                                    <th class="p-2 text-right print:border print:border-slate-300">Harga Satuan</th>
+                                    <th class="p-2 text-right print:border print:border-slate-300">Jumlah Total</th>
+                                    <th class="p-2 print:border print:border-slate-300">Keterangan / Supplier</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-darkBorder print:divide-slate-300 print:text-black">
+                `;
 
-                const div = document.createElement('div');
-                div.className = `border rounded-2xl p-5 shadow-lg flex flex-col justify-between ${statusColor}`;
-                div.innerHTML = `
-                    <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">${data.category}</span>
-                            ${badge}
-                        </div>
-                        <h4 class="font-bold text-sm text-white mb-2">${name}</h4>
-                        <div class="grid grid-cols-3 gap-2 text-center text-xs my-3 bg-slate-900/60 p-2.5 rounded-xl border border-darkBorder">
-                            <div>
-                                <p class="text-[10px] text-slate-400">Total Masuk</p>
-                                <p class="font-bold text-emerald-400 mt-0.5">${data.in}</p>
-                            </div>
-                            <div>
-                                <p class="text-[10px] text-slate-400">Total Keluar</p>
-                                <p class="font-bold text-rose-400 mt-0.5">${data.out}</p>
-                            </div>
-                            <div>
-                                <p class="text-[10px] text-slate-400">Sisa Stok</p>
-                                <p class="font-bold text-blue-400 mt-0.5">${sisa}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-2 pt-2 border-t border-darkBorder flex items-center justify-between text-xs">
-                        <span class="text-slate-400">Status: <strong class="text-white">${statusText}</strong></span>
-                        <button onclick="switchTab('input_barang')" class="text-xs text-blue-400 hover:underline">Restock Now &rarr;</button>
+                itemsInCat.forEach((item, idx) => {
+                    const total = item.qty * item.price;
+                    catTotal += total;
+                    const unit = window.state.masterItems.find(m => m.name === item.itemName)?.unit || '';
+                    
+                    tableHTML += `
+                        <tr>
+                            <td class="p-2 text-center print:border print:border-slate-300">${idx + 1}</td>
+                            <td class="p-2 print:border print:border-slate-300">${item.date.slice(8,10)}/${item.date.slice(5,7)}/${item.date.slice(0,4)}</td>
+                            <td class="p-2 font-medium print:border print:border-slate-300">${item.itemName}</td>
+                            <td class="p-2 text-right print:border print:border-slate-300">${item.qty} ${unit}</td>
+                            <td class="p-2 text-right print:border print:border-slate-300">Rp ${item.price.toLocaleString('id-ID')}</td>
+                            <td class="p-2 text-right print:border print:border-slate-300">Rp ${total.toLocaleString('id-ID')}</td>
+                            <td class="p-2 print:border print:border-slate-300">${item.vendor}</td>
+                        </tr>
+                    `;
+                });
+
+                grandTotal += catTotal;
+
+                tableHTML += `
+                            </tbody>
+                            <tfoot class="bg-slate-800/50 print:bg-slate-100 font-bold border-t border-darkBorder print:border-slate-400 print:text-black">
+                                <tr>
+                                    <td colspan="5" class="p-2 text-right print:border print:border-slate-300">Subtotal ${cat}:</td>
+                                    <td class="p-2 text-right text-emerald-400 print:text-black print:border print:border-slate-300">Rp ${catTotal.toLocaleString('id-ID')}</td>
+                                    <td class="print:border print:border-slate-300"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
                 `;
-                container.appendChild(div);
+                container.innerHTML += tableHTML;
             });
+
+            container.innerHTML += `
+                <div class="mt-6 p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl print:bg-slate-200 print:border-slate-400 print:text-black flex justify-between items-center break-inside-avoid">
+                    <h3 class="text-base font-bold text-white print:text-black uppercase">Grand Total Pengeluaran Bulan Ini:</h3>
+                    <h2 class="text-2xl font-bold text-emerald-400 print:text-black">Rp ${grandTotal.toLocaleString('id-ID')}</h2>
+                </div>
+            `;
         }
 
-        // --- GRAFIK & PERSENTASE ---
-        window.renderComprehensiveCharts = function() {
-            const monthFilter = document.getElementById('chart-month-filter')?.value || 'all';
-            const yearFilter = document.getElementById('chart-year-filter')?.value || 'all';
+        // --- RESTOCK ANALYSIS ---
+        window.renderRestockAnalysis = function() {
+            const container = document.getElementById('restock-cards-container');
+            container.innerHTML = '';
 
-            let filtered = window.state.purchases.filter(p => {
-                if (!p.date) return false;
-                const [y, m] = p.date.split('-');
-                const matchesM = monthFilter === 'all' || m === monthFilter;
-                const matchesY = yearFilter === 'all' || y === yearFilter;
-                return matchesM && matchesY;
+            let stockLevels = {};
+            
+            // Calculate Current Stock
+            window.state.masterItems.forEach(m => { stockLevels[m.name] = 0; });
+            
+            window.state.purchases.forEach(p => {
+                if(stockLevels[p.itemName] !== undefined) stockLevels[p.itemName] += Number(p.qty);
             });
+            window.state.distributions.forEach(d => {
+                if(stockLevels[d.itemName] !== undefined) stockLevels[d.itemName] -= Number(d.qty);
+            });
+
+            let alertsGenerated = 0;
+
+            for (const [item, qty] of Object.entries(stockLevels)) {
+                if (qty <= 5 && qty >= 0) { // Arbitrary low stock threshold
+                    alertsGenerated++;
+                    const unit = window.state.masterItems.find(m => m.name === item)?.unit || '';
+                    const isCritical = qty <= 2;
+                    
+                    const card = document.createElement('div');
+                    card.className = `p-5 rounded-2xl border ${isCritical ? 'bg-red-500/10 border-red-500/30' : 'bg-yellow-500/10 border-yellow-500/30'} flex flex-col justify-between`;
+                    
+                    card.innerHTML = `
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="font-bold text-sm text-white">${item}</h4>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isCritical ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'} animate-pulse">
+                                    ${isCritical ? 'KRITIS' : 'MENIPIS'}
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-300">Sisa Stok saat ini di gudang:</p>
+                        </div>
+                        <div class="mt-4 flex items-end justify-between">
+                            <h2 class="text-3xl font-bold ${isCritical ? 'text-red-400' : 'text-yellow-400'}">${qty} <span class="text-sm font-normal text-slate-400">${unit}</span></h2>
+                            <button onclick="switchTab('input_barang')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[10px] font-semibold transition shadow-md shadow-blue-500/20">
+                                Restock Sekarang
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                }
+            }
+
+            if(alertsGenerated === 0) {
+                 container.innerHTML = '<div class="col-span-3 p-6 text-center text-slate-400 border border-dashed border-darkBorder rounded-2xl">Semua stok barang dalam batas aman. Tidak ada peringatan restock saat ini.</div>';
+            }
+        }
+
+        // --- COMPREHENSIVE CHARTS & TABLE TO IMAGE ---
+        window.renderComprehensiveCharts = function() {
+            const month = document.getElementById('chart-month-filter').value;
+            const year = document.getElementById('chart-year-filter').value;
+
+            let data = window.state.purchases;
+
+            if (year !== 'all') data = data.filter(p => p.date.startsWith(year));
+            if (month !== 'all') data = data.filter(p => p.date.substring(5, 7) === month);
 
             const categories = ['ATK', 'Plastik', 'Alat Kebersihan/Chemical', 'Laundry', 'Kelistrikan', 'Bahan Kering', 'Bahan Basah', 'BHP RT'];
-            const catTotals = categories.map(cat => {
-                return filtered.filter(p => p.category === cat).reduce((acc, curr) => acc + (Number(curr.qty || 0) * Number(curr.price || 0)), 0);
+            const colors = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899', '#ef4444', '#06b6d4', '#64748b'];
+            
+            const totalPerCat = categories.map(cat => {
+                return data.filter(p => p.category === cat).reduce((sum, curr) => sum + (Number(curr.qty) * Number(curr.price)), 0);
+            });
+            const volPerCat = categories.map(cat => {
+                return data.filter(p => p.category === cat).reduce((sum, curr) => sum + Number(curr.qty), 0);
             });
 
-            const catVolumes = categories.map(cat => {
-                return filtered.filter(p => p.category === cat).reduce((acc, curr) => acc + Number(curr.qty || 0), 0);
+            // Update Pie Chart (Nilai Rupiah)
+            if (window.charts.compPie) window.charts.compPie.destroy();
+            const ctxPie = document.getElementById('compPieChart').getContext('2d');
+            window.charts.compPie = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        data: totalPerCat,
+                        backgroundColor: colors,
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { position: 'right', labels: { color: '#cbd5e1', font: { size: 10 } } }
+                    }
+                }
             });
 
-            const totalBelanja = catTotals.reduce((a, b) => a + b, 0);
-
-            // Pie Chart
-            const pieCtx = document.getElementById('compPieChart')?.getContext('2d');
-            if (pieCtx) {
-                if (window.charts.compPie) window.charts.compPie.destroy();
-                window.charts.compPie = new Chart(pieCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: categories,
-                        datasets: [{
-                            data: catTotals,
-                            backgroundColor: ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899', '#ef4444', '#06b6d4', '#64748b']
-                        }]
+            // Update Bar Chart (Volume Barang)
+            if (window.charts.compBar) window.charts.compBar.destroy();
+            const ctxBar = document.getElementById('compBarChart').getContext('2d');
+            window.charts.compBar = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        label: 'Total Volume Barang Dibeli',
+                        data: volPerCat,
+                        backgroundColor: '#10b981',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { position: 'bottom', labels: { color: '#f1f5f9', font: { size: 10 } } }
-                        }
-                    }
-                });
-            }
+                    plugins: { legend: { display: false } }
+                }
+            });
 
-            // Bar Chart
-            const barCtx = document.getElementById('compBarChart')?.getContext('2d');
-            if (barCtx) {
-                if (window.charts.compBar) window.charts.compBar.destroy();
-                window.charts.compBar = new Chart(barCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: categories,
-                        datasets: [{
-                            label: 'Volume Item Dibeli',
-                            data: catVolumes,
-                            backgroundColor: '#10b981',
-                            borderRadius: 6
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
-                            x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-                        }
-                    }
-                });
-            }
-
-            // Render Table
+            // Update Data Table
             const tbody = document.getElementById('chart-data-table-tbody');
-            const totalRpCell = document.getElementById('chart-data-total-rp');
+            tbody.innerHTML = '';
+            const grandTotal = totalPerCat.reduce((a, b) => a + b, 0);
 
-            if (tbody) {
-                tbody.innerHTML = '';
-                categories.forEach((cat, idx) => {
-                    const val = catTotals[idx];
-                    const pct = totalBelanja > 0 ? ((val / totalBelanja) * 100).toFixed(1) : '0.0';
-                    const tr = document.createElement('tr');
-                    tr.className = 'hover:bg-slate-800/50 transition';
-                    tr.innerHTML = `
-                        <td class="p-3 text-center font-mono text-slate-400">${idx + 1}</td>
-                        <td class="p-3 font-medium text-white">${cat}</td>
-                        <td class="p-3 text-right font-mono font-semibold text-emerald-400">Rp ${val.toLocaleString('id-ID')}</td>
-                        <td class="p-3 text-right font-mono font-bold text-blue-400">${pct}%</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            }
+            categories.forEach((cat, idx) => {
+                const amount = totalPerCat[idx];
+                const percentage = grandTotal > 0 ? ((amount / grandTotal) * 100).toFixed(1) : '0.0';
+                
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-800/50 transition';
+                tr.innerHTML = `
+                    <td class="p-3 text-center font-mono text-slate-400">${idx + 1}</td>
+                    <td class="p-3 font-medium text-white flex items-center">
+                        <span class="w-3 h-3 rounded-full mr-2" style="background-color: ${colors[idx]}"></span> ${cat}
+                    </td>
+                    <td class="p-3 text-right text-slate-300">Rp ${amount.toLocaleString('id-ID')}</td>
+                    <td class="p-3 text-right text-blue-400 font-bold">${percentage}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
 
-            if (totalRpCell) {
-                totalRpCell.innerText = 'Rp ' + totalBelanja.toLocaleString('id-ID');
-            }
+            document.getElementById('chart-data-total-rp').innerText = `Rp ${grandTotal.toLocaleString('id-ID')}`;
         }
 
         window.downloadChartDataAsImage = function() {
-            const elem = document.getElementById('chart-data-table-container');
-            if (!elem) return;
-            html2canvas(elem).then(canvas => {
+            const container = document.getElementById('chart-data-table-container');
+            
+            // Add a temporary title inside the container for the image
+            const month = document.getElementById('chart-month-filter').options[document.getElementById('chart-month-filter').selectedIndex].text;
+            const year = document.getElementById('chart-year-filter').options[document.getElementById('chart-year-filter').selectedIndex].text;
+            
+            const tempHeader = document.createElement('div');
+            tempHeader.innerHTML = `<h2 style="text-align:center; margin-bottom: 10px; font-weight: bold; color: white;">Data Persentase Belanja - ${month} ${year}</h2>`;
+            container.insertBefore(tempHeader, container.firstChild);
+
+            html2canvas(container, {
+                backgroundColor: '#1e293b', // Matches darkCard
+                scale: 2 // Higher resolution
+            }).then(canvas => {
+                // Remove temp header
+                container.removeChild(tempHeader);
+                
                 const link = document.createElement('a');
-                link.download = `Persentase_Belanja_RS_${new Date().toISOString().slice(0,10)}.jpg`;
-                link.href = canvas.toDataURL('image/jpeg');
+                link.download = `Data_Belanja_${month}_${year}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.9);
                 link.click();
+                
+                logActivity('Download Data', 'Mengunduh tabel persentase belanja sebagai gambar JPG.');
             });
         }
 
-        // Initialize Firebase on DOM load
-        initFirebase();
-        updateDashboard();
-        initDistributionForm();
+        // --- EXPORT / IMPORT JSON ---
+        window.exportToJSON = function() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(window.state, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `SIM-RT_Backup_${new Date().toISOString().slice(0,10)}.json`);
+            dlAnchorElem.click();
+            logActivity('Backup Database', 'User mengunduh file backup JSON.');
+        }
+
+        window.importJSONData = function() {
+            const fileInput = document.getElementById('import-json-file');
+            if (!fileInput.files.length) {
+                showModal('Peringatan', 'Pilih file JSON backup terlebih dahulu.', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const importedState = JSON.parse(e.target.result);
+                    if (importedState && importedState.purchases && importedState.masterItems) {
+                        window.state = importedState;
+                        await window.saveData();
+                        logActivity('Restore Database', 'Sistem berhasil direstore dari file backup JSON.');
+                        showModal('Berhasil!', 'Database berhasil direstore dari file backup.', 'success');
+                        refreshActiveView();
+                        fileInput.value = '';
+                    } else {
+                        showModal('Format Salah', 'Struktur file JSON tidak dikenali oleh sistem ini.', 'error');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showModal('Gagal Import', 'File JSON rusak atau tidak valid.', 'error');
+                }
+            };
+            reader.readAsText(fileInput.files[0]);
+        }
+
+        window.exportToCSV = function() {
+            const rows = [['ID', 'Tanggal', 'Kategori', 'Nama Barang', 'Jumlah', 'Harga Satuan', 'Total', 'Supplier/Vendor']];
+            window.state.purchases.forEach(p => {
+                rows.push([
+                    p.id, p.date, p.category, `"${p.itemName}"`, p.qty, p.price, (p.qty*p.price), `"${p.vendor}"`
+                ]);
+            });
+
+            let csvContent = "data:text/csv;charset=utf-8," 
+                + rows.map(e => e.join(",")).join("\n");
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Data_Pembelian_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            logActivity('Export Data', 'User melakukan export data transaksi ke file CSV.');
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            initFirebase();
+            updateDashboard();
+        });
     </script>
 </body>
 </html>
+```eof
